@@ -2,6 +2,8 @@ package ryuzupluginchat.ryuzupluginchat;
 
 import com.github.ucchyocean.lc.channel.ChannelPlayer;
 import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
+import com.github.ucchyocean.lc3.LunaChat;
+import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -14,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -21,12 +24,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
+    public static LunaChatAPI lunachatapi;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
+        if ( getServer().getPluginManager().isPluginEnabled("LunaChat") ) {
+            LunaChat lunachat = (LunaChat)getServer().getPluginManager().getPlugin("LunaChat");
+            lunachatapi = LunaChat.getAPI();
+        }
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
         getLogger().info("Plugin版リューズは天才が起動したぞ!");
     }
@@ -50,14 +59,14 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     }
 
     @EventHandler
-    public void onChat(LunaChatChannelChatEvent e) {
+    public void onChat(AsyncPlayerChatEvent e) {
         System.out.println("でばめS");
         Map<String , String> map = new HashMap<>();
-        ChannelPlayer cp = e.getPlayer();
-        Player p = e.getPlayer().getPlayer();
+        Player p = e.getPlayer();
+        ChannelPlayer cp = (ChannelPlayer.getChannelPlayer(p));
         map.put("ServerName" , getServer().getName());
-        map.put("Message" , e.getMessageFormat());
-        map.put("ChannelName" , e.getChannelName());
+        map.put("Message" , e.getMessage());
+        map.put("ChannelName" , lunachatapi.getDefaultChannel(cp.getName()).getName());
         map.put("LunaChatPrefix" , cp.getPrefix());
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
