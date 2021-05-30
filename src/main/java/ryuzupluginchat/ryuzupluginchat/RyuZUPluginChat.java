@@ -1,9 +1,9 @@
 package ryuzupluginchat.ryuzupluginchat;
 
+import com.github.ucchyocean.lc.LunaChat;
+import com.github.ucchyocean.lc.LunaChatAPI;
 import com.github.ucchyocean.lc.channel.ChannelPlayer;
 import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
-import com.github.ucchyocean.lc3.LunaChat;
-import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -33,8 +33,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onEnable() {
         // Plugin startup logic
         if ( getServer().getPluginManager().isPluginEnabled("LunaChat") ) {
-            LunaChat lunachat = (LunaChat)getServer().getPluginManager().getPlugin("LunaChat");
-            lunachatapi = LunaChat.getAPI();
+            LunaChat lunachat = (LunaChat) getServer().getPluginManager().getPlugin("LunaChat");
+            lunachatapi = lunachat.getLunaChatAPI();
         }
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
         getLogger().info("Plugin版リューズは天才が起動したぞ!");
