@@ -27,12 +27,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat", this);
+        getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
     }
 
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, @NotNull byte[] message) {
-        if (channel.equals("ryuzuchat")) {
+        if (channel.equals("ryuzuchat:ryuzuchat")) {
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String data = in.readUTF();
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
@@ -61,7 +61,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("PlayerName" , p.getName());
-        sendPluginMessage("ryuzuchat" , mapToJson(map));
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
     private void sendPluginMessage(String channel, String data) {
