@@ -51,6 +51,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     @EventHandler
     public void onChat(LunaChatChannelChatEvent e) {
+        System.out.println("でばめS");
         Map<String , String> map = new HashMap<>();
         ChannelPlayer cp = e.getPlayer();
         Player p = e.getPlayer().getPlayer();
