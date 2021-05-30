@@ -28,6 +28,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onEnable() {
         // Plugin startup logic
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
+        getLogger().info("Plugin版リューズは天才が起動したぞ!");
     }
 
     @Override
