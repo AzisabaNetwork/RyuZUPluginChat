@@ -1,14 +1,15 @@
 package ryuzupluginchat.ryuzupluginchat;
 
-import com.github.ucchyocean.lc.LunaChat;
-import com.github.ucchyocean.lc.LunaChatAPI;
 import com.github.ucchyocean.lc.channel.ChannelPlayer;
 import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
+import com.github.ucchyocean.lc3.LunaChat;
+import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -33,9 +34,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onEnable() {
         // Plugin startup logic
         if ( getServer().getPluginManager().isPluginEnabled("LunaChat") ) {
-            LunaChat lunachat = (LunaChat) getServer().getPluginManager().getPlugin("LunaChat");
-            lunachatapi = lunachat.getLunaChatAPI();
+            lunachatapi = LunaChat.getAPI();
         }
+        getServer().getPluginManager().registerEvents(this ,this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "ryuzuchat:ryuzuchat");
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
         getLogger().info("Plugin版リューズは天才が起動したぞ!");
     }
@@ -66,7 +68,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         ChannelPlayer cp = (ChannelPlayer.getChannelPlayer(p));
         map.put("ServerName" , getServer().getName());
         map.put("Message" , e.getMessage());
-        map.put("ChannelName" , lunachatapi.getDefaultChannel(cp.getName()).getName());
+        map.put("ChannelName" , lunachatapi.getDefaultChannel(cp.getName()) == null ? "Global" : lunachatapi.getDefaultChannel(cp.getName()).getName());
         map.put("LunaChatPrefix" , cp.getPrefix());
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
@@ -79,8 +81,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(data);
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        System.out.println("でばめS2");
         if (player != null) {
+            System.out.println("でばめ3");
             player.sendPluginMessage(this, channel, out.toByteArray());
+            getServer().sendPluginMessage(this, channel, out.toByteArray());
         }
     }
 
