@@ -9,8 +9,8 @@ public class Command implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (command.getName().equalsIgnoreCase("rms") || command.getName().equalsIgnoreCase("ryuzumagicskills")) {
-            if (!sender.hasPermission("rms.op")) {
+        if (command.getName().equalsIgnoreCase("rpc")) {
+            if (!sender.hasPermission("rpc.op")) {
                 sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
                 return true;
             }

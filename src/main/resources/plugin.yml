@@ -6,3 +6,18 @@ description: RyuZUPluginChat
 depend:
   - LuckPerms
   - LunaChat
+
+commands:
+  rpc:
+    usage:  /rpc
+    description: RyuZUPluginChatの様々な設定ができる
+
+permissions:
+  rpc.player:
+    default: true
+  rpc.op:
+    default: op
+  rpc.*:
+    children:
+      rbc.op: true
+      rbc.player: true
