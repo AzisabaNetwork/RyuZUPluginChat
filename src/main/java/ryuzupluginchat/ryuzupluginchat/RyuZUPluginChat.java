@@ -51,6 +51,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String data = in.readUTF();
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
+            if(map.get("ServerName") == null) {return;}
             String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
             msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
                 .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
