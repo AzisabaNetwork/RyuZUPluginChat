@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
     public static LunaChatAPI lunachatapi;
+    public static HashMap<String , String> prefix = new HashMap<>();
+    public static HashMap<String , String> suffix = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -51,6 +53,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         getServer().getPluginManager().registerEvents(this ,this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "ryuzuchat:ryuzuchat");
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
+        Objects.requireNonNull(getCommand("rms")).setExecutor(new Command());
         getLogger().info(ChatColor.GREEN + "RyuZUPluginChatが起動しました");
     }
 
@@ -60,23 +63,29 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String data = in.readUTF();
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
-            boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
-            Channel lunachannel =  lunachatapi.getChannel(map.get("ChannelName"));
-            String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
-            msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
-                    .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
-                    .replace("[SendServerName]" , (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
-                    .replace("[ReceiveServerName]" , (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
-                    .replace("[ChannelName]" , (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
-                    .replace("[LunaChatChannelAlias]" , (ExistsChannel ? lunachannel.getAlias() : ""))
-                    .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
-                    .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                    .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
-                    .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
-            for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
-                p.sendMessage(msg);
+            if(map.get("System").equals("Chat")) {
+                boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
+                Channel lunachannel =  lunachatapi.getChannel(map.get("ChannelName"));
+                String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
+                msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
+                        .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
+                        .replace("[SendServerName]" , (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
+                        .replace("[ReceiveServerName]" , (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
+                        .replace("[ChannelName]" , (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
+                        .replace("[LunaChatChannelAlias]" , (ExistsChannel ? lunachannel.getAlias() : ""))
+                        .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
+                        .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
+                        .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                        .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
+                for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
+                    p.sendMessage(msg);
+                }
+                getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
+            } else if(map.get("System").equals("Prefix")) {
+                prefix.put(map.get("PlayerName") , map.get("Prefix"));
+            } else if(map.get("System").equals("Suffix")) {
+                suffix.put(map.get("PlayerName") , map.get("Suffix"));
             }
-            getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
         }
     }
 
@@ -91,6 +100,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("PlayerName" , p.getName());
+        map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
@@ -106,6 +116,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("PlayerName" , p.getName());
+        map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
@@ -164,6 +175,24 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     private Map<String,?> jsonToMap(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, Map.class);
+    }
+
+    public void setPrefix(String p , String data) {
+        Map<String , String> map = new HashMap<>();
+        prefix.put(p , data);
+        map.put("PlayerName" , p);
+        map.put("Prefix" , data);
+        map.put("System" , "Prefix");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void setSuffix(String p , String data) {
+        Map<String , String> map = new HashMap<>();
+        suffix.put(p , data);
+        map.put("PlayerName" , p);
+        map.put("Suffix" , data);
+        map.put("System" , "Suffix");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
 }
