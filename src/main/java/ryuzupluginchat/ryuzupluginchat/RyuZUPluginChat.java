@@ -4,6 +4,12 @@ import com.github.ucchyocean.lc.channel.ChannelPlayer;
 import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
+import com.github.ucchyocean.lc3.LunaChatConfig;
+import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelChatEvent;
+import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelMessageEvent;
+import com.github.ucchyocean.lc3.channel.Channel;
+import com.github.ucchyocean.lc3.japanize.JapanizeType;
+import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -26,9 +32,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
     public static LunaChatAPI lunachatapi;
@@ -51,18 +59,23 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String data = in.readUTF();
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
-            if(map.get("ServerName") == null) {return;}
+            boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
+            Channel lunachannel =  lunachatapi.getChannel(map.get("ChannelName"));
             String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
             msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
-                .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
-                .replace("[LunaChatChannelAlias]" , (lunachatapi.getChannel(map.get("ChannelName")) == null ? "" : lunachatapi.getChannel(map.get("ChannelName")).getAlias()))
-                .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
-                .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
-                .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
-            for(Player p : getServer().getOnlinePlayers()) {
+                    .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
+                    .replace("[SendServerName]" , (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
+                    .replace("[ReceiveServerName]" , (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
+                    .replace("[ChannelName]" , (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
+                    .replace("[LunaChatChannelAlias]" , (ExistsChannel ? lunachannel.getAlias() : ""))
+                    .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
+                    .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
+                    .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                    .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
+            for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
                 p.sendMessage(msg);
             }
+            getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
         }
     }
 
@@ -70,16 +83,44 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onChat(AsyncPlayerChatEvent e) {
         Map<String , String> map = new HashMap<>();
         Player p = e.getPlayer();
-        ChannelPlayer cp = (ChannelPlayer.getChannelPlayer(p));
-        map.put("ServerName" , getServer().getName());
-        map.put("Message" , e.getMessage());
-        map.put("ChannelName" , lunachatapi.getDefaultChannel(cp.getName()).getName());
+        Collection<Channel> channels = lunachatapi.getChannelsByPlayer(p.getName());
+        if(channels != null && channels.size() != 0){ return; }
+        ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
+        map.put("Message" , replaceMessage(e.getMessage() , cp));
         map.put("LunaChatPrefix" , cp.getPrefix());
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("PlayerName" , p.getName());
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    @EventHandler
+    public void onChat(LunaChatBukkitChannelMessageEvent e) {
+        Map<String , String> map = new HashMap<>();
+        ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
+        Player p = cp.getPlayer();
+        map.put("Message" , replaceMessage(e.getMessage() , cp));
+        map.put("ChannelName" , e.getChannelName());
+        map.put("LunaChatPrefix" , cp.getPrefix());
+        map.put("LunaChatSuffix" , cp.getSuffix());
+        map.put("LuckPermsPrefix" , getPrefix(p));
+        map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("PlayerName" , p.getName());
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    private String replaceMessage(String msg , ChannelMemberBukkit member) {
+        String message = msg;
+        LunaChatConfig config = LunaChat.getConfig();
+        Player p = member.getPlayer();
+        if(lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
+        if(config.isEnableNormalChatColorCode() && p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
+        return message;
+    }
+
+    private String setColor(String msg) {
+        return ChatColor.translateAlternateColorCodes('&' , msg);
     }
 
     private void sendPluginMessage(String channel, String data) {
