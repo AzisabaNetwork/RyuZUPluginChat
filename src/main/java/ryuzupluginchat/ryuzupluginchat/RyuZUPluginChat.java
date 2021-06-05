@@ -88,8 +88,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         if(channels != null && channels.size() != 0){ return; }
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         map.put("Message" , replaceMessage(e.getMessage() , p));
-        map.put("LunaChatPrefix" , cp.getPrefix());
-        map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("PlayerName" , p.getName());
