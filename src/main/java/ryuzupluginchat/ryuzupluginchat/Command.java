@@ -28,26 +28,31 @@ public class Command implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("prefix") || args[0].equalsIgnoreCase("p")) {
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set/clear] [MCID] + [Prefix]");
+                    sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set] [MCID] + [Prefix]");
                     return true;
                 }
                 if(args[1].equals("set")) {
                     if (args.length <= 3) {
-                        sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set/clear] [MCID] + [Prefix]");
+                        sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] + [Prefix]");
                         return true;
                     }
-                }
-                if(args[1].equals("clear")) {
-                    if (args.length <= 3) {
-                        sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set/clear] [MCID] + [Prefix]");
-                        return true;
-                    }
+                    RyuZUPluginChat.ryuzupluginchat.setPrefix(args[2] , args[3]);
                 }
                 return true;
             }
 
             if (args[0].equalsIgnoreCase("suffix") || args[0].equalsIgnoreCase("s")) {
-                sender.sendMessage(ChatColor.GREEN + "リロード完了");
+                if (args.length <= 1) {
+                    sender.sendMessage(ChatColor.RED + "/" + label + " suffix [set] [MCID] + [Suffit]");
+                    return true;
+                }
+                if(args[1].equals("set")) {
+                    if (args.length <= 3) {
+                        sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] + [Suffit]");
+                        return true;
+                    }
+                    RyuZUPluginChat.ryuzupluginchat.setSuffix(args[2] , args[3]);
+                }
                 return true;
             }
         }

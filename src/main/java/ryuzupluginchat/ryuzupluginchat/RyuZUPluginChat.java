@@ -43,10 +43,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public static LunaChatAPI lunachatapi;
     public static HashMap<String , String> prefix = new HashMap<>();
     public static HashMap<String , String> suffix = new HashMap<>();
+    public static RyuZUPluginChat ryuzupluginchat;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        ryuzupluginchat = this;
         if ( getServer().getPluginManager().isPluginEnabled("LunaChat") ) {
             lunachatapi = LunaChat.getAPI();
         }
@@ -69,11 +70,13 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                 String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
                 msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
                         .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
+                        .replace("[RyuZUMapPrefix]" , (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
                         .replace("[SendServerName]" , (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
                         .replace("[ReceiveServerName]" , (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
                         .replace("[ChannelName]" , (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
                         .replace("[LunaChatChannelAlias]" , (ExistsChannel ? lunachannel.getAlias() : ""))
                         .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
+                        .replace("[RyuZUMapSuffix]" , (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
                         .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
                         .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
                         .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
@@ -99,6 +102,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("Message" , replaceMessage(e.getMessage() , p));
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
+        map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
@@ -115,6 +120,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
+        map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
