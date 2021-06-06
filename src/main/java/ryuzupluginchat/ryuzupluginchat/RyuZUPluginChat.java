@@ -16,6 +16,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
@@ -69,7 +70,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             if(map.get("System").equals("Chat")) {
                 boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
                 Channel lunachannel =  lunachatapi.getChannel(map.get("ChannelName"));
-                String msg =  ChatColor.translateAlternateColorCodes('&' , map.get("Format"));
+                String msg = setColor(map.get("Format"));
                 msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
                         .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
                         .replace("[RyuZUMapPrefix]" , (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
@@ -81,6 +82,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         .replace("[RyuZUMapSuffix]" , (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
                         .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
                         .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                        .replace("[PreReplaceMessage]" , (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                         .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
                 for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
                     p.sendMessage(msg);
@@ -106,6 +108,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         if(channels != null && channels.size() != 0){ return; }
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         map.put("Message" , replaceMessage(e.getMessage() , p));
+        map.put("PreReplaceMessage" , e.getMessage());
+        map.put("CanJapanese" , String.valueOf(canJapanese(e.getMessage() , p)));
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
@@ -117,13 +121,15 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         e.setCancelled(true);
     }
 
-    /*@EventHandler
+    @EventHandler
     public void onChat(LunaChatBukkitChannelChatEvent e) {
         Map<String , String> map = new HashMap<>();
         ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
         Player p = cp.getPlayer();
         map.put("Message" , replaceMessage(e.getPreReplaceMessage() , p));
         map.put("ChannelName" , e.getChannelName());
+        map.put("PreReplaceMessage" , e.getPreReplaceMessage());
+        map.put("CanJapanese" , String.valueOf(canJapanese(e.getPreReplaceMessage() , p)));
         map.put("LunaChatPrefix" , cp.getPrefix());
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
@@ -135,7 +141,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
         e.setMessageFormat("");
         e.setCancelled(true);
-    }*/
+    }
 
     /*@EventHandler
     public void onChat(LunaChatBukkitChannelMessageEvent e) {
@@ -158,10 +164,14 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     private String replaceMessage(String msg , Player p) {
         String message = msg;
         LunaChatConfig config = LunaChat.getConfig();
-        ChannelMemberBukkit cp = ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
-        if(lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE && message.getBytes(StandardCharsets.UTF_8).length <= message.length()) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
+        if(canJapanese(msg , p)) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
         if(config.isEnableNormalChatColorCode() && p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
         return message;
+    }
+
+    private boolean canJapanese(String msg , Player p) {
+        LunaChatConfig config = LunaChat.getConfig();
+        return lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE && msg.getBytes(StandardCharsets.UTF_8).length <= msg.length();
     }
 
     private String setColor(String msg) {

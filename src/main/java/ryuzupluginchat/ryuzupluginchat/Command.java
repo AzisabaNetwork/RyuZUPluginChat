@@ -3,9 +3,15 @@ package ryuzupluginchat.ryuzupluginchat;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class Command implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class Command implements CommandExecutor,TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -16,8 +22,11 @@ public class Command implements CommandExecutor {
             }
             if (args.length <= 0) {
                 sender.sendMessage(ChatColor.GOLD + "------------------------使い方------------------------");
-                //sender.sendMessage(ChatColor.BLUE + "/" + label + " reload :リロード");
-                sender.sendMessage(ChatColor.BLUE + "/" + label + " prefix :Itemを編集します");
+                if(!sender.hasPermission("rpc.op")) {
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " prefix :Prefixを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " suffix :Prefixを編集します");
+                }
+                sender.sendMessage(ChatColor.BLUE + "/" + label + " tell :プレイヤーにプライベートメッセージを送信します");
                 return true;
             }
 
@@ -57,5 +66,38 @@ public class Command implements CommandExecutor {
             }
         }
         return true;
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        List<String> list = new ArrayList<>();
+        if (command.getName().equalsIgnoreCase("rpc")) {
+            if(args.length == 0) {
+                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix"));}
+                list.addAll(Arrays.asList("tell"));
+            }
+            if(args.length == 1) {
+                if(sender.hasPermission("rpc.op")) {
+                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
+                        list.addAll(Arrays.asList("set"));
+                    }
+                }
+            }
+            if(args.length == 2) {
+                if(sender.hasPermission("rpc.op")) {
+                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
+                        list.addAll(Arrays.asList("MCID"));
+                    }
+                }
+            }
+            if(args.length == 3) {
+                if(sender.hasPermission("rpc.op")) {
+                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
+                        list.addAll(Arrays.asList("String"));
+                    }
+                }
+            }
+        }
+        return list;
     }
 }
