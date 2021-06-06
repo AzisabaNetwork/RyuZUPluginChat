@@ -72,7 +72,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             if(map.get("System").equals("Chat")) {
                 boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
                 Channel lunachannel =  lunachatapi.getChannel(map.get("ChannelName"));
-                String msg = setColor(map.get("Format"));
+                String msg = map.get("Format");
                 msg = msg.replace("[LuckPermsPrefix]" , (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
                         .replace("[LunaChatPrefix]" , (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
                         .replace("[RyuZUMapPrefix]" , (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
@@ -83,8 +83,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         .replace("[PlayerName]" , (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
                         .replace("[RyuZUMapSuffix]" , (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
                         .replace("[LunaChatSuffix]" , (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                        .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
-                        .replace("[PreReplaceMessage]" , (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
+                        .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")));
+                msg = setColor(msg);
+                msg = msg.replace("[PreReplaceMessage]" , (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                         .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
                 if(map.get("ReceivePlayerName") != null) {
                     Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
@@ -103,7 +104,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
-                    sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivePlayerName"));
+                    if(!rp.hasPermission("rpc.op")) {
+                        sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivePlayerName"));
+                    }
                 } else if (map.get("ReceivedPlayerName") != null) {
                     Player p = getServer().getPlayer(map.get("PlayerName"));
                     msg = ChatColor.YELLOW + "[Private]" + msg;
@@ -210,11 +213,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     private void sendPluginMessage(String channel, String data) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(data);
-        /*Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null) {
             player.sendPluginMessage(this, channel, out.toByteArray());
-        }*/
-        getServer().sendPluginMessage(this, channel, out.toByteArray());
+        }
+        //getServer().sendPluginMessage(this, channel, out.toByteArray());
     }
 
     private String getPrefix(Player player) {
