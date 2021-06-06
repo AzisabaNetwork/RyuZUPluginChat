@@ -40,7 +40,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set] [MCID] + [Prefix]");
                     return true;
                 }
-                if(args[1].equals("set")) {
+                if(args[1].equalsIgnoreCase("set")) {
                     if (args.length <= 3) {
                         sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] + [Prefix]");
                         return true;
@@ -55,7 +55,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     sender.sendMessage(ChatColor.RED + "/" + label + " suffix [set] [MCID] + [Suffit]");
                     return true;
                 }
-                if(args[1].equals("set")) {
+                if(args[1].equalsIgnoreCase("set")) {
                     if (args.length <= 3) {
                         sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] + [Suffit]");
                         return true;
@@ -72,28 +72,14 @@ public class Command implements CommandExecutor,TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
         if (command.getName().equalsIgnoreCase("rpc")) {
-            if(args.length == 0) {
-                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix"));}
-                list.addAll(Arrays.asList("tell"));
-            }
             if(args.length == 1) {
-                if(sender.hasPermission("rpc.op")) {
-                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
-                        list.addAll(Arrays.asList("set"));
-                    }
-                }
+                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix"));}
+                list.add("tell");
             }
             if(args.length == 2) {
                 if(sender.hasPermission("rpc.op")) {
                     if(args[0].equals("prefix") || args[0].equals("suffix")) {
-                        list.addAll(Arrays.asList("MCID"));
-                    }
-                }
-            }
-            if(args.length == 3) {
-                if(sender.hasPermission("rpc.op")) {
-                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
-                        list.addAll(Arrays.asList("String"));
+                        list.add("set");
                     }
                 }
             }
