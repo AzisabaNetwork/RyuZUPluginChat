@@ -110,6 +110,26 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     }
 
     @EventHandler
+    public void onChat(LunaChatBukkitChannelChatEvent e) {
+        Map<String , String> map = new HashMap<>();
+        ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
+        Player p = cp.getPlayer();
+        map.put("Message" , replaceMessage(e.getPreReplaceMessage() , p));
+        map.put("ChannelName" , e.getChannelName());
+        map.put("LunaChatPrefix" , cp.getPrefix());
+        map.put("LunaChatSuffix" , cp.getSuffix());
+        map.put("LuckPermsPrefix" , getPrefix(p));
+        map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
+        map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
+        map.put("PlayerName" , p.getName());
+        map.put("System" , "Chat");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+        e.setMessageFormat("");
+        e.setCancelled(true);
+    }
+
+    @EventHandler
     public void onChat(LunaChatBukkitChannelMessageEvent e) {
         Map<String , String> map = new HashMap<>();
         ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
