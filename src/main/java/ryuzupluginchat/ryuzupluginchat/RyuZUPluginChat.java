@@ -161,8 +161,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("ReceivePlayerName" , receiver);
-        map.put("LunaChatPrefix" , cp.getPrefix());
-        map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
