@@ -84,7 +84,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     p.sendMessage(msg);
                 }
                 if(map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
-                    getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
+                    getLogger().info(msg);
                 } else {
                     getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                 }
@@ -111,11 +111,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("PlayerName" , p.getName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
-        e.setCancelled(true);
         e.setFormat("");
+        e.setCancelled(true);
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onChat(LunaChatBukkitChannelChatEvent e) {
         Map<String , String> map = new HashMap<>();
         ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
@@ -133,7 +133,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
         e.setMessageFormat("");
         e.setCancelled(true);
-    }
+    }*/
 
     /*@EventHandler
     public void onChat(LunaChatBukkitChannelMessageEvent e) {
@@ -169,11 +169,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     private void sendPluginMessage(String channel, String data) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(data);
-        Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+        /*Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null) {
             player.sendPluginMessage(this, channel, out.toByteArray());
-            getServer().sendPluginMessage(this, channel, out.toByteArray());
-        }
+        }*/
+        getServer().sendPluginMessage(this, channel, out.toByteArray());
     }
 
     private String getPrefix(Player player) {
