@@ -86,8 +86,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         .replace("[LuckPermsSuffix]" , (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
                         .replace("[PreReplaceMessage]" , (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                         .replace("[Message]" , (map.get("Message") == null ? "" : map.get("Message")));
-                if(map.get("ReceivePlayerName") != null && getServer().getPlayer(map.get("ReceivePlayerName")) != null) {
+                if(map.get("ReceivePlayerName") != null) {
                     Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
+                    if(getServer().getPlayer(map.get("ReceivePlayerName")) == null) {return;}
                     msg = ChatColor.YELLOW + "[Private]" + msg;
                     for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList())) {
                         op.sendMessage(msg);
