@@ -34,6 +34,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -158,7 +159,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         String message = msg;
         LunaChatConfig config = LunaChat.getConfig();
         ChannelMemberBukkit cp = ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
-        if(lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
+        if(lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE && message.getBytes(StandardCharsets.UTF_8).length <= message.length()) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
         if(config.isEnableNormalChatColorCode() && p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
         return message;
     }
