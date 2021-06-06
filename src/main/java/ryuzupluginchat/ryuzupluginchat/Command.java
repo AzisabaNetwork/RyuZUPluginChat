@@ -39,7 +39,7 @@ public class Command implements CommandExecutor,TabCompleter {
                         return true;
                     }
                     Player p = (Player) sender;
-                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , args[2]);
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , args[1]);
                 }
                 return true;
             }
