@@ -90,12 +90,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
                     if(getServer().getPlayer(map.get("ReceivePlayerName")) == null) {return;}
                     msg = ChatColor.YELLOW + "[Private]" + msg;
-                    for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList())) {
+                    rp.sendMessage(msg);
+                    rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                    for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).collect(Collectors.toList())) {
                         op.sendMessage(msg);
                         op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
-                    rp.sendMessage(msg);
-                    rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     if(map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                         getLogger().info(msg);
                         getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
