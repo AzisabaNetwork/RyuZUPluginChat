@@ -140,14 +140,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     }
 
     public void sendGlobalMessage(Player p , String message , String channel) {
-        ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         Map<String , String> map = new HashMap<>();
         map.put("Message" , replaceMessage(message , p));
         map.put("ChannelName" , channel);
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
-        map.put("LunaChatPrefix" , cp.getPrefix());
-        map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
