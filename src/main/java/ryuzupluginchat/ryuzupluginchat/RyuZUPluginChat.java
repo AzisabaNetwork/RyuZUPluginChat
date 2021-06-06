@@ -103,6 +103,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
+                    sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivedPlayerName"));
+                } else if (map.get("ReceivedPlayerName") != null) {
+                    Player p = getServer().getPlayer(map.get("PlayerName"));
+                    msg = ChatColor.YELLOW + "[Private]" + msg;
+                    p.sendMessage(msg);
+                    p.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivedPlayerName"));
                 } else {
                     for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
                         p.sendMessage(msg);
@@ -167,6 +173,17 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
         map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
+        map.put("System" , "Chat");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void sendReturnPrivateMessage(String p , String message , String PreReplaceMessage , String canJapanese , String received) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Message" , message);
+        map.put("PreReplaceMessage" , PreReplaceMessage);
+        map.put("CanJapanese" , canJapanese);
+        map.put("ReceivedPlayerName" , received);
+        map.put("PlayerName" , p);
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
