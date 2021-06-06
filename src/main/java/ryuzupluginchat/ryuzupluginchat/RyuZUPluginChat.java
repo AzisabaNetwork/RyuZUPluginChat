@@ -107,7 +107,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         Player p = e.getPlayer();
         Collection<Channel> channels = lunachatapi.getChannelsByPlayer(p.getName());
         if(channels != null && channels.size() != 0){ return; }
-        sendMessage(p , e.getMessage() , null , false);
+        sendGlobalMessage(p , e.getMessage() , null);
         e.setFormat("");
         e.setCancelled(true);
     }
@@ -116,19 +116,36 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onChat(LunaChatBukkitChannelChatEvent e) {
         ChannelMemberBukkit cp = (ChannelMemberBukkit) e.getMember();
         Player p = cp.getPlayer();
-        sendMessage(p , e.getPreReplaceMessage() , e.getChannelName() , false);
+        sendGlobalMessage(p , e.getPreReplaceMessage() , e.getChannelName());
         e.setMessageFormat("");
         e.setCancelled(true);
     }
 
-    private void sendMessage(Player p , String message , String channel , boolean isprivate) {
+    public void sendGlobalMessage(Player p , String message , String channel) {
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         Map<String , String> map = new HashMap<>();
         map.put("Message" , replaceMessage(message , p));
         map.put("ChannelName" , channel);
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
-        map.put("Private" , String.valueOf(isprivate));
+        map.put("LunaChatPrefix" , cp.getPrefix());
+        map.put("LunaChatSuffix" , cp.getSuffix());
+        map.put("LuckPermsPrefix" , getPrefix(p));
+        map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
+        map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
+        map.put("PlayerName" , p.getName());
+        map.put("System" , "Chat");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void sendPrivateMessage(Player p , String message , String receiver) {
+        ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
+        Map<String , String> map = new HashMap<>();
+        map.put("Message" , replaceMessage(message , p));
+        map.put("PreReplaceMessage" , message);
+        map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
+        map.put("ReceivePlayerName" , receiver);
         map.put("LunaChatPrefix" , cp.getPrefix());
         map.put("LunaChatSuffix" , cp.getSuffix());
         map.put("LuckPermsPrefix" , getPrefix(p));

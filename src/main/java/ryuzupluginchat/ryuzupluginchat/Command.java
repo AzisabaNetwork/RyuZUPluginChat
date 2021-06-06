@@ -4,6 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,10 +17,6 @@ public class Command implements CommandExecutor,TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("rpc")) {
-            if (!sender.hasPermission("rpc.op")) {
-                sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
-                return true;
-            }
             if (args.length <= 0) {
                 sender.sendMessage(ChatColor.GOLD + "------------------------使い方------------------------");
                 if(!sender.hasPermission("rpc.op")) {
@@ -35,14 +32,30 @@ public class Command implements CommandExecutor,TabCompleter {
                 return true;
             }*/
 
+            if (args[0].equalsIgnoreCase("tell")) {
+                if(sender instanceof Player) {
+                    if (args.length <= 2) {
+                        sender.sendMessage(ChatColor.RED + "/" + label + " tell [MCID] [Message]");
+                        return true;
+                    }
+                    Player p = (Player) sender;
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , args[2]);
+                }
+                return true;
+            }
+
             if (args[0].equalsIgnoreCase("prefix") || args[0].equalsIgnoreCase("p")) {
+                if (!sender.hasPermission("rpc.op")) {
+                    sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
+                    return true;
+                }
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set] [MCID] + [Prefix]");
+                    sender.sendMessage(ChatColor.RED + "/" + label + " prefix [set] [MCID] [Prefix]");
                     return true;
                 }
                 if(args[1].equalsIgnoreCase("set")) {
                     if (args.length <= 3) {
-                        sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] + [Prefix]");
+                        sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] [Prefix]");
                         return true;
                     }
                     RyuZUPluginChat.ryuzupluginchat.setPrefix(args[2] , args[3]);
@@ -51,13 +64,17 @@ public class Command implements CommandExecutor,TabCompleter {
             }
 
             if (args[0].equalsIgnoreCase("suffix") || args[0].equalsIgnoreCase("s")) {
+                if (!sender.hasPermission("rpc.op")) {
+                    sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
+                    return true;
+                }
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.RED + "/" + label + " suffix [set] [MCID] + [Suffit]");
+                    sender.sendMessage(ChatColor.RED + "/" + label + " suffix [set] [MCID] [Suffit]");
                     return true;
                 }
                 if(args[1].equalsIgnoreCase("set")) {
                     if (args.length <= 3) {
-                        sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] + [Suffit]");
+                        sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] [Suffit]");
                         return true;
                     }
                     RyuZUPluginChat.ryuzupluginchat.setSuffix(args[2] , args[3]);
