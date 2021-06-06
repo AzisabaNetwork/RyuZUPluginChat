@@ -30,13 +30,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
@@ -163,7 +164,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     }
 
     private String setColor(String msg) {
-        return ChatColor.translateAlternateColorCodes('&' , msg);
+        String replaced = msg;
+        replaced = replaceToHexFromRGB(replaced);
+        return ChatColor.translateAlternateColorCodes('&' , replaced);
     }
 
     private void sendPluginMessage(String channel, String data) {
@@ -210,20 +213,42 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         return gson.fromJson(json, Map.class);
     }
 
+    private static String replaceToHexFromRGB(String text) {
+        String regex = "\\{.+?}";
+        List<String> RGBcolors = new ArrayList<>();
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            RGBcolors.add(matcher.group());
+        }
+        for(String hexcolor : RGBcolors) {
+            String[] rgbs = hexcolor.replace("{color:" , "").replace("}" , "").split(",");
+            for(int i = 0 ; i < 3 ; i++) {
+                if(Integer.parseInt(rgbs[i]) < 0 || Integer.parseInt(rgbs[i]) > 255) {
+                    return "";
+                }
+            }
+            Color rgb = new Color(Integer.parseInt(rgbs[0]),Integer.parseInt(rgbs[1]),Integer.parseInt(rgbs[2]));
+            String hex = "#"+Integer.toHexString(rgb.getRGB()).substring(2);
+            text = text.replace(hexcolor , ChatColor.of(hex) + "");
+        }
+        return text;
+    }
+
     public void setPrefix(String p , String data) {
         Map<String , String> map = new HashMap<>();
-        prefix.put(p , data);
+        prefix.put(p , setColor(data));
         map.put("PlayerName" , p);
-        map.put("Prefix" , data);
+        map.put("Prefix" , setColor(data));
         map.put("System" , "Prefix");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
     public void setSuffix(String p , String data) {
         Map<String , String> map = new HashMap<>();
-        suffix.put(p , data);
+        suffix.put(p , setColor(data));
         map.put("PlayerName" , p);
-        map.put("Suffix" , data);
+        map.put("Suffix" , setColor(data));
         map.put("System" , "Suffix");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
