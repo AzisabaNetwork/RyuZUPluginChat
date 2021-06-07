@@ -93,7 +93,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     msg = ChatColor.YELLOW + "[Private]" + msg;
                     rp.sendMessage(msg);
                     rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
-                    for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).collect(Collectors.toList())) {
+                    for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).filter(p -> !map.get("PlayerName").equals((p.getName()))).collect(Collectors.toList())) {
                         op.sendMessage(msg);
                         op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
@@ -104,9 +104,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
-                    if(!rp.hasPermission("rpc.op")) {
-                        sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivePlayerName"));
-                    }
+                    sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivePlayerName"));
                 } else if (map.get("ReceivedPlayerName") != null) {
                     Player p = getServer().getPlayer(map.get("PlayerName"));
                     msg = ChatColor.YELLOW + "[Private]" + msg;
