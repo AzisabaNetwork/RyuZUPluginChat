@@ -260,8 +260,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         for(String hexcolor : RGBcolors) {
             String[] rgbs = hexcolor.replace("{color:" , "").replace("}" , "").split(",");
             for(int i = 0 ; i < 3 ; i++) {
-                if(Integer.parseInt(rgbs[i]) < 0 || Integer.parseInt(rgbs[i]) > 255) {
-                    return "";
+                try {
+                    if(Integer.parseInt(rgbs[i]) < 0 || Integer.parseInt(rgbs[i]) > 255) {
+                        return text;
+                    }
+                } catch (NumberFormatException e) {
+                    return text;
                 }
             }
             Color rgb = new Color(Integer.parseInt(rgbs[0]),Integer.parseInt(rgbs[1]),Integer.parseInt(rgbs[2]));
