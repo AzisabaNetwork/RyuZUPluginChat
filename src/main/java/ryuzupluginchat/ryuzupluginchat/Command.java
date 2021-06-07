@@ -19,7 +19,7 @@ public class Command implements CommandExecutor,TabCompleter {
         if (command.getName().equalsIgnoreCase("rpc")) {
             if (args.length <= 0) {
                 sender.sendMessage(ChatColor.GOLD + "------------------------使い方------------------------");
-                if(!sender.hasPermission("rpc.op")) {
+                if(sender.hasPermission("rpc.op")) {
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " prefix :Prefixを編集します");
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " suffix :Suffixを編集します");
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " config :Configを編集します");
