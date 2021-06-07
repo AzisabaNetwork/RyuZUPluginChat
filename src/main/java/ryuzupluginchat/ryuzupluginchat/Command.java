@@ -84,6 +84,10 @@ public class Command implements CommandExecutor,TabCompleter {
             }
 
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
+                if (!sender.hasPermission("rpc.op")) {
+                    sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
+                    return true;
+                }
                 if (args.length <= 1) {
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/list]:コンフィグを編集します");
                     return true;
