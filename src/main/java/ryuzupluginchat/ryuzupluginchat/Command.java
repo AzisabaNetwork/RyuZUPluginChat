@@ -85,23 +85,23 @@ public class Command implements CommandExecutor,TabCompleter {
 
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [fromat/list]:コンフィグを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/list]:コンフィグを編集します");
                     return true;
                 }
-                if (args[1].equalsIgnoreCase("fromat")) {
+                if (args[1].equalsIgnoreCase("format")) {
                     if (args.length <= 4) {
-                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config fromat [set] [GroupName] [Fromat]:fromatを編集します");
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config format [set] [GroupName] [format]:formatを編集します");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("set")) {
                         RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , args[4]);
-                        sender.sendMessage(ChatColor.GREEN + "fromatを編集しました");
+                        sender.sendMessage(ChatColor.GREEN + "formatを編集しました");
                         return true;
                     }
                 }
                 if (args[1].equalsIgnoreCase("list")) {
                     if (args.length <= 4) {
-                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config fromat [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config format [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("add")) {
