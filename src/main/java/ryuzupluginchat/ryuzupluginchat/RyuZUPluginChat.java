@@ -149,7 +149,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendGlobalMessage(Player p , String message , String channel) {
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
         map.put("ChannelName" , channel);
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
@@ -165,7 +165,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void sendPrivateMessage(Player p , String message , String receiver) {
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("ReceivePlayerName" , receiver);
@@ -196,7 +196,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     private boolean canJapanese(String msg , Player p) {
         LunaChatConfig config = LunaChat.getConfig();
-        return lunachatapi.isPlayerJapanize(p.getName()) && config.getJapanizeType() != JapanizeType.NONE && msg.getBytes(StandardCharsets.UTF_8).length <= msg.length();
+        return lunachatapi.isPlayerJapanize(p.getName()) &&
+                config.getJapanizeType() != JapanizeType.NONE &&
+                msg.getBytes(StandardCharsets.UTF_8).length <= msg.length() &&
+                !msg.substring(0 , 1).equals("#") &&
+                !msg.substring(0 , 1).equals("$");
     }
 
     private String setColor(String msg) {
