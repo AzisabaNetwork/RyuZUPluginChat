@@ -104,7 +104,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         getLogger().info("(" + ChatColor.RED +  map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                     }
-                    sendReturnPrivateMessage(map.get("PlayerName") , map.get("Message") , map.get("PreReplaceMessage") , map.get("CanJapanese") , map.get("ReceivePlayerName"));
+                    sendReturnPrivateMessage(map.get("PlayerName") , map);
                 } else if (map.get("ReceivedPlayerName") != null) {
                     Player p = getServer().getPlayer(map.get("PlayerName"));
                     msg = ChatColor.YELLOW + "[Private]" + msg;
@@ -178,13 +178,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
-    public void sendReturnPrivateMessage(String p , String message , String PreReplaceMessage , String canJapanese , String received) {
-        Map<String , String> map = new HashMap<>();
-        map.put("Message" , message);
-        map.put("PreReplaceMessage" , PreReplaceMessage);
-        map.put("CanJapanese" , canJapanese);
-        map.put("ReceivedPlayerName" , received);
-        map.put("PlayerName" , p);
+    public void sendReturnPrivateMessage(String p , Map<String , String> data) {
+        Map<String , String> map = new HashMap<>(data);
+        map.put("ReceivedPlayerName" , map.get("ReceivePlayerName"));
+        map.remove("ReceivePlayerName");
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
