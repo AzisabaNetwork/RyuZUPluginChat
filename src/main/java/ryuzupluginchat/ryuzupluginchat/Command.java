@@ -94,8 +94,14 @@ public class Command implements CommandExecutor,TabCompleter {
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("set")) {
-                        RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , args[4]);
-                        sender.sendMessage(ChatColor.GREEN + "formatを編集しました");
+                        String format = "";
+                        for(int i = 0 ; i < args.length ; i++) {
+                            if(i >= 4) {
+                                format += args[i];
+                            }
+                        }
+                        RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , format);
+                        sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
                         return true;
                     }
                 }
