@@ -85,33 +85,33 @@ public class Command implements CommandExecutor,TabCompleter {
 
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [Fromat/List]:コンフィグを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [fromat/list]:コンフィグを編集します");
                     return true;
                 }
-                if (args[1].equalsIgnoreCase("Fromat")) {
+                if (args[1].equalsIgnoreCase("fromat")) {
                     if (args.length <= 4) {
-                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config Fromat [set] [GroupName] [Fromat]:Formatを編集します");
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config fromat [set] [GroupName] [Fromat]:fromatを編集します");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("set")) {
                         RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , args[4]);
-                        sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
+                        sender.sendMessage(ChatColor.GREEN + "fromatを編集しました");
                         return true;
                     }
                 }
-                if (args[1].equalsIgnoreCase("List")) {
+                if (args[1].equalsIgnoreCase("list")) {
                     if (args.length <= 4) {
-                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config Fromat [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config fromat [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("add")) {
                         RyuZUPluginChat.ryuzupluginchat.addServer(args[3] , args[4]);
-                        sender.sendMessage(ChatColor.GREEN + "Listに追加しました");
+                        sender.sendMessage(ChatColor.GREEN + "listに追加しました");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("remove")) {
                         RyuZUPluginChat.ryuzupluginchat.removeServer(args[3] , args[4]);
-                        sender.sendMessage(ChatColor.GREEN + "Listから削除しました");
+                        sender.sendMessage(ChatColor.GREEN + "listから削除しました");
                         return true;
                     }
                 }
@@ -125,13 +125,26 @@ public class Command implements CommandExecutor,TabCompleter {
         List<String> list = new ArrayList<>();
         if (command.getName().equalsIgnoreCase("rpc")) {
             if(args.length == 1) {
-                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix"));}
+                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "config"));}
                 list.add("tell");
             }
             if(args.length == 2) {
                 if(sender.hasPermission("rpc.op")) {
                     if(args[0].equals("prefix") || args[0].equals("suffix")) {
                         list.add("set");
+                    }
+                    if(args[0].equals("config")) {
+                        list.addAll(Arrays.asList("format" , "list"));
+                    }
+                }
+            }
+            if(args.length == 3) {
+                if(sender.hasPermission("rpc.op")) {
+                    if(args[0].equals("format")) {
+                        list.add("set");
+                    }
+                    if(args[0].equals("list")) {
+                        list.addAll(Arrays.asList("add" , "remove"));
                     }
                 }
             }
