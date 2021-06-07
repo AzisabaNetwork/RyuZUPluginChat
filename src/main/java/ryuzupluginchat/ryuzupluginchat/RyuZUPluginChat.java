@@ -216,7 +216,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         if (player != null) {
             player.sendPluginMessage(this, channel, out.toByteArray());
         }
-        //getServer().sendPluginMessage(this, channel, out.toByteArray());
     }
 
     private String getPrefix(Player player) {
@@ -277,6 +276,36 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             text = text.replace(hexcolor , ChatColor.of(hex) + "");
         }
         return text;
+    }
+
+    public void setFormat(String GroupName , String Format) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Arg0" , GroupName);
+        map.put("Arg1" , Format);
+        map.put("EditTarget" , "Format");
+        map.put("EditType" , "set");
+        map.put("System" , "EditConfig");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void addServer(String GroupName , String ServerName) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Arg0" , GroupName);
+        map.put("Arg1" , ServerName);
+        map.put("EditTarget" , "List");
+        map.put("EditType" , "add");
+        map.put("System" , "EditConfig");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void removeServer(String GroupName , String ServerName) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Arg0" , GroupName);
+        map.put("Arg1" , ServerName);
+        map.put("EditTarget" , "List");
+        map.put("EditType" , "remove");
+        map.put("System" , "EditConfig");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
     public void setPrefix(String p , String data) {

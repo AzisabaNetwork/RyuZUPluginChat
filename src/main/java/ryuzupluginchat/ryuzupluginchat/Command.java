@@ -21,7 +21,8 @@ public class Command implements CommandExecutor,TabCompleter {
                 sender.sendMessage(ChatColor.GOLD + "------------------------使い方------------------------");
                 if(!sender.hasPermission("rpc.op")) {
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " prefix :Prefixを編集します");
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " suffix :Prefixを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " suffix :Suffixを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config :Configを編集します");
                 }
                 sender.sendMessage(ChatColor.BLUE + "/" + label + " tell :プレイヤーにプライベートメッセージを送信します");
                 return true;
@@ -80,6 +81,40 @@ public class Command implements CommandExecutor,TabCompleter {
                     RyuZUPluginChat.ryuzupluginchat.setSuffix(args[2] , args[3]);
                 }
                 return true;
+            }
+
+            if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
+                if (args.length <= 1) {
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [Fromat/List]:コンフィグを編集します");
+                    return true;
+                }
+                if (args[1].equalsIgnoreCase("Fromat")) {
+                    if (args.length <= 4) {
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config Fromat [set] [GroupName] [Fromat]:Formatを編集します");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("set")) {
+                        RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , args[4]);
+                        sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
+                        return true;
+                    }
+                }
+                if (args[1].equalsIgnoreCase("List")) {
+                    if (args.length <= 4) {
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config Fromat [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("add")) {
+                        RyuZUPluginChat.ryuzupluginchat.addServer(args[3] , args[4]);
+                        sender.sendMessage(ChatColor.GREEN + "Listに追加しました");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("remove")) {
+                        RyuZUPluginChat.ryuzupluginchat.removeServer(args[3] , args[4]);
+                        sender.sendMessage(ChatColor.GREEN + "Listから削除しました");
+                        return true;
+                    }
+                }
             }
         }
         return true;
