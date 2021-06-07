@@ -100,8 +100,10 @@ public class Command implements CommandExecutor,TabCompleter {
                     if(args[2].equalsIgnoreCase("set")) {
                         String format = "";
                         for(int i = 0 ; i < args.length ; i++) {
-                            if(i >= 4) {
+                            if(i == 4) {
                                 format += args[i];
+                            } else if(i > 4) {
+                                format += (" " + args[i]);
                             }
                         }
                         RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , format);
