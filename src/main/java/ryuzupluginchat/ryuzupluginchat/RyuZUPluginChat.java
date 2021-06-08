@@ -117,7 +117,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     msg = ChatColor.YELLOW + "[Private]" + msg;
                     p.sendMessage(msg);
                     p.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivedPlayerName"));
-                    reply.put(map.get("ReceivedPlayerName") , map.get("PlayerName"));
+                    reply.put(map.get("PlayerName") , map.get("ReceivedPlayerName"));
                 } else if (map.get("Players") != null) {
                     List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                     players.put(map.get("ReceiveServerName") , list);

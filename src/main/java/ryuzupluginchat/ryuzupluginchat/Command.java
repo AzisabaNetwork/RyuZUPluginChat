@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Command implements CommandExecutor,TabCompleter {
 
@@ -41,6 +42,10 @@ public class Command implements CommandExecutor,TabCompleter {
                         return true;
                     }
                     Player p = (Player) sender;
+                    if (args[1].equals(p.getName())) {
+                        sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
+                        return true;
+                    }
                     RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , args[1]);
                 }
                 return true;
@@ -163,34 +168,37 @@ public class Command implements CommandExecutor,TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, org.bukkit.command.@NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
-        if (command.getName().equalsIgnoreCase("rpc")) {
-            if(args.length == 1) {
-                if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "config"));}
-                list.addAll(Arrays.asList("tell" , "reply"));
-            }
-            if(args.length == 2) {
-                if(sender.hasPermission("rpc.op")) {
-                    if(args[0].equals("prefix") || args[0].equals("suffix")) {
-                        list.add("set");
+        if(sender instanceof Player) {
+            Player p = (Player) sender;
+            if (command.getName().equalsIgnoreCase("rpc")) {
+                if(args.length == 1) {
+                    if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "config"));}
+                    list.addAll(Arrays.asList("tell" , "reply"));
+                }
+                if(args.length == 2) {
+                    if(sender.hasPermission("rpc.op")) {
+                        if(args[0].equals("prefix") || args[0].equals("suffix")) {
+                            list.add("set");
+                        }
+                        if(args[0].equals("config")) {
+                            list.addAll(Arrays.asList("format" , "list" , "group"));
+                        }
                     }
-                    if(args[0].equals("config")) {
-                        list.addAll(Arrays.asList("format" , "list" , "group"));
+                    if(args[0].equals("tell")) {
+                        list.addAll(RyuZUPluginChat.getPlayers().stream().filter(l -> !l.equals(p.getName())).collect(Collectors.toList()));
                     }
                 }
-                if(args[1].equals("tell")) {
-                    list.addAll(RyuZUPluginChat.getPlayers());
-                }
-            }
-            if(args.length == 3) {
-                if(sender.hasPermission("rpc.op")) {
-                    if(args[1].equals("format")) {
-                        list.add("set");
-                    }
-                    if(args[1].equals("list")) {
-                        list.addAll(Arrays.asList("add" , "remove"));
-                    }
-                    if(args[1].equals("group")) {
-                        list.add("remove");
+                if(args.length == 3) {
+                    if(sender.hasPermission("rpc.op")) {
+                        if(args[1].equals("format")) {
+                            list.add("set");
+                        }
+                        if(args[1].equals("list")) {
+                            list.addAll(Arrays.asList("add" , "remove"));
+                        }
+                        if(args[1].equals("group")) {
+                            list.add("remove");
+                        }
                     }
                 }
             }
