@@ -21,7 +21,9 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,14 +40,17 @@ import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
-    public static LunaChatAPI lunachatapi;
-    public static HashMap<String , String> prefix = new HashMap<>();
-    public static HashMap<String , String> suffix = new HashMap<>();
+    private static LunaChatAPI lunachatapi;
+    private static HashMap<String , List<String>> players = new HashMap<>();
+    private static HashMap<String , String> prefix = new HashMap<>();
+    private static HashMap<String , String> suffix = new HashMap<>();
+    public static HashMap<String , String> reply = new HashMap<>();
     public static RyuZUPluginChat ryuzupluginchat;
 
     @Override
@@ -60,6 +65,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         Command command = new Command();
         Objects.requireNonNull(getCommand("rpc")).setExecutor(command);
         Objects.requireNonNull(getCommand("rpc")).setTabCompleter(command);
+        getServer().getScheduler().runTaskTimerAsynchronously(ryuzupluginchat, new CheckPlayers(), 0 , 20 * 10);
         getLogger().info(ChatColor.GREEN + "RyuZUPluginChatが起動しました");
     }
 
@@ -93,6 +99,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     msg = ChatColor.YELLOW + "[Private]" + msg;
                     rp.sendMessage(msg);
                     rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                    reply.put(map.get("ReceivePlayerName") , map.get("PlayerName"));
                     for(Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).filter(p -> !map.get("PlayerName").equals((p.getName()))).collect(Collectors.toList())) {
                         op.sendMessage(msg);
                         op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
@@ -110,6 +117,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     msg = ChatColor.YELLOW + "[Private]" + msg;
                     p.sendMessage(msg);
                     p.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivedPlayerName"));
+                    reply.put(map.get("ReceivedPlayerName") , map.get("PlayerName"));
+                } else if (map.get("Players") != null) {
+                    List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
+                    players.put(map.get("ReceiveServerName") , list);
                 } else {
                     for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
                         p.sendMessage(msg);
@@ -333,6 +344,27 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("Suffix" , setColor(data));
         map.put("System" , "Suffix");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public static List<String> getPlayers() {
+        List<String> list = new ArrayList<>();
+        players.values().forEach(list::addAll);
+        return list;
+    }
+
+    public void sendPlayers() {
+        Map<String , String> map = new HashMap<>();
+        String list = StringUtils.join(getServer().getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()) , ",");
+        map.put("System" , "Chat");
+        map.put("Players" , list);
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public static class CheckPlayers implements Runnable {
+        @Override
+        public void run() {
+            RyuZUPluginChat.ryuzupluginchat.sendPlayers();
+        }
     }
 
 }

@@ -25,6 +25,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     sender.sendMessage(ChatColor.BLUE + "/" + label + " config :Configを編集します");
                 }
                 sender.sendMessage(ChatColor.BLUE + "/" + label + " tell :プレイヤーにプライベートメッセージを送信します");
+                sender.sendMessage(ChatColor.BLUE + "/" + label + " reply :プレイべートメッセージを送り返します");
                 return true;
             }
 
@@ -41,6 +42,22 @@ public class Command implements CommandExecutor,TabCompleter {
                     }
                     Player p = (Player) sender;
                     RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , args[1]);
+                }
+                return true;
+            }
+
+            if (args[0].equalsIgnoreCase("reply")) {
+                if(sender instanceof Player) {
+                    if (args.length <= 1) {
+                        sender.sendMessage(ChatColor.RED + "/" + label + " reply [Message]");
+                        return true;
+                    }
+                    Player p = (Player) sender;
+                    if (!RyuZUPluginChat.reply.containsKey(p.getName())) {
+                        sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
+                        return true;
+                    }
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , RyuZUPluginChat.reply.get(p.getName()));
                 }
                 return true;
             }
@@ -128,7 +145,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     }
                 }
                 if (args[1].equalsIgnoreCase("group")) {
-                    if (args.length <= 4) {
+                    if (args.length <= 3) {
                         sender.sendMessage(ChatColor.BLUE + "/" + label + " config group [remove] [GroupName]:共有するGroupを編集します");
                         return true;
                     }
@@ -149,7 +166,7 @@ public class Command implements CommandExecutor,TabCompleter {
         if (command.getName().equalsIgnoreCase("rpc")) {
             if(args.length == 1) {
                 if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "config"));}
-                list.add("tell");
+                list.addAll(Arrays.asList("tell" , "reply"));
             }
             if(args.length == 2) {
                 if(sender.hasPermission("rpc.op")) {
@@ -162,6 +179,9 @@ public class Command implements CommandExecutor,TabCompleter {
                 }
             }
             if(args.length == 3) {
+                if(args[1].equals("tell")) {
+                    list.addAll(RyuZUPluginChat.getPlayers());
+                }
                 if(sender.hasPermission("rpc.op")) {
                     if(args[1].equals("format")) {
                         list.add("set");
