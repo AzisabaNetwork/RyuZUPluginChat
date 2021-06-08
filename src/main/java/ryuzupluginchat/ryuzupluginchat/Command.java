@@ -89,7 +89,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     return true;
                 }
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/list]:コンフィグを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/list/group]:コンフィグを編集します");
                     return true;
                 }
                 if (args[1].equalsIgnoreCase("format")) {
@@ -113,7 +113,7 @@ public class Command implements CommandExecutor,TabCompleter {
                 }
                 if (args[1].equalsIgnoreCase("list")) {
                     if (args.length <= 4) {
-                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config format [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config list [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
                         return true;
                     }
                     if(args[2].equalsIgnoreCase("add")) {
@@ -124,6 +124,17 @@ public class Command implements CommandExecutor,TabCompleter {
                     if(args[2].equalsIgnoreCase("remove")) {
                         RyuZUPluginChat.ryuzupluginchat.removeServer(args[3] , args[4]);
                         sender.sendMessage(ChatColor.GREEN + "listから削除しました");
+                        return true;
+                    }
+                }
+                if (args[1].equalsIgnoreCase("group")) {
+                    if (args.length <= 4) {
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config group [remove] [GroupName]:共有するGroupを編集します");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("remove")) {
+                        RyuZUPluginChat.ryuzupluginchat.removeGroup(args[3]);
+                        sender.sendMessage(ChatColor.GREEN + "Groupを削除しました");
                         return true;
                     }
                 }
@@ -146,17 +157,20 @@ public class Command implements CommandExecutor,TabCompleter {
                         list.add("set");
                     }
                     if(args[0].equals("config")) {
-                        list.addAll(Arrays.asList("format" , "list"));
+                        list.addAll(Arrays.asList("format" , "list" , "group"));
                     }
                 }
             }
             if(args.length == 3) {
                 if(sender.hasPermission("rpc.op")) {
-                    if(args[0].equals("format")) {
+                    if(args[1].equals("format")) {
                         list.add("set");
                     }
-                    if(args[0].equals("list")) {
+                    if(args[1].equals("list")) {
                         list.addAll(Arrays.asList("add" , "remove"));
+                    }
+                    if(args[1].equals("group")) {
+                        list.add("remove");
                     }
                 }
             }

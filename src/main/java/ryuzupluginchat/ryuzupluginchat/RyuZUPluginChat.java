@@ -308,6 +308,15 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
+    public void removeGroup(String GroupName) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Arg0" , GroupName);
+        map.put("EditTarget" , "Group");
+        map.put("EditType" , "remove");
+        map.put("System" , "EditConfig");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
     public void setPrefix(String p , String data) {
         Map<String , String> map = new HashMap<>();
         prefix.put(p , setColor(data));
