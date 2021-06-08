@@ -177,11 +177,11 @@ public class Command implements CommandExecutor,TabCompleter {
                         list.addAll(Arrays.asList("format" , "list" , "group"));
                     }
                 }
-            }
-            if(args.length == 3) {
                 if(args[1].equals("tell")) {
                     list.addAll(RyuZUPluginChat.getPlayers());
                 }
+            }
+            if(args.length == 3) {
                 if(sender.hasPermission("rpc.op")) {
                     if(args[1].equals("format")) {
                         list.add("set");
