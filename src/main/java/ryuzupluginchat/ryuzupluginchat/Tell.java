@@ -26,6 +26,7 @@ public class Tell implements CommandExecutor,TabCompleter {
                     Player p = (Player) sender;
                     if (args[0].equals(p.getName())) {
                         sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
+                        return true;
                     }
                     RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , args[0]);
                 }
