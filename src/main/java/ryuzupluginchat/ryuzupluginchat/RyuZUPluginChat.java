@@ -128,7 +128,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         channelformat = channelformat.replace("[ChannelName]", lunachannel.getName())
                                 .replace("[LunaChatChannelAlias]", lunachannel.getAlias());
                         msg = channelformat + msg;
-                        for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p)).filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
+                        for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
                         } else {
