@@ -133,11 +133,26 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         players.put(map.get("ReceiveServerName"), list);
                     } else if (map.get("ChannelName") != null) {
                         if (!ExistsChannel) { return; }
-                        String channelformat = setColor(map.get("ChannelFormat"));
-                        channelformat = channelformat.replace("[ChannelName]", map.get("[ChannelName]"))
-                                .replace("[ChannelAlias]", map.get("[ChannelAlias]"))
-                                .replace("[ChannelColorCode]", map.get("[ChannelColorCode]"));
-                        msg = channelformat + msg;
+                        String channelformat;
+                        if(map.get("ChannelFormat") == null) {
+                            channelformat = setColor(map.get("LunaChannelFormat"));
+                            channelformat = channelformat.replace("%prefix", ((map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")) +
+                                    (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")) +
+                                    (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix"))))
+                                    .replace("%suffix", ((map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")) +
+                                            (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")) +
+                                            (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix"))))
+                                    .replace("%username", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
+                                    .replace("%msg", map.get("[Message]"))
+                                    .replace("%premsg", map.get("[PreReplaceMessage]"));
+                            msg = channelformat;
+                        } else {
+                            channelformat = setColor(map.get("ChannelFormat"));
+                            channelformat = channelformat.replace("[ChannelName]", map.get("[ChannelName]"))
+                                    .replace("[ChannelAlias]", map.get("[ChannelAlias]"))
+                                    .replace("[ChannelColorCode]", map.get("[ChannelColorCode]"));
+                            msg = channelformat + msg;
+                        }
                         for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
@@ -182,6 +197,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         Map<String , String> map = new HashMap<>();
         map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
         map.put("ChannelName" , channel.getName());
+        map.put("LunaChannelFormat" , channel.getFormat());
         map.put("ChannelColorCode" , channel.getColorCode());
         map.put("ChannelAlias" , channel.getAlias());
         map.put("PreReplaceMessage" , message);
