@@ -11,6 +11,18 @@ commands:
   rpc:
     usage:  /rpc
     description: RyuZUPluginChatの様々な設定ができる
+  tell:
+    usage:  /tell
+    description: 個人チャットを送信します
+  t:
+    usage:  /t
+    description: 個人チャットを送信します
+  reply:
+    usage:  /reply
+    description: 個人チャットを返信します
+  r:
+    usage:  /r
+    description: 個人チャットを返信します
 
 permissions:
   rpc.player:
