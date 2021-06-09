@@ -111,7 +111,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     return true;
                 }
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/channelformat/list/group]:コンフィグを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/channelformat/tellformat/list/group]:コンフィグを編集します");
                     return true;
                 }
                 if (args[1].equalsIgnoreCase("format")) {
@@ -149,6 +149,25 @@ public class Command implements CommandExecutor,TabCompleter {
                         }
                         RyuZUPluginChat.ryuzupluginchat.setChannelFormat(args[3] , format);
                         sender.sendMessage(ChatColor.GREEN + "ChannelFormatを編集しました");
+                        return true;
+                    }
+                }
+                if (args[1].equalsIgnoreCase("tellformat")) {
+                    if (args.length <= 4) {
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config tellformat [set] [GroupName] [format]:TellFormatを編集します");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("set")) {
+                        String format = "";
+                        for(int i = 0 ; i < args.length ; i++) {
+                            if(i == 4) {
+                                format += args[i];
+                            } else if(i > 4) {
+                                format += (" " + args[i]);
+                            }
+                        }
+                        RyuZUPluginChat.ryuzupluginchat.setChannelFormat(args[3] , format);
+                        sender.sendMessage(ChatColor.GREEN + "TellFormatを編集しました");
                         return true;
                     }
                 }
@@ -200,7 +219,7 @@ public class Command implements CommandExecutor,TabCompleter {
                             list.add("set");
                         }
                         if(args[0].equals("config")) {
-                            list.addAll(Arrays.asList("format" , "channelformat" , "list" , "group"));
+                            list.addAll(Arrays.asList("format" , "channelformat" , "tellformat" , "list" , "group"));
                         }
                     }
                     if(args[0].equals("tell")) {
