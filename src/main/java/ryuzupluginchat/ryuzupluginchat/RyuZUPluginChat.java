@@ -16,6 +16,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
+import com.sun.org.apache.regexp.internal.RE;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.luckperms.api.LuckPerms;
@@ -63,8 +64,16 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         getServer().getMessenger().registerOutgoingPluginChannel(this, "ryuzuchat:ryuzuchat");
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
         Command command = new Command();
+        Tell tell = new Tell();
+        Reply reply = new Reply();
         Objects.requireNonNull(getCommand("rpc")).setExecutor(command);
         Objects.requireNonNull(getCommand("rpc")).setTabCompleter(command);
+        Objects.requireNonNull(getCommand("tell")).setExecutor(tell);
+        Objects.requireNonNull(getCommand("tell")).setTabCompleter(tell);
+        Objects.requireNonNull(getCommand("t")).setExecutor(tell);
+        Objects.requireNonNull(getCommand("t")).setTabCompleter(tell);
+        Objects.requireNonNull(getCommand("reply")).setExecutor(reply);
+        Objects.requireNonNull(getCommand("r")).setExecutor(reply);
         getServer().getScheduler().runTaskTimerAsynchronously(ryuzupluginchat, new CheckPlayers(), 0 , 20 * 10);
         getLogger().info(ChatColor.GREEN + "RyuZUPluginChatが起動しました");
     }

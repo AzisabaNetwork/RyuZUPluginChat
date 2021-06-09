@@ -200,7 +200,7 @@ public class Command implements CommandExecutor,TabCompleter {
                             list.add("set");
                         }
                         if(args[0].equals("config")) {
-                            list.addAll(Arrays.asList("format" , "list" , "group"));
+                            list.addAll(Arrays.asList("format" , "channelformat" , "list" , "group"));
                         }
                     }
                     if(args[0].equals("tell")) {
