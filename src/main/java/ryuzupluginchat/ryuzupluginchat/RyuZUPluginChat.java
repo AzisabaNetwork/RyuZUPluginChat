@@ -94,7 +94,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             .replace("[RyuZUMapPrefix]", (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
                             .replace("[SendServerName]", (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
                             .replace("[ReceiveServerName]", (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
-                            .replace("[PlayerName]", (map.get("PlayerName") == null ? "" : map.get("PlayerName")))
+                            .replace("[PlayerName]", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
                             .replace("[RyuZUMapSuffix]", (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
                             .replace("[LunaChatSuffix]", (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
                             .replace("[LuckPermsSuffix]", (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")));
@@ -189,6 +189,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
         map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
+        map.put("PlayerDisplayName" , p.getDisplayName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
@@ -203,6 +204,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
         map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
+        map.put("PlayerDisplayName" , p.getDisplayName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
@@ -219,6 +221,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
         map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
         map.put("PlayerName" , p.getName());
+        map.put("PlayerDisplayName" , p.getDisplayName());
         map.put("System" , "Chat");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
@@ -235,7 +238,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         String message = msg;
         LunaChatConfig config = LunaChat.getConfig();
         if(canJapanese(msg , p)) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
-        if(config.isEnableNormalChatColorCode() && p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
+        if(config.isEnableNormalChatColorCode() || p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
         return message;
     }
 
