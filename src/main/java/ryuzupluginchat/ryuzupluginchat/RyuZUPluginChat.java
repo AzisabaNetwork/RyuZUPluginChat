@@ -142,11 +142,17 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
-        Collection<Channel> channels = lunachatapi.getChannelsByPlayer(p.getName());
-        if(channels != null && channels.size() != 0){ return; }
-        sendGlobalMessage(p , e.getMessage() , null);
-        e.setFormat("");
-        e.setCancelled(true);
+        try{
+            getLogger().info(p.getName() + " is in channel " + lunachatapi.getDefaultChannel(p.getName()).getName());
+            sendGlobalMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()).getName());
+            e.setFormat("");
+            e.setCancelled(true);
+        }catch(Exception exception){
+            getLogger().info(p.getName() + " is in global channel");
+            sendGlobalMessage(p , e.getMessage() , null);
+            e.setFormat("");
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
