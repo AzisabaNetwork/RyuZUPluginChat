@@ -182,10 +182,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                     .replace("%premsg", map.get("[PreReplaceMessage]"));
                             msg = channelformat;
                         } else {
-                            channelformat = setColor(map.get("ChannelFormat"));
-                            channelformat = channelformat.replace("[ChannelName]", map.get("[ChannelName]"))
-                                    .replace("[ChannelAlias]", map.get("[ChannelAlias]"))
-                                    .replace("[ChannelColorCode]", map.get("[ChannelColorCode]"));
+                            channelformat = setColor(map.get("ChannelFormat"))
+                                    .replace("[ChannelName]", (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
+                                    .replace("[ChannelAliasChannelAlias]", (map.get("ChannelAlias") == null ? "" : map.get("ChannelAlias")))
+                                    .replace("[ChannelColorCode]", (map.get("ChannelColorCode") == null ? "" : map.get("ChannelColorCode")));
                             msg = channelformat + msg;
                         }
                         for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
