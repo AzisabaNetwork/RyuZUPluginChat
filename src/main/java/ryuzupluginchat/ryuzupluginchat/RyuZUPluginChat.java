@@ -65,17 +65,15 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         getServer().getMessenger().registerIncomingPluginChannel(this, "ryuzuchat:ryuzuchat", this);
         Command command = new Command();
         Tell tell = new Tell();
-        Tell tell2 = new Tell();
         Reply reply = new Reply();
-        Reply reply2 = new Reply();
         Objects.requireNonNull(getCommand("rpc")).setExecutor(command);
         Objects.requireNonNull(getCommand("rpc")).setTabCompleter(command);
         Objects.requireNonNull(getCommand("tell")).setExecutor(tell);
         Objects.requireNonNull(getCommand("tell")).setTabCompleter(tell);
-        Objects.requireNonNull(getCommand("t")).setExecutor(tell2);
-        Objects.requireNonNull(getCommand("t")).setTabCompleter(tell2);
+        Objects.requireNonNull(getCommand("t")).setExecutor(tell);
+        Objects.requireNonNull(getCommand("t")).setTabCompleter(tell);
         Objects.requireNonNull(getCommand("reply")).setExecutor(reply);
-        Objects.requireNonNull(getCommand("r")).setExecutor(reply2);
+        Objects.requireNonNull(getCommand("r")).setExecutor(reply);
         getServer().getScheduler().runTaskTimerAsynchronously(ryuzupluginchat, new CheckPlayers(), 0 , 20 * 10);
         getLogger().info(ChatColor.GREEN + "RyuZUPluginChatが起動しました");
     }
