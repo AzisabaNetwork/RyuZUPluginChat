@@ -102,7 +102,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             .replace("[Message]", (map.get("Message") == null ? "" : map.get("Message")));
                     if (map.get("ReceivePlayerName") != null) {
                         Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
-                        if (getServer().getPlayer(map.get("ReceivePlayerName")) == null) { return; }
+                        if (rp == null) { return; }
                         if(map.get("TellFormat") != null) {
                             msg = setColor(map.get("TellFormat"));
                             msg = msg.replace("[LuckPermsPrefix]", (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
@@ -141,6 +141,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         sendReturnPrivateMessage(map.get("PlayerName"), map);
                     } else if (map.get("ReceivedPlayerName") != null) {
                         Player p = getServer().getPlayer(map.get("PlayerName"));
+                        if(p == null) {return;}
                         if(map.get("TellFormat") != null) {
                             msg = setColor(map.get("TellFormat"));
                             msg = msg.replace("[LuckPermsPrefix]", (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
