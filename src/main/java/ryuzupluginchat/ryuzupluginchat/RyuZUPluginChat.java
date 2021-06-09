@@ -124,7 +124,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         players.put(map.get("ReceiveServerName"), list);
                     } else if (map.get("ChannelName") != null) {
                         if (!ExistsChannel) { return; }
-                        String channelformat = map.get("ChannelFormat");
+                        String channelformat = setColor(map.get("ChannelFormat"));
                         channelformat = channelformat.replace("[ChannelName]", lunachannel.getName())
                                 .replace("[LunaChatChannelAlias]", lunachannel.getAlias());
                         msg = channelformat + msg;
