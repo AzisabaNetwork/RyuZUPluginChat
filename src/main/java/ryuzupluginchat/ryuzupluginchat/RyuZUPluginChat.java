@@ -179,7 +179,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendChannelMessage(Player p , String message , Channel channel) {
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
         map.put("ChannelName" , channel.getName());
         map.put("LunaChatChannelAlias" , channel.getAlias());
         map.put("PreReplaceMessage" , message);
@@ -195,7 +195,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendGlobalMessage(Player p , String message) {
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("LuckPermsPrefix" , getPrefix(p));
@@ -210,7 +210,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void sendPrivateMessage(Player p , String message , String receiver) {
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("ReceivePlayerName" , receiver);
