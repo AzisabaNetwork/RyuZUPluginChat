@@ -122,7 +122,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                     players.put(map.get("ReceiveServerName") , list);
                 } else {
-                    for(Player p : (ExistsChannel ? lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
+                    for(Player p : (ExistsChannel ? getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p)).filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
                         p.sendMessage(msg);
                     }
                     if(map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
