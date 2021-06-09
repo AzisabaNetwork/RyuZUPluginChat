@@ -62,7 +62,7 @@ public class Command implements CommandExecutor,TabCompleter {
                         sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
                         return true;
                     }
-                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , RyuZUPluginChat.reply.get(p.getName()));
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , RyuZUPluginChat.reply.get(p.getName()));
                 }
                 return true;
             }
