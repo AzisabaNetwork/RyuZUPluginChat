@@ -166,7 +166,7 @@ public class Command implements CommandExecutor,TabCompleter {
                                 format += (" " + args[i]);
                             }
                         }
-                        RyuZUPluginChat.ryuzupluginchat.setChannelFormat(args[3] , format);
+                        RyuZUPluginChat.ryuzupluginchat.setTellFormat(args[3] , format);
                         sender.sendMessage(ChatColor.GREEN + "TellFormatを編集しました");
                         return true;
                     }
