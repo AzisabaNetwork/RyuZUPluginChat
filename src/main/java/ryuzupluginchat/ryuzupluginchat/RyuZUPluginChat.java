@@ -86,76 +86,82 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
             switch (map.get("System")) {
                 case "Chat":
-                    boolean ExistsChannel = map.get("ChannelName") != null && lunachatapi.getChannel(map.get("ChannelName")) != null;
+                    boolean ExistsChannel = map.containsKey("ChannelName") && lunachatapi.getChannel(map.get("ChannelName")) != null;
                     Channel lunachannel = lunachatapi.getChannel(map.get("ChannelName"));
                     String msg = setColor(map.get("Format"));
-                    msg = msg.replace("[LuckPermsPrefix]", (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
-                            .replace("[LunaChatPrefix]", (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
-                            .replace("[RyuZUMapPrefix]", (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
-                            .replace("[SendServerName]", (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
-                            .replace("[ReceiveServerName]", (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
-                            .replace("[PlayerName]", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
-                            .replace("[RyuZUMapSuffix]", (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
-                            .replace("[LunaChatSuffix]", (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                            .replace("[LuckPermsSuffix]", (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                    msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
+                            .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
+                            .replace("[RyuZUMapPrefix]", map.getOrDefault("RyuZUMapPrefix" , ""))
+                            .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
+                            .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , ""))
+                            .replace("[PlayerName]", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
+                            .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
+                            .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
+                            .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
                             .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
-                            .replace("[Message]", (map.get("Message") == null ? "" : map.get("Message")));
-                    if (map.get("ReceivePlayerName") != null) {
+                            .replace("[Message]", map.getOrDefault("Message" , ""));
+                    if (map.containsKey("ReceivePlayerName")) {
                         Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
                         if (rp == null) { return; }
-                        if(map.get("TellFormat") != null) {
+                        if(map.containsKey("TellFormat")) {
+                            System.out.println("debug1");
                             msg = setColor(map.get("TellFormat"));
-                            msg = msg.replace("[LuckPermsPrefix]", (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
-                                    .replace("[LunaChatPrefix]", (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
-                                    .replace("[RyuZUMapPrefix]", (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
-                                    .replace("[SendServerName]", (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
-                                    .replace("[ReceiveServerName]", (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
-                                    .replace("[PlayerName]", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
-                                    .replace("[ReceivePlayerName]", (map.get("ReceivePlayerName") == null ? "" : map.get("ReceivePlayerName")))
-                                    .replace("[RyuZUMapSuffix]", (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
-                                    .replace("[LunaChatSuffix]", (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                                    .replace("[LuckPermsSuffix]", (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                            msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
+                                    .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
+                                    .replace("[RyuZUMapPrefix]", map.getOrDefault("RyuZUMapPrefix" , ""))
+                                    .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
+                                    .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , ""))
+                                    .replace("[PlayerName]", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
+                                    .replace("[ReceivePlayerName]", map.getOrDefault("ReceivePlayerName" , ""))
+                                    .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
+                                    .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
+                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
                                     .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
-                                    .replace("[Message]", (map.get("Message") == null ? "" : map.get("Message")));
+                                    .replace("[Message]", map.getOrDefault("Message" , ""));
                             rp.sendMessage(msg);
                         } else {
                             msg = ChatColor.YELLOW + "[Private]" + msg;
                             rp.sendMessage(msg);
+                            System.out.println("debug2");
                             rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                         }
                         reply.put(map.get("ReceivePlayerName"), map.get("PlayerName"));
                         reply.put(map.get("PlayerName"), map.get("ReceivePlayerName"));
                         for (Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).filter(p -> !map.get("PlayerName").equals((p.getName()))).collect(Collectors.toList())) {
                             op.sendMessage(msg);
-                            if(map.get("TellFormat") == null) {
+                            if(!map.containsKey("TellFormat")) {
                                 op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
-                            getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                            if(!map.containsKey("TellFormat")) {
+                                getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                            }
                         } else {
-                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
-                            getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + msg);
+                            if(!map.containsKey("TellFormat")) {
+                                getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
+                            }
                         }
                         sendReturnPrivateMessage(map.get("PlayerName"), map);
-                    } else if (map.get("ReceivedPlayerName") != null) {
+                    } else if (map.containsKey("ReceivedPlayerName")) {
                         Player p = getServer().getPlayer(map.get("PlayerName"));
                         if(p == null) {return;}
-                        if(map.get("TellFormat") != null) {
+                        if(map.containsKey("TellFormat")) {
                             msg = setColor(map.get("TellFormat"));
-                            msg = msg.replace("[LuckPermsPrefix]", (map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")))
-                                    .replace("[LunaChatPrefix]", (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix")))
-                                    .replace("[RyuZUMapPrefix]", (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")))
-                                    .replace("[SendServerName]", (map.get("SendServerName") == null ? "" : map.get("SendServerName")))
-                                    .replace("[ReceiveServerName]", (map.get("ReceiveServerName") == null ? "" : map.get("ReceiveServerName")))
-                                    .replace("[PlayerName]", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
-                                    .replace("[ReceivedPlayerName]", (map.get("ReceivedPlayerName") == null ? "" : map.get("ReceivedPlayerName")))
-                                    .replace("[RyuZUMapSuffix]", (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")))
-                                    .replace("[LunaChatSuffix]", (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix")))
-                                    .replace("[LuckPermsSuffix]", (map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")))
+                            msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
+                                    .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
+                                    .replace("[RyuZUMapPrefix]", map.getOrDefault("RyuZUMapPrefix" , ""))
+                                    .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
+                                    .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , ""))
+                                    .replace("[PlayerName]", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
+                                    .replace("[ReceivedPlayerName]", map.getOrDefault("ReceivedPlayerName" , ""))
+                                    .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
+                                    .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
+                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
                                     .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
-                                    .replace("[Message]", (map.get("Message") == null ? "" : map.get("Message")));
+                                    .replace("[Message]", map.getOrDefault("Message" , ""));
                             p.sendMessage(msg);
                         } else {
                             msg = ChatColor.YELLOW + "[Private]" + msg;
@@ -164,13 +170,13 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         }
                         reply.put(map.get("PlayerName"), map.get("ReceivedPlayerName"));
                         reply.put(map.get("ReceivedPlayerName"), map.get("PlayerName"));
-                    } else if (map.get("Players") != null) {
+                    } else if (map.containsKey("Players")) {
                         List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                         players.put(map.get("ReceiveServerName"), list);
-                    } else if (map.get("ChannelName") != null) {
+                    } else if (map.containsKey("ChannelName")) {
                         if (!ExistsChannel) { return; }
                         String channelformat;
-                        if(map.get("ChannelFormat") == null) {
+                        if(!map.containsKey("ChannelFormat")) {
                             channelformat = setColor(map.get("LunaChannelFormat"));
                             channelformat = channelformat.replace("%prefix", ((map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")) +
                                     (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")) +
