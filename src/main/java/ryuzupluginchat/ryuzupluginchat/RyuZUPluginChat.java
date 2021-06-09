@@ -168,7 +168,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
         boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
-        if(global) {
+        if(global || e.getMessage().substring(0 , 1).equals("!")) {
             sendGlobalMessage(p , e.getMessage());
         } else {
             sendChannelMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()));
