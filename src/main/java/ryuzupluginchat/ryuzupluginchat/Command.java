@@ -111,7 +111,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     return true;
                 }
                 if (args.length <= 1) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/list/group]:コンフィグを編集します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " config [format/channelformat/list/group]:コンフィグを編集します");
                     return true;
                 }
                 if (args[1].equalsIgnoreCase("format")) {
@@ -130,6 +130,25 @@ public class Command implements CommandExecutor,TabCompleter {
                         }
                         RyuZUPluginChat.ryuzupluginchat.setFormat(args[3] , format);
                         sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
+                        return true;
+                    }
+                }
+                if (args[1].equalsIgnoreCase("channelformat")) {
+                    if (args.length <= 4) {
+                        sender.sendMessage(ChatColor.BLUE + "/" + label + " config channelformat [set] [GroupName] [format]:ChannelFormatを編集します");
+                        return true;
+                    }
+                    if(args[2].equalsIgnoreCase("set")) {
+                        String format = "";
+                        for(int i = 0 ; i < args.length ; i++) {
+                            if(i == 4) {
+                                format += args[i];
+                            } else if(i > 4) {
+                                format += (" " + args[i]);
+                            }
+                        }
+                        RyuZUPluginChat.ryuzupluginchat.setChannelFormat(args[3] , format);
+                        sender.sendMessage(ChatColor.GREEN + "ChannelFormatを編集しました");
                         return true;
                     }
                 }

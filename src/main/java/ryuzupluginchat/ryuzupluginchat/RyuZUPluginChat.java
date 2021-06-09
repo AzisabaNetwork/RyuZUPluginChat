@@ -125,7 +125,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     } else if (map.get("ChannelName") != null) {
                         if (!ExistsChannel) { return; }
                         String channelformat = map.get("ChannelFormat");
-                        channelformat = channelformat.replace("[ChannelName]", (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
+                        channelformat = channelformat.replace("[ChannelName]", lunachannel.getName())
                                 .replace("[LunaChatChannelAlias]", lunachannel.getAlias());
                         msg = channelformat + msg;
                         for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p)).filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
@@ -319,6 +319,16 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("Arg0" , GroupName);
         map.put("Arg1" , Format);
         map.put("EditTarget" , "Format");
+        map.put("EditType" , "set");
+        map.put("System" , "EditConfig");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void setChannelFormat(String GroupName , String Format) {
+        Map<String , String> map = new HashMap<>();
+        map.put("Arg0" , GroupName);
+        map.put("Arg1" , Format);
+        map.put("EditTarget" , "ChannelFormat");
         map.put("EditType" , "set");
         map.put("System" , "EditConfig");
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
