@@ -103,7 +103,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     if (map.containsKey("ReceivePlayerName")) {
                         Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
                         if (rp == null) { return; }
-                        if(map.containsKey("TellFormat")) {
+                        if(map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
                             System.out.println("debug1");
                             msg = setColor(map.get("TellFormat"));
                             msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
@@ -129,18 +129,18 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         reply.put(map.get("PlayerName"), map.get("ReceivePlayerName"));
                         for (Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).filter(p -> !map.get("PlayerName").equals((p.getName()))).collect(Collectors.toList())) {
                             op.sendMessage(msg);
-                            if(!map.containsKey("TellFormat")) {
+                            if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
                                 op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
-                            if(!map.containsKey("TellFormat")) {
+                            if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
                                 getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         } else {
                             getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + msg);
-                            if(!map.containsKey("TellFormat")) {
+                            if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
                                 getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         }
@@ -148,7 +148,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     } else if (map.containsKey("ReceivedPlayerName")) {
                         Player p = getServer().getPlayer(map.get("PlayerName"));
                         if(p == null) {return;}
-                        if(map.containsKey("TellFormat")) {
+                        if(map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
                             msg = setColor(map.get("TellFormat"));
                             msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
                                     .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
