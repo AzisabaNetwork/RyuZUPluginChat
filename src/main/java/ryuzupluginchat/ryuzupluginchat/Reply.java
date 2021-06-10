@@ -27,9 +27,17 @@ public class Reply implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
                     return true;
                 }
+                String msg = "";
+                for(int i = 0 ; i < args.length ; i++) {
+                    if(i == 0) {
+                        msg += args[i];
+                    } else {
+                        msg += (" " + args[i]);
+                    }
+                }
                 RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[0] , RyuZUPluginChat.reply.get(p.getName()));
             }
-            }
+        }
         return true;
     }
 }

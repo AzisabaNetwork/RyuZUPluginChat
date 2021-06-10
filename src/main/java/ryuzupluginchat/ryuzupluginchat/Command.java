@@ -46,7 +46,15 @@ public class Command implements CommandExecutor,TabCompleter {
                         sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
                         return true;
                     }
-                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[2] , args[1]);
+                    String msg = "";
+                    for(int i = 2 ; i < args.length ; i++) {
+                        if(i == 2) {
+                            msg += args[i];
+                        } else {
+                            msg += (" " + args[i]);
+                        }
+                    }
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , msg , args[1]);
                 }
                 return true;
             }
