@@ -175,11 +175,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     } else if (map.containsKey("Players")) {
                         List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                         players.put(map.get("ReceiveServerName"), list);
-                    } else if (map.containsKey("ChannelName")) {
+                    } else if (map.containsKey("ChannelName") || map.get("ChannelName").equals("")) {
                         boolean ExistsChannel = lunachatapi.getChannel(map.get("ChannelName")) != null;
                         if (!ExistsChannel) { return; }
                         String channelformat;
-                        if(!map.containsKey("ChannelFormat")) {
+                        if(!map.containsKey("ChannelFormat") || map.get("ChannelFormat").equals("")) {
+                            System.out.println("debug1");
                             channelformat = setColor(map.get("LunaChannelFormat"));
                             channelformat = channelformat.replace("%prefix", (map.getOrDefault("LuckPermsPrefix", "") +
                                     map.getOrDefault("RyuZUMapPrefix", "") +
@@ -188,10 +189,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                             map.getOrDefault("RyuZUMapSuffix", "") +
                                             map.getOrDefault("LunaChatSuffix", "")))
                                     .replace("%username", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
-                                    .replace("%msg", map.get("[Message]"))
-                                    .replace("%premsg", map.get("[PreReplaceMessage]"));
+                                    .replace("%msg", map.get("Message"))
+                                    .replace("%premsg", map.get("PreReplaceMessage"));
                             msg = channelformat;
                         } else {
+                            System.out.println("debug2");
                             channelformat = setColor(map.get("ChannelFormat"))
                                     .replace("[ChannelName]", map.getOrDefault("ChannelName" , ""))
                                     .replace("[ChannelAliasChannelAlias]", map.getOrDefault("ChannelAlias" , ""))
