@@ -36,7 +36,7 @@ public class Tell implements CommandExecutor,TabCompleter {
                             msg += (" " + args[i]);
                         }
                     }
-                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , msg , args[1]);
+                    RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , msg , args[0]);
                 }
             }
         return true;
