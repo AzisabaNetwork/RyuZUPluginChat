@@ -86,7 +86,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
             switch (map.get("System")) {
                 case "Chat":
-                    boolean ExistsChannel = map.containsKey("ChannelName") && lunachatapi.getChannel(map.get("ChannelName")) != null;
                     Channel lunachannel = lunachatapi.getChannel(map.get("ChannelName"));
                     String msg = map.get("Format");
                     msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
@@ -177,6 +176,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                         players.put(map.get("ReceiveServerName"), list);
                     } else if (map.containsKey("ChannelName")) {
+                        boolean ExistsChannel = lunachatapi.getChannel(map.get("ChannelName")) != null;
                         if (!ExistsChannel) { return; }
                         String channelformat;
                         if(!map.containsKey("ChannelFormat")) {
@@ -205,7 +205,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         }
                     } else {
-                        for (Player p : (ExistsChannel ? getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p)).filter(p -> p.hasPermission("rpc.op")).collect(Collectors.toList()) : getServer().getOnlinePlayers())) {
+                        for (Player p : getServer().getOnlinePlayers()) {
                             p.sendMessage(msg);
                         }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
@@ -230,7 +230,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         Player p = e.getPlayer();
         boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
         if(global || e.getMessage().substring(0 , 1).equals("!")) {
-            sendGlobalMessage(p , e.getMessage());
+            sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
         } else {
             sendChannelMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()));
         }
@@ -259,7 +259,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendGlobalMessage(Player p , String message) {
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("LuckPermsPrefix" , getPrefix(p));
@@ -275,7 +275,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void sendPrivateMessage(Player p , String message , String receiver) {
         ChannelMemberBukkit cp =  ChannelMemberBukkit.getChannelMemberBukkit(p.getName());
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
         map.put("PreReplaceMessage" , message);
         map.put("CanJapanese" , String.valueOf(canJapanese(message , p)));
         map.put("ReceivePlayerName" , receiver);

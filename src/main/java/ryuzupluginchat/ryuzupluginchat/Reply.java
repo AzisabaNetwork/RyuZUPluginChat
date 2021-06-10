@@ -35,7 +35,7 @@ public class Reply implements CommandExecutor {
                         msg += (" " + args[i]);
                     }
                 }
-                RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[0] , RyuZUPluginChat.reply.get(p.getName()));
+                RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , msg, RyuZUPluginChat.reply.get(p.getName()));
             }
         }
         return true;
