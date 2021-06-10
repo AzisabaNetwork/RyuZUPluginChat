@@ -88,7 +88,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                 case "Chat":
                     boolean ExistsChannel = map.containsKey("ChannelName") && lunachatapi.getChannel(map.get("ChannelName")) != null;
                     Channel lunachannel = lunachatapi.getChannel(map.get("ChannelName"));
-                    String msg = setColor(map.get("Format"));
+                    String msg = map.get("Format");
                     msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
                             .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
                             .replace("[RyuZUMapPrefix]", map.getOrDefault("RyuZUMapPrefix" , ""))
@@ -97,8 +97,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             .replace("[PlayerName]", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
                             .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
                             .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
-                            .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
-                            .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
+                            .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""));
+                    msg = setColor(msg);
+                    msg = msg.replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                             .replace("[Message]", map.getOrDefault("Message" , ""));
                     if (map.containsKey("ReceivePlayerName")) {
                         Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
@@ -115,8 +116,9 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                     .replace("[ReceivePlayerName]", map.getOrDefault("ReceivePlayerName" , ""))
                                     .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
                                     .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
-                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
-                                    .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
+                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""));
+                            msg = setColor(msg);
+                            msg = msg.replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                                     .replace("[Message]", map.getOrDefault("Message" , ""));
                             rp.sendMessage(msg);
                         } else {
@@ -159,14 +161,15 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                     .replace("[ReceivedPlayerName]", map.getOrDefault("ReceivedPlayerName" , ""))
                                     .replace("[RyuZUMapSuffix]", map.getOrDefault("RyuZUMapSuffix" , ""))
                                     .replace("[LunaChatSuffix]", map.getOrDefault("LunaChatSuffix" , ""))
-                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""))
-                                    .replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
+                                    .replace("[LuckPermsSuffix]", map.getOrDefault("LuckPermsSuffix" , ""));
+                            msg = setColor(msg);
+                            msg = msg.replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                                     .replace("[Message]", map.getOrDefault("Message" , ""));
                             p.sendMessage(msg);
                         } else {
                             msg = ChatColor.YELLOW + "[Private]" + msg;
                             p.sendMessage(msg);
-                            p.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivedPlayerName"));
+                            p.sendMessage(ChatColor.RED + "---> " + map.get("ReceivedPlayerName"));
                         }
                         reply.put(map.get("PlayerName"), map.get("ReceivedPlayerName"));
                         reply.put(map.get("ReceivedPlayerName"), map.get("PlayerName"));
@@ -178,21 +181,21 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         String channelformat;
                         if(!map.containsKey("ChannelFormat")) {
                             channelformat = setColor(map.get("LunaChannelFormat"));
-                            channelformat = channelformat.replace("%prefix", ((map.get("LuckPermsPrefix") == null ? "" : map.get("LuckPermsPrefix")) +
-                                    (map.get("RyuZUMapPrefix") == null ? "" : map.get("RyuZUMapPrefix")) +
-                                    (map.get("LunaChatPrefix") == null ? "" : map.get("LunaChatPrefix"))))
-                                    .replace("%suffix", ((map.get("LuckPermsSuffix") == null ? "" : map.get("LuckPermsSuffix")) +
-                                            (map.get("RyuZUMapSuffix") == null ? "" : map.get("RyuZUMapSuffix")) +
-                                            (map.get("LunaChatSuffix") == null ? "" : map.get("LunaChatSuffix"))))
-                                    .replace("%username", (map.get("PlayerDisplayName") == null ? (map.get("PlayerName") == null ? "" : map.get("PlayerName")) : map.get("PlayerDisplayName")))
+                            channelformat = channelformat.replace("%prefix", (map.getOrDefault("LuckPermsPrefix", "") +
+                                    map.getOrDefault("RyuZUMapPrefix", "") +
+                                    map.getOrDefault("LunaChatPrefix", "")))
+                                    .replace("%suffix", (map.getOrDefault("LuckPermsSuffix", "") +
+                                            map.getOrDefault("RyuZUMapSuffix", "") +
+                                            map.getOrDefault("LunaChatSuffix", "")))
+                                    .replace("%username", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
                                     .replace("%msg", map.get("[Message]"))
                                     .replace("%premsg", map.get("[PreReplaceMessage]"));
                             msg = channelformat;
                         } else {
                             channelformat = setColor(map.get("ChannelFormat"))
-                                    .replace("[ChannelName]", (map.get("ChannelName") == null ? "" : map.get("ChannelName")))
-                                    .replace("[ChannelAliasChannelAlias]", (map.get("ChannelAlias") == null ? "" : map.get("ChannelAlias")))
-                                    .replace("[ChannelColorCode]", (map.get("ChannelColorCode") == null ? "" : map.get("ChannelColorCode")));
+                                    .replace("[ChannelName]", map.getOrDefault("ChannelName" , ""))
+                                    .replace("[ChannelAliasChannelAlias]", map.getOrDefault("ChannelAlias" , ""))
+                                    .replace("[ChannelColorCode]", map.getOrDefault("ChannelColorCode" , ""));
                             msg = channelformat + msg;
                         }
                         for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
