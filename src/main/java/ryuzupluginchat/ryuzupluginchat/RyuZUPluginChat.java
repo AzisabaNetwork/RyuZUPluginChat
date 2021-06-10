@@ -175,13 +175,12 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     } else if (map.containsKey("Players")) {
                         List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                         players.put(map.get("ReceiveServerName"), list);
-                    } else if (map.containsKey("ChannelName") || map.get("ChannelName").equals("")) {
+                    } else if (map.containsKey("ChannelName")) {
                         boolean ExistsChannel = lunachatapi.getChannel(map.get("ChannelName")) != null;
                         if (!ExistsChannel) { return; }
                         String channelformat;
                         if(!map.containsKey("ChannelFormat") || map.get("ChannelFormat").equals("")) {
-                            System.out.println("debug1");
-                            channelformat = setColor(map.get("LunaChannelFormat"));
+                            channelformat = map.get("LunaChannelFormat");
                             channelformat = channelformat.replace("%prefix", (map.getOrDefault("LuckPermsPrefix", "") +
                                     map.getOrDefault("RyuZUMapPrefix", "") +
                                     map.getOrDefault("LunaChatPrefix", "")))
@@ -189,16 +188,19 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                             map.getOrDefault("RyuZUMapSuffix", "") +
                                             map.getOrDefault("LunaChatSuffix", "")))
                                     .replace("%username", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
-                                    .replace("%msg", map.get("Message"))
+                                    .replace("%displayname", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
+                                    .replace("%ch", map.get("ChannelName"))
+                                    .replace("%color", map.get("ChannelColorCode"));
+                            channelformat = setColor(channelformat);
+                            channelformat = channelformat.replace("%msg", map.get("Message"))
                                     .replace("%premsg", map.get("PreReplaceMessage"));
                             msg = channelformat;
                         } else {
-                            System.out.println("debug2");
-                            channelformat = setColor(map.get("ChannelFormat"))
+                            channelformat = map.get("ChannelFormat")
                                     .replace("[ChannelName]", map.getOrDefault("ChannelName" , ""))
                                     .replace("[ChannelAliasChannelAlias]", map.getOrDefault("ChannelAlias" , ""))
                                     .replace("[ChannelColorCode]", map.getOrDefault("ChannelColorCode" , ""));
-                            msg = channelformat + msg;
+                            msg = setColor(channelformat) + msg;
                         }
                         for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
@@ -242,7 +244,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendChannelMessage(Player p , String message , Channel channel) {
         Map<String , String> map = new HashMap<>();
-        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , "").replace("!" , ""));
+        map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
         map.put("ChannelName" , channel.getName());
         map.put("LunaChannelFormat" , channel.getFormat());
         map.put("ChannelColorCode" , channel.getColorCode());

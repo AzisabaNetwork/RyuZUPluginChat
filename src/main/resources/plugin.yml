@@ -31,5 +31,5 @@ permissions:
     default: op
   rpc.*:
     children:
-      rbc.op: true
-      rbc.player: true
+      rpc.op: true
+      rpc.player: true
