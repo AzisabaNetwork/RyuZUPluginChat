@@ -128,7 +128,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         }
                         reply.put(map.get("ReceivePlayerName"), map.get("PlayerName"));
                         reply.put(map.get("PlayerName"), map.get("ReceivePlayerName"));
-                        for (Player op : getServer().getOnlinePlayers().stream().filter(p -> p.hasPermission("rpc.op")).filter(p -> !p.equals(rp)).filter(p -> !map.get("PlayerName").equals((p.getName()))).collect(Collectors.toList())) {
+                        for (Player op : getServer().getOnlinePlayers().stream()
+                                .filter(p -> p.hasPermission("rpc.op"))
+                                .filter(p -> !p.equals(rp))
+                                .filter(p -> !map.get("PlayerName").equals((p.getName())))
+                                .collect(Collectors.toList())) {
                             op.sendMessage(msg);
                             if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
                                 op.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
@@ -202,14 +206,21 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                     .replace("[ChannelColorCode]", map.getOrDefault("ChannelColorCode" , ""));
                             msg = setColor(channelformat) + msg;
                         }
-                        for (Player p : getServer().getOnlinePlayers().stream().filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op")).collect(Collectors.toList())) { p.sendMessage(msg); }
+                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(map.get("PlayerName"));
+                        for (Player p : getServer().getOnlinePlayers().stream()
+                                .filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op"))
+                                .filter(p -> !lunachatapi.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName()))).contains(member))
+                                .collect(Collectors.toList())) { p.sendMessage(msg); }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
                         } else {
                             getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
                         }
                     } else {
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(map.get("PlayerName"));
+                        for (Player p : getServer().getOnlinePlayers().stream()
+                                .filter(p -> !lunachatapi.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName()))).contains(member))
+                                .collect(Collectors.toList())) {
                             p.sendMessage(msg);
                         }
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
