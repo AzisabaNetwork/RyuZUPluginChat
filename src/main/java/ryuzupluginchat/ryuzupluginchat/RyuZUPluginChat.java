@@ -5,12 +5,15 @@ import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.LunaChatConfig;
+import com.github.ucchyocean.lc3.LunaChatLogger;
 import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelChatEvent;
 import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelMessageEvent;
+import com.github.ucchyocean.lc3.channel.BukkitChannel;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.japanize.JapanizeType;
 import com.github.ucchyocean.lc3.member.ChannelMember;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
+import com.github.ucchyocean.lc3.util.Utility;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -35,10 +38,10 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -84,6 +87,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
             String data = in.readUTF();
             Map<String , String> map = (Map<String, String>) jsonToMap(data);
+            String playername = map.get("PlayerName");
             switch (map.get("System")) {
                 case "Chat":
                     Channel lunachannel = lunachatapi.getChannel(map.get("ChannelName"));
@@ -104,7 +108,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
                         if (rp == null) { return; }
                         if(map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
-                            System.out.println("debug1");
                             msg = setColor(map.get("TellFormat"));
                             msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
                                     .replace("[LunaChatPrefix]", map.getOrDefault("LunaChatPrefix" , ""))
@@ -123,15 +126,14 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         } else {
                             msg = ChatColor.YELLOW + "[Private]" + msg;
                             rp.sendMessage(msg);
-                            System.out.println("debug2");
                             rp.sendMessage(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                         }
-                        reply.put(map.get("ReceivePlayerName"), map.get("PlayerName"));
-                        reply.put(map.get("PlayerName"), map.get("ReceivePlayerName"));
+                        reply.put(map.get("ReceivePlayerName"), playername);
+                        reply.put(playername, map.get("ReceivePlayerName"));
                         for (Player op : getServer().getOnlinePlayers().stream()
                                 .filter(p -> p.hasPermission("rpc.op"))
                                 .filter(p -> !p.equals(rp))
-                                .filter(p -> !map.get("PlayerName").equals((p.getName())))
+                                .filter(p -> !playername.equals((p.getName())))
                                 .collect(Collectors.toList())) {
                             op.sendMessage(msg);
                             if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
@@ -144,14 +146,14 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                 getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         } else {
-                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + msg);
+                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + playername + " --> " + msg);
                             if(!map.containsKey("TellFormat") || map.get("TellFormat").equals("")) {
                                 getLogger().info(ChatColor.RED + "--- > " + map.get("ReceivePlayerName"));
                             }
                         }
-                        sendReturnPrivateMessage(map.get("PlayerName"), map);
+                        sendReturnPrivateMessage(playername, map);
                     } else if (map.containsKey("ReceivedPlayerName")) {
-                        Player p = getServer().getPlayer(map.get("PlayerName"));
+                        Player p = getServer().getPlayer(playername);
                         if(p == null) {return;}
                         if(map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
                             msg = setColor(map.get("TellFormat"));
@@ -174,13 +176,14 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             p.sendMessage(msg);
                             p.sendMessage(ChatColor.RED + "---> " + map.get("ReceivedPlayerName"));
                         }
-                        reply.put(map.get("PlayerName"), map.get("ReceivedPlayerName"));
-                        reply.put(map.get("ReceivedPlayerName"), map.get("PlayerName"));
+                        reply.put(playername, map.get("ReceivedPlayerName"));
+                        reply.put(map.get("ReceivedPlayerName"), playername);
                     } else if (map.containsKey("Players")) {
                         List<String> list = new ArrayList<>(Arrays.asList(map.get("Players").split(",")));
                         players.put(map.get("ReceiveServerName"), list);
                     } else if (map.containsKey("ChannelName")) {
-                        boolean ExistsChannel = lunachatapi.getChannel(map.get("ChannelName")) != null;
+                        String channelname = map.get("ChannelName");
+                        boolean ExistsChannel = lunachatapi.getChannel(channelname) != null;
                         if (!ExistsChannel) { return; }
                         String channelformat;
                         if(!map.containsKey("ChannelFormat") || map.get("ChannelFormat").equals("")) {
@@ -193,7 +196,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                             map.getOrDefault("LunaChatSuffix", "")))
                                     .replace("%username", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
                                     .replace("%displayname", (map.getOrDefault("PlayerDisplayName" , map.getOrDefault("PlayerName" , ""))))
-                                    .replace("%ch", map.get("ChannelName"))
+                                    .replace("%ch", channelname)
                                     .replace("%color", map.get("ChannelColorCode"));
                             channelformat = setColor(channelformat);
                             channelformat = channelformat.replace("%msg", map.get("Message"))
@@ -206,7 +209,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                     .replace("[ChannelColorCode]", map.getOrDefault("ChannelColorCode" , ""));
                             msg = setColor(channelformat) + msg;
                         }
-                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(map.get("PlayerName"));
+                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(playername);
                         for (Player p : getServer().getOnlinePlayers().stream()
                                 .filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op"))
                                 .filter(p -> !lunachatapi.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName()))).contains(member))
@@ -214,10 +217,11 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
                         } else {
-                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
+                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + playername + " --> " + map.get("Message") + ChatColor.BLUE + channelname);
                         }
+                        addChannelLog(map.get("Message") , playername , channelname);
                     } else {
-                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(map.get("PlayerName"));
+                        ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(playername);
                         for (Player p : getServer().getOnlinePlayers().stream()
                                 .filter(p -> !lunachatapi.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName()))).contains(member))
                                 .collect(Collectors.toList())) {
@@ -226,15 +230,15 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
                             getLogger().info(msg);
                         } else {
-                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + map.get("PlayerName") + " --> " + map.get("Message") + ChatColor.BLUE + (map.get("ChannelName") == null ? "" : map.get("ChannelName")));
+                            getLogger().info("(" + ChatColor.RED + map.get("SendServerName") + ChatColor.WHITE + ")" + playername + " --> " + map.get("Message") + ChatColor.BLUE);
                         }
                     }
                     break;
                 case "Prefix":
-                    prefix.put(map.get("PlayerName"), map.get("Prefix"));
+                    prefix.put(playername, map.get("Prefix"));
                     break;
                 case "Suffix":
-                    suffix.put(map.get("PlayerName"), map.get("Suffix"));
+                    suffix.put(playername, map.get("Suffix"));
                     break;
             }
         }
@@ -495,11 +499,86 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
+    /**
+     * 指定された日付のログファイル名を生成して返します。
+     * @param date 日付
+     * @return ログファイル名
+     */
+    private String getFolderPath(Date date) {
+        return LunaChat.getDataFolder() +
+                File.separator + "logs" +
+                File.separator + new SimpleDateFormat("yyyy-MM-dd").format(date);
+    }
+
+    /**
+     * 指定された日付のログファイルを取得します。
+     * 取得できない場合は、nullを返します。
+     * @param date 日付
+     * @return 指定された日付のログファイル
+     */
+    private File getLogFile(String date , String channelname) {
+        File dir = new File(getFolderPath(new Date()));
+        if ( !dir.exists() || !dir.isDirectory() ) { dir.mkdirs(); }
+        File file = new File(dir, channelname + ".log");
+
+        if ( date == null ) { return file; }
+
+        Date d;
+        try {
+            if ( date.matches("[0-9]{4}") ) {
+                date = Calendar.getInstance().get(Calendar.YEAR) + date;
+            }
+            if ( date.matches("[0-9]{8}") ) {
+                d = new SimpleDateFormat("yyyyMMdd").parse(date);
+            } else {
+                return null;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        File folder = new File(getFolderPath(d));
+        if ( !folder.exists() || !folder.isDirectory() ) {
+            return null;
+        }
+
+        File f = new File(folder, channelname + ".log");
+        if ( !f.exists() ) {
+            return null;
+        }
+
+        return f;
+    }
+
+    /**
+     * ログを出力する
+     * @param message ログ内容
+     * @param player 発言者名
+     */
+    public synchronized void addChannelLog(final String message, final String player , final String channelname) {
+        // 以降の処理を、発言処理の負荷軽減のため、非同期実行にする。(see issue #40.)
+        LunaChat.runAsyncTask(() -> {
+
+            String msg = Utility.stripColorCode(message);
+            if ( msg == null ) msg = "";
+            msg = msg.replace(",", "，");
+
+            try (OutputStreamWriter writer = new OutputStreamWriter(
+                    new FileOutputStream(Objects.requireNonNull(getLogFile(null, channelname)), true), StandardCharsets.UTF_8); ) {
+
+                String str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "," + msg + "," + player;
+                writer.write(str + "\r\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public static class CheckPlayers implements Runnable {
         @Override
         public void run() {
             RyuZUPluginChat.ryuzupluginchat.sendPlayers();
         }
     }
-
 }
