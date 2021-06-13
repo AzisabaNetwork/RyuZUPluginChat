@@ -1,6 +1,7 @@
 package ryuzupluginchat.ryuzupluginchat;
 
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -113,6 +114,33 @@ public class Command implements CommandExecutor,TabCompleter {
                 return true;
             }
 
+            if (args[0].equalsIgnoreCase("message") || args[0].equalsIgnoreCase("msg")) {
+                if (!sender.hasPermission("rpc.op")) {
+                    sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
+                    return true;
+                }
+                if (args.length <= 2) {
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " message [message/player] [Message]:指定されたメッセージをGroupに送信します");
+                    return true;
+                }
+                String msg = "";
+                for(int i = (args[1].equalsIgnoreCase("message") ? 2 : 3) ; i < args.length ; i++) {
+                    if(i == (args[1].equalsIgnoreCase("message") ? 2 : 3)) {
+                        msg += args[i];
+                    } else {
+                        msg += (" " + args[i]);
+                    }
+                }
+                if(args[1].equalsIgnoreCase("message")) {
+                    RyuZUPluginChat.ryuzupluginchat.sendSystemMessage(msg);
+                } else if(args[1].equalsIgnoreCase("player")) {
+                    Player p = Bukkit.getPlayer(args[2]);
+                    if(p == null) {return true;}
+                    RyuZUPluginChat.ryuzupluginchat.sendSystemMessage(msg , p);
+                }
+                return true;
+            }
+
             if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
                 if (!sender.hasPermission("rpc.op")) {
                     sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
@@ -218,7 +246,7 @@ public class Command implements CommandExecutor,TabCompleter {
             Player p = (Player) sender;
             if (command.getName().equalsIgnoreCase("rpc")) {
                 if(args.length == 1) {
-                    if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "config"));}
+                    if(sender.hasPermission("rpc.op")) {list.addAll(Arrays.asList("prefix" , "suffix" , "message" , "config"));}
                     list.addAll(Arrays.asList("tell" , "reply"));
                 }
                 if(args.length == 2) {
@@ -228,6 +256,9 @@ public class Command implements CommandExecutor,TabCompleter {
                         }
                         if(args[0].equals("config")) {
                             list.addAll(Arrays.asList("format" , "channelformat" , "tellformat" , "list" , "group"));
+                        }
+                        if(args[0].equals("message")) {
+                            list.addAll(Arrays.asList("message" , "player"));
                         }
                     }
                     if(args[0].equals("tell")) {

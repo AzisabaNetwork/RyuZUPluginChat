@@ -30,6 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -240,21 +241,30 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                 case "Suffix":
                     suffix.put(playername, map.get("Suffix"));
                     break;
+                case "SystemMessage":
+                    String smsg = map.get("Message");
+                    smsg = setColor(smsg
+                            .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
+                            .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , "")));
+                    for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(smsg); }
+                    break;
             }
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onChat(AsyncPlayerChatEvent e) {
-        Player p = e.getPlayer();
-        boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
-        if(global || e.getMessage().substring(0 , 1).equals("!")) {
-            sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
-        } else {
-            sendChannelMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()));
-        }
-        e.setFormat("");
-        e.setCancelled(true);
+       if(!e.isCancelled()) {
+           Player p = e.getPlayer();
+           boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
+           if(global || e.getMessage().substring(0 , 1).equals("!")) {
+               sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
+           } else {
+               sendChannelMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()));
+           }
+           e.setFormat("");
+           e.setCancelled(true);
+       }
     }
 
     public void sendChannelMessage(Player p , String message , Channel channel) {
@@ -308,6 +318,29 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
+    public void sendSystemMessage(String message) {
+        Map<String , String> map = new HashMap<>();
+        map.put("SystemMessage" , setColor(message));
+        map.put("System" , "SystemMessage");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
+    public void sendSystemMessage(String message , Player p) {
+        Map<String , String> map = new HashMap<>();
+        String msg = message;
+        msg = msg.replace("[LuckPermsPrefix]", replaceNull(getPrefix(p)))
+                .replace("[RyuZUMapPrefix]", replaceNull(prefix.get(p.getName())))
+                .replace("[RyuZUMapSuffix]", replaceNull(suffix.get(p.getName())))
+                .replace("[LuckPermsSuffix]", replaceNull(getSuffix(p)));
+        map.put("Message" , setColor(msg));
+        map.put("LuckPermsPrefix" , getPrefix(p));
+        map.put("LuckPermsSuffix" , getSuffix(p));
+        map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
+        map.put("RyuZUMapSuffix" , suffix.get(p.getName()));
+        map.put("System" , "SystemMessage");
+        sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
+    }
+
     public void sendReturnPrivateMessage(String p , Map<String , String> data) {
         Map<String , String> map = new HashMap<>(data);
         map.put("ReceivedPlayerName" , map.get("ReceivePlayerName"));
@@ -322,6 +355,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         if(canJapanese(msg , p)) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
         if(config.isEnableNormalChatColorCode() || p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
         return message;
+    }
+
+    private String replaceNull(String s) {
+        return (s == null ? "" : s);
     }
 
     private boolean canJapanese(String msg , Player p) {
