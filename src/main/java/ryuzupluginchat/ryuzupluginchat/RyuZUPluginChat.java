@@ -243,7 +243,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     break;
                 case "SystemMessage":
                     if(map.containsKey("SystemMessage")) {
-                        String smsg = map.get("Message");
+                        String smsg = map.get("SystemMessage");
                         smsg = setColor(smsg
                                 .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
                                 .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , "")));
