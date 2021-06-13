@@ -242,11 +242,13 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                     suffix.put(playername, map.get("Suffix"));
                     break;
                 case "SystemMessage":
-                    String smsg = map.get("Message");
-                    smsg = setColor(smsg
-                            .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
-                            .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , "")));
-                    for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(smsg); }
+                    if(map.containsKey("SystemMessage")) {
+                        String smsg = map.get("Message");
+                        smsg = setColor(smsg
+                                .replace("[SendServerName]", map.getOrDefault("SendServerName" , ""))
+                                .replace("[ReceiveServerName]", map.getOrDefault("ReceiveServerName" , "")));
+                        for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(smsg); }
+                    }
                     break;
             }
         }
@@ -332,7 +334,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                 .replace("[RyuZUMapPrefix]", replaceNull(prefix.get(p.getName())))
                 .replace("[RyuZUMapSuffix]", replaceNull(suffix.get(p.getName())))
                 .replace("[LuckPermsSuffix]", replaceNull(getSuffix(p)));
-        map.put("Message" , setColor(msg));
+        map.put("SystemMessage" , setColor(msg));
         map.put("LuckPermsPrefix" , getPrefix(p));
         map.put("LuckPermsSuffix" , getSuffix(p));
         map.put("RyuZUMapPrefix" , prefix.get(p.getName()));
