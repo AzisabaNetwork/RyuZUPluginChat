@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +48,10 @@ public class Command implements CommandExecutor,TabCompleter {
                         sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
                         return true;
                     }
+                    if (RyuZUPluginChat.isMuted(p)) {
+                        sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
+                        return true;
+                    }
                     String msg = "";
                     for(int i = 2 ; i < args.length ; i++) {
                         if(i == 2) {
@@ -69,6 +74,10 @@ public class Command implements CommandExecutor,TabCompleter {
                     Player p = (Player) sender;
                     if (!RyuZUPluginChat.reply.containsKey(p.getName())) {
                         sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
+                        return true;
+                    }
+                    if (RyuZUPluginChat.isMuted(p)) {
+                        sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
                         return true;
                     }
                     RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , RyuZUPluginChat.reply.get(p.getName()));
@@ -120,7 +129,7 @@ public class Command implements CommandExecutor,TabCompleter {
                     return true;
                 }
                 if (args.length <= 2) {
-                    sender.sendMessage(ChatColor.BLUE + "/" + label + " message [message/player] [Message]:指定されたメッセージをGroupに送信します");
+                    sender.sendMessage(ChatColor.BLUE + "/" + label + " message [message/player/playermessage] [Message]:指定されたメッセージをGroupに送信します");
                     return true;
                 }
                 String msg = "";
@@ -137,6 +146,15 @@ public class Command implements CommandExecutor,TabCompleter {
                     Player p = Bukkit.getPlayer(args[2]);
                     if(p == null) {return true;}
                     RyuZUPluginChat.ryuzupluginchat.sendSystemMessage(msg , p);
+                } else if(args[1].equalsIgnoreCase("playermessage")) {
+                    Player p = Bukkit.getPlayer(args[2]);
+                    if(p == null) {return true;}
+                    boolean global = RyuZUPluginChat.lunachatapi.getDefaultChannel(p.getName()) == null;
+                    if(global || msg.substring(0 , 1).equals("!")) {
+                        RyuZUPluginChat.sendGlobalMessage(p , msg.substring(0 , 1).equals("!") ? msg.substring(1) : msg);
+                    } else {
+                        RyuZUPluginChat.sendChannelMessage(p , msg , RyuZUPluginChat.lunachatapi.getDefaultChannel(p.getName()));
+                    }
                 }
                 return true;
             }
@@ -258,7 +276,7 @@ public class Command implements CommandExecutor,TabCompleter {
                             list.addAll(Arrays.asList("format" , "channelformat" , "tellformat" , "list" , "group"));
                         }
                         if(args[0].equals("message")) {
-                            list.addAll(Arrays.asList("message" , "player"));
+                            list.addAll(Arrays.asList("message" , "player" , "playermessage"));
                         }
                     }
                     if(args[0].equals("tell")) {
@@ -275,6 +293,9 @@ public class Command implements CommandExecutor,TabCompleter {
                         }
                         if(args[1].equals("group")) {
                             list.add("remove");
+                        }
+                        if(Arrays.asList("message" , "player" , "playermessage").contains(args[1])) {
+                            list.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList()));
                         }
                     }
                 }

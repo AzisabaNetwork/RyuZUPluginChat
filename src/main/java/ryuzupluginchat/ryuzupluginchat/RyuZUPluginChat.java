@@ -19,9 +19,15 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
+import com.sun.corba.se.impl.orbutil.concurrent.Mutex;
 import com.sun.org.apache.regexp.internal.RE;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import me.leoko.advancedban.bungee.BungeeMain;
+import me.leoko.advancedban.bungee.BungeeMethods;
+import me.leoko.advancedban.manager.PunishmentManager;
+import me.leoko.advancedban.manager.UUIDManager;
+import me.leoko.advancedban.utils.commands.PunishmentProcessor;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -52,7 +58,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageListener, Listener {
-    private static LunaChatAPI lunachatapi;
+    public static LunaChatAPI lunachatapi;
     private static HashMap<String , List<String>> players = new HashMap<>();
     private static HashMap<String , String> prefix = new HashMap<>();
     private static HashMap<String , String> suffix = new HashMap<>();
@@ -276,6 +282,10 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onChat(AsyncPlayerChatEvent e) {
         if(!e.isCancelled()) {
             Player p = e.getPlayer();
+            if (RyuZUPluginChat.isMuted(p)) {
+                p.sendMessage(ChatColor.RED + "あなたはミュートされています");
+                return;
+            }
             boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
             if(global || e.getMessage().substring(0 , 1).equals("!")) {
                 sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
@@ -287,7 +297,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         }
     }
 
-    public void sendChannelMessage(Player p , String message , Channel channel) {
+    public static void sendChannelMessage(Player p, String message, Channel channel) {
         runAsyncTask(() -> {
             Map<String , String> map = new HashMap<>();
             map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
@@ -308,7 +318,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         });
     }
 
-    public void sendGlobalMessage(Player p , String message) {
+    public static void sendGlobalMessage(Player p, String message) {
         runAsyncTask(() -> {
             Map<String , String> map = new HashMap<>();
             map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
@@ -388,7 +398,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         });
     }
 
-    private String replaceMessage(String msg , Player p) {
+    private static String replaceMessage(String msg, Player p) {
         String message = msg;
         LunaChatConfig config = LunaChat.getConfig();
         if(canJapanese(msg , p)) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
@@ -400,7 +410,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         return (s == null ? "" : s);
     }
 
-    private boolean canJapanese(String msg , Player p) {
+    private static boolean canJapanese(String msg, Player p) {
         LunaChatConfig config = LunaChat.getConfig();
         return lunachatapi.isPlayerJapanize(p.getName()) &&
                 config.getJapanizeType() != JapanizeType.NONE &&
@@ -409,22 +419,22 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                 !msg.substring(0 , 1).equals("$");
     }
 
-    private String setColor(String msg) {
+    private static String setColor(String msg) {
         String replaced = msg;
         replaced = replaceToHexFromRGB(replaced);
         return ChatColor.translateAlternateColorCodes('&' , replaced);
     }
 
-    private void sendPluginMessage(String channel, String data) {
+    private static void sendPluginMessage(String channel, String data) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF(data);
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null) {
-            player.sendPluginMessage(this, channel, out.toByteArray());
+            player.sendPluginMessage(ryuzupluginchat, channel, out.toByteArray());
         }
     }
 
-    private String getPrefix(Player player) {
+    private static String getPrefix(Player player) {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
             LuckPerms api = provider.getProvider();
@@ -436,7 +446,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         return null;
     }
 
-    private String getSuffix(Player player) {
+    private static String getSuffix(Player player) {
         RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
         if (provider != null) {
             LuckPerms api = provider.getProvider();
@@ -448,7 +458,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         return null;
     }
 
-    private String mapToJson(Map<String, String> map) {
+    private static String mapToJson(Map<String, String> map) {
         Gson gson = new Gson();
         return gson.toJson(map);
     }
@@ -575,6 +585,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
 
+    public static boolean isMuted(Player p) { return PunishmentManager.get().isMuted(UUIDManager.get().getUUID(p.getName())); }
+
     /**
      * 指定された日付のログファイル名を生成して返します。
      * @param date 日付
@@ -658,7 +670,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         }
     }
 
-    public void runAsyncTask(Runnable task) {
+    public static void runAsyncTask(Runnable task) {
         Bukkit.getScheduler().runTaskAsynchronously(ryuzupluginchat , task);
     }
 }
