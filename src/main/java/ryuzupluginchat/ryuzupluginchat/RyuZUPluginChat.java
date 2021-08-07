@@ -200,9 +200,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         } else if (map.containsKey("ChannelName")) {
                             String channelname = map.get("ChannelName");
                             boolean ExistsChannel = lunachatapi.getChannel(channelname) != null;
-                            if (!ExistsChannel) {
-                                return;
-                            }
+                            if (!ExistsChannel) { return; }
                             String channelformat;
                             if (!map.containsKey("ChannelFormat") || map.get("ChannelFormat").equals("")) {
                                 channelformat = map.get("LunaChannelFormat");
@@ -241,9 +239,33 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             }
                             addChannelLog(map.get("Message"), playername, channelname);
                         } else if(map.containsKey("Discord")) {
-                            msg = ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]" + ChatColor.GREEN + map.get("Discord") + ChatColor.WHITE + " " + map.get("Message");
-                            for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(msg); }
-                            getLogger().info(msg);
+                            if(map.containsKey("ChannelName")) {
+                                String channelname = map.get("ChannelName");
+                                boolean ExistsChannel = lunachatapi.getChannel(channelname) != null;
+                                if (!ExistsChannel) {return;}
+                                String channelformat = lunachannel.getFormat();
+                                channelformat = channelformat.replace("%prefix", (map.getOrDefault("LuckPermsPrefix", "") +
+                                        map.getOrDefault("RyuZUMapPrefix", "") +
+                                        map.getOrDefault("LunaChatPrefix", "")))
+                                        .replace("%suffix", (map.getOrDefault("LuckPermsSuffix", "") +
+                                                map.getOrDefault("RyuZUMapSuffix", "") +
+                                                map.getOrDefault("LunaChatSuffix", "")))
+                                        .replace("%username", (map.getOrDefault("Discord", "")))
+                                        .replace("%displayname", (map.getOrDefault("Discord", "")))
+                                        .replace("%ch", channelname)
+                                        .replace("%color", "");
+                                channelformat = ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]" + channelformat;
+                                channelformat = setColor(channelformat);
+                                channelformat = channelformat.replace("%msg", map.get("Message"))
+                                        .replace("%premsg", "");
+                                msg = channelformat;
+                                for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(msg); }
+                                getLogger().info(msg);
+                            } else {
+                                msg = ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]" + ChatColor.GREEN + map.get("Discord") + ChatColor.WHITE + " " + map.get("Message");
+                                for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(msg); }
+                                getLogger().info(msg);
+                            }
                         } else {
                             for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(msg); }
                             if (map.get("ReceiveServerName").equals(map.get("SendServerName"))) {
