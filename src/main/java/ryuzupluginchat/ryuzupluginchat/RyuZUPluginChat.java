@@ -197,7 +197,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             }
                             reply.put(playername, map.get("ReceivedPlayerName"));
                             reply.put(map.get("ReceivedPlayerName"), playername);
-                        } else if (map.containsKey("ChannelName")) {
+                        } else if (map.containsKey("ChannelName") && !map.containsKey("Discord")) {
                             String channelname = map.get("ChannelName");
                             boolean ExistsChannel = lunachatapi.getChannel(channelname) != null;
                             if (!ExistsChannel) { return; }
@@ -259,7 +259,13 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                                 channelformat = channelformat.replace("%msg", map.get("Message"))
                                         .replace("%premsg", "");
                                 msg = channelformat;
-                                for (Player p : getServer().getOnlinePlayers()) { p.sendMessage(msg); }
+                                ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(playername);
+                                for (Player p : getServer().getOnlinePlayers().stream()
+                                        .filter(p -> lunachannel.getMembers().stream().map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList()).contains(p) || p.hasPermission("rpc.op"))
+                                        .filter(p -> !lunachatapi.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName()))).contains(member))
+                                        .collect(Collectors.toList())) {
+                                    p.sendMessage(msg);
+                                }
                                 getLogger().info(msg);
                             } else {
                                 msg = ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]" + ChatColor.GREEN + map.get("Discord") + ChatColor.WHITE + " " + map.get("Message");
