@@ -28,10 +28,6 @@ public class Tell implements CommandExecutor,TabCompleter {
                         sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
                         return true;
                     }
-                    if (RyuZUPluginChat.isMuted(p)) {
-                        sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
-                        return true;
-                    }
                     String msg = "";
                     for(int i = 1 ; i < args.length ; i++) {
                         if(i == 1) {

@@ -48,10 +48,6 @@ public class Command implements CommandExecutor,TabCompleter {
                         sender.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
                         return true;
                     }
-                    if (RyuZUPluginChat.isMuted(p)) {
-                        sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
-                        return true;
-                    }
                     String msg = "";
                     for(int i = 2 ; i < args.length ; i++) {
                         if(i == 2) {
@@ -74,10 +70,6 @@ public class Command implements CommandExecutor,TabCompleter {
                     Player p = (Player) sender;
                     if (!RyuZUPluginChat.reply.containsKey(p.getName())) {
                         sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
-                        return true;
-                    }
-                    if (RyuZUPluginChat.isMuted(p)) {
-                        sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
                         return true;
                     }
                     RyuZUPluginChat.ryuzupluginchat.sendPrivateMessage(p , args[1] , RyuZUPluginChat.reply.get(p.getName()));

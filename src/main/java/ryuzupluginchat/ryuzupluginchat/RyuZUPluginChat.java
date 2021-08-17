@@ -310,10 +310,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
     public void onChat(AsyncPlayerChatEvent e) {
         if(!e.isCancelled()) {
             Player p = e.getPlayer();
-            if (RyuZUPluginChat.isMuted(p)) {
-                p.sendMessage(ChatColor.RED + "あなたはミュートされています");
-                return;
-            }
             boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
             if(global || e.getMessage().substring(0 , 1).equals("!")) {
                 sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
@@ -612,8 +608,6 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         map.put("Players" , list);
         sendPluginMessage("ryuzuchat:ryuzuchat" , mapToJson(map));
     }
-
-    public static boolean isMuted(Player p) { return PunishmentManager.get().isMuted(UUIDManager.get().getUUID(p.getName())); }
 
     /**
      * 指定された日付のログファイル名を生成して返します。

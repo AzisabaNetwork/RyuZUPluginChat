@@ -27,10 +27,6 @@ public class Reply implements CommandExecutor {
                     sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
                     return true;
                 }
-                if (RyuZUPluginChat.isMuted(p)) {
-                    sender.sendMessage(ChatColor.RED + "あなたはミュートされています");
-                    return true;
-                }
                 String msg = "";
                 for(int i = 0 ; i < args.length ; i++) {
                     if(i == 0) {
