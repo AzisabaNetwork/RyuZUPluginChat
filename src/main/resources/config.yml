@@ -1,8 +1,12 @@
-Life:
-  - "LifeBuild"
-  - "LifePve"
-  - "Life"
-DIVERSE:
-  - "diverselobby"
-  - "diversepvp"
-  - "diverselife"
+format: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]{color:255,255,255}[PlayerName][LunaChatSuffix][LuckPermsSuffix] {color:85,85,255}>> {color:255,255,255}[Message] {color:192,192,192}[PreReplaceMessage]"
+serverName: hoge
+redis:
+  hostname: "localhost"
+  port: 6379
+  user: "user"
+  password: "password"
+  channels:
+    global: "test-global"
+    private: "test-private"
+    channelChat: "test-channelChat"
+    system: "test-system"
