@@ -1,24 +1,21 @@
 package ryuzupluginchat.ryuzupluginchat.util.message;
 
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
 @Getter
 @RequiredArgsConstructor
 public class PrivateMessageData {
 
   private final String format;
-  private final String lunaChatPrefix; // TODO: remove (存在しない)
-  private final String luckPermsPrefix;
-  private final String ryuzuMapPrefix;
   private final String sendServerName;
   private final String receiveServerName;
   private final String sentPlayerName;
-  private final String receivedPlayerName;
-  private final String ryuzuMapSuffix;
-  private final String lunaChatSuffix; // TODO: remove (存在しない)
-  private final String luckPermsSuffix;
+  private final UUID receivedPlayerUUID;
 
   private final boolean japanized;
   private final String preReplaceMessage;
@@ -28,17 +25,15 @@ public class PrivateMessageData {
   public String format() {
     // format が存在する場合はそれを使用し、ない場合は空白
     String defaultFormat = format != null ? format : "";
+    // targetPlayerが存在する場合は名前を取得し、ない場合はUUIDで置き換え
+    Player targetPlayer = Bukkit.getPlayer(receivedPlayerUUID);
+    String receivedPlayerName =
+        targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
 
-    String formatted = defaultFormat.replace("[LuckPermsPrefix]", luckPermsPrefix)
-        .replace("[LunaChatPrefix]", convertEmptyIfNull(lunaChatPrefix))
-        .replace("[RyuZUMapPrefix]", convertEmptyIfNull(ryuzuMapPrefix))
-        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+    String formatted = defaultFormat.replace("[SendServerName]", convertEmptyIfNull(sendServerName))
         .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
         .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
-        .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName))
-        .replace("[RyuZUMapSuffix]", convertEmptyIfNull(ryuzuMapSuffix))
-        .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
-        .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
+        .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));
 
     formatted = ColorUtils.setColor(formatted);
     if (japanized) {

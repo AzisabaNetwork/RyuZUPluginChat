@@ -2,7 +2,7 @@ package ryuzupluginchat.ryuzupluginchat.util.message;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
-import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
 @RequiredArgsConstructor
 public class GlobalMessageData {

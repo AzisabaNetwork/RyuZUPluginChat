@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.useful;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;

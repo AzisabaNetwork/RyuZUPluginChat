@@ -2,7 +2,7 @@ package ryuzupluginchat.ryuzupluginchat.util.message;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
 @Getter
 @RequiredArgsConstructor
@@ -11,7 +11,7 @@ public class ChannelChatMessageData {
   private final String lunaChatChannelName;
   private final String channelColorCode;
   private final String lunaChatChannelFormat;
-  private final String lunaChatPrefix; // TODO: remove (存在しない)
+  private final String lunaChatPrefix;
   private final String luckPermsPrefix;
   private final String ryuzuMapPrefix;
   private final String sendServerName;
@@ -19,7 +19,7 @@ public class ChannelChatMessageData {
   private final String playerName;
   private final String playerDisplayName;
   private final String ryuzuMapSuffix;
-  private final String lunaChatSuffix; // TODO: remove (存在しない)
+  private final String lunaChatSuffix;
   private final String luckPermsSuffix;
 
   private final boolean japanized;
@@ -36,7 +36,7 @@ public class ChannelChatMessageData {
     String msg = lunaChatChannelFormat.replace("%prefix", getAllPrefixes())
         .replace("%suffix", getAllSuffixes())
         .replace("%username", playerName)
-        .replace("%displayname", playerDisplayName)
+        .replace("%displayname", formattedPlayerName)
         .replace("%ch", lunaChatChannelName)
         .replace("%color", channelColorCode);
     msg = ColorUtils.setColor(msg);

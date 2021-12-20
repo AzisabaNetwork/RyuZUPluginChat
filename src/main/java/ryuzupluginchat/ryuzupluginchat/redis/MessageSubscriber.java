@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.util.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
 import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
@@ -15,13 +16,15 @@ import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
 @RequiredArgsConstructor
 public class MessageSubscriber {
 
+  private final RyuZUPluginChat plugin;
+
   private final RedisConnectionData redisConnectionData;
-  private final String publicChannel;
+  private final String globalChannel;
   private final String privateChannel;
   private final String channelChatChannel;
   private final String systemChannel;
 
-  private final JsonDataConverter converter;
+  private final JsonDataConverter converter = new JsonDataConverter();
 
   private Jedis jedis;
 
@@ -37,7 +40,7 @@ public class MessageSubscriber {
     JedisPubSub subscriber = new JedisPubSub() {
       @Override
       public void onMessage(String channel, String message) {
-        if (channel.equals(publicChannel)) {
+        if (channel.equals(globalChannel)) {
           GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
           if (data != null) {
             globalChannelConsumers.forEach(c -> c.accept(data));
@@ -73,7 +76,15 @@ public class MessageSubscriber {
       }
     };
 
-    jedis.subscribe(subscriber, publicChannel, privateChannel);
+    jedis.subscribe(subscriber, globalChannel, privateChannel);
+  }
+
+  public void registerFunctions() {
+    globalChannelConsumers.add((data) -> plugin.getMessageProcessor().processGlobalMessage(data));
+    privateChatConsumers.add((data) -> plugin.getMessageProcessor().processPrivateMessage(data));
+    channelChatConsumers.add(
+        (data) -> plugin.getMessageProcessor().processChannelChatMessage(data));
+    systemMessageConsumers.add((data) -> plugin.getMessageProcessor().processSystemMessage(data));
   }
 
   public void registerPublicConsumer(Consumer<GlobalMessageData> consumer) {

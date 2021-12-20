@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.useful;
 
 import java.awt.Color;
 import java.util.ArrayList;

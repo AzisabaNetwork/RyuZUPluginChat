@@ -3,9 +3,9 @@ package ryuzupluginchat.ryuzupluginchat.util;
 import lombok.Getter;
 
 @Getter
-public enum PublicMessageType {
+public enum SystemMessageType {
 
-  GLOBAL_CHAT, PRIVATE_CHAT, PREFIX, SUFFIX, SYSTEM_MESSAGE;
+  CHAT, PREFIX, SUFFIX, PLAYERS;
 
   @Override
   public String toString() {
