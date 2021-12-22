@@ -18,7 +18,8 @@ public class MessageSubscriber {
 
   private final RyuZUPluginChat plugin;
 
-  private final RedisConnectionData redisConnectionData;
+  private final Jedis jedis;
+
   private final String globalChannel;
   private final String privateChannel;
   private final String channelChatChannel;
@@ -26,17 +27,12 @@ public class MessageSubscriber {
 
   private final JsonDataConverter converter = new JsonDataConverter();
 
-  private Jedis jedis;
-
   private final List<Consumer<GlobalMessageData>> globalChannelConsumers = new ArrayList<>();
   private final List<Consumer<PrivateMessageData>> privateChatConsumers = new ArrayList<>();
   private final List<Consumer<ChannelChatMessageData>> channelChatConsumers = new ArrayList<>();
   private final List<Consumer<SystemMessageData>> systemMessageConsumers = new ArrayList<>();
 
-  public void connect() {
-    jedis = new Jedis(redisConnectionData.getHostAndPort());
-    jedis.auth(redisConnectionData.getUser(), redisConnectionData.getPassword());
-
+  public void subscribe() {
     JedisPubSub subscriber = new JedisPubSub() {
       @Override
       public void onMessage(String channel, String message) {

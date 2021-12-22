@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.redis;
 
 import java.util.HashMap;
 import java.util.UUID;

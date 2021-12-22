@@ -33,13 +33,13 @@ public class ReplyCommand implements CommandExecutor {
       return true;
     }
 
-    UUID targetUUID = plugin.getTabCompletePlayerNameContainer().getUUID(targetName);
+    UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(targetName);
     if (targetUUID == null) {
       sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです");
       return true;
     }
 
-    String msg = String.join(" ", args).substring(("/" + label + " " + args[0] + " ").length());
+    String msg = String.join(" ", args);
 
     PrivateMessageData data = plugin.getMessageDataFactory()
         .createPrivateMessageData(p, targetUUID, msg);

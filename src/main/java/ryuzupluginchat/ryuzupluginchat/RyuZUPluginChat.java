@@ -7,18 +7,19 @@ import java.util.Objects;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.Jedis;
 import ryuzupluginchat.ryuzupluginchat.command.RPCCommand;
 import ryuzupluginchat.ryuzupluginchat.command.ReplyCommand;
 import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
+import ryuzupluginchat.ryuzupluginchat.listener.JoinListener;
 import ryuzupluginchat.ryuzupluginchat.redis.MessagePublisher;
 import ryuzupluginchat.ryuzupluginchat.redis.MessageSubscriber;
-import ryuzupluginchat.ryuzupluginchat.redis.RedisConnectionData;
+import ryuzupluginchat.ryuzupluginchat.redis.ReplyMessageCacheContainer;
+import ryuzupluginchat.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 import ryuzupluginchat.ryuzupluginchat.util.MessageDataFactory;
-import ryuzupluginchat.ryuzupluginchat.util.ReplyMessageCacheContainer;
-import ryuzupluginchat.ryuzupluginchat.util.RyuZUPrefixSuffixContainer;
-import ryuzupluginchat.ryuzupluginchat.util.TabCompletePlayerNameContainer;
+import ryuzupluginchat.ryuzupluginchat.util.PlayerUUIDMapContainer;
 
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
@@ -28,8 +29,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private RPCConfig rpcConfig;
   private MessageDataFactory messageDataFactory;
   private MessageProcessor messageProcessor;
-  private final RyuZUPrefixSuffixContainer prefixSuffixContainer = new RyuZUPrefixSuffixContainer();
-  private final TabCompletePlayerNameContainer tabCompletePlayerNameContainer = new TabCompletePlayerNameContainer();
+  private RyuZUPrefixSuffixContainer prefixSuffixContainer;
+  private PlayerUUIDMapContainer playerUUIDMapContainer;
   private final ReplyMessageCacheContainer replyTargetContainer = new ReplyMessageCacheContainer();
 
   private MessagePublisher publisher;
@@ -49,6 +50,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     setupRedisConnections();
 
     getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+    getServer().getPluginManager().registerEvents(new JoinListener(this), this);
 
     registerCommands();
 
@@ -61,20 +63,25 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupRedisConnections() {
-    publisher = new MessagePublisher(
-        new RedisConnectionData(rpcConfig.getHostAndPort(), rpcConfig.getRedisUserName(),
-            rpcConfig.getRedisPassword()), rpcConfig.getGlobalChannel(),
-        rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
-        rpcConfig.getSystemChannel());
-    publisher.connect();
+    Jedis jedis = new Jedis(rpcConfig.getHostAndPort());
+    jedis.auth(rpcConfig.getRedisUserName(), rpcConfig.getRedisPassword());
 
-    subscriber = new MessageSubscriber(this,
-        new RedisConnectionData(rpcConfig.getHostAndPort(), rpcConfig.getRedisUserName(),
-            rpcConfig.getRedisPassword()), rpcConfig.getGlobalChannel(),
+    publisher = new MessagePublisher(jedis, rpcConfig.getGlobalChannel(),
         rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
         rpcConfig.getSystemChannel());
-    subscriber.connect();
+
+    subscriber = new MessageSubscriber(this, jedis, rpcConfig.getGlobalChannel(),
+        rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
+        rpcConfig.getSystemChannel());
+    subscriber.subscribe();
+
     subscriber.registerFunctions();
+
+    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedis, rpcConfig.getPrefixMapKey(),
+        rpcConfig.getSuffixMapKey());
+
+    playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis,
+        rpcConfig.getUuidMapKey());
   }
 
   private void registerCommands() {

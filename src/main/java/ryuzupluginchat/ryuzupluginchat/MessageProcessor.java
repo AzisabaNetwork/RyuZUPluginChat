@@ -4,7 +4,6 @@ import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -75,24 +74,32 @@ public class MessageProcessor {
       return;
     }
 
-    if (type == SystemMessageType.CHAT) {
+    if (type == SystemMessageType.GLOBAL_SYSTEM_MESSAGE) {
       String msg = data.format((String) mapData.get("message"));
       Bukkit.broadcastMessage(msg);
-    } else if (type == SystemMessageType.PLAYERS) {
-      Map<String, String> preUUIDMap = convertObjectIntoMap(mapData.get("playerMap"));
-      HashMap<String, UUID> uuidMap = new HashMap<>();
-      for (String key : preUUIDMap.keySet()) {
-        uuidMap.put(key, UUID.fromString(preUUIDMap.get(key)));
+
+    } else if (type == SystemMessageType.PRIVATE_SYSTEM_MESSAGE) {
+      String msg = data.format((String) mapData.get("message"));
+      UUID target = UUID.fromString((String) mapData.get("target"));
+      Player targetPlayer = Bukkit.getPlayer(target);
+      if (targetPlayer == null) {
+        return;
       }
-      plugin.getTabCompletePlayerNameContainer().clearAndRegisterAll(uuidMap);
-    } else if (type == SystemMessageType.PREFIX) {
-      UUID uuid = UUID.fromString((String) mapData.get("uuid"));
-      String prefix = (String) mapData.get("prefix");
-      plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix);
-    } else if (type == SystemMessageType.SUFFIX) {
-      UUID uuid = UUID.fromString((String) mapData.get("uuid"));
-      String prefix = (String) mapData.get("suffix");
-      plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix);
+      targetPlayer.sendMessage(msg);
+
+    } else if (type == SystemMessageType.IMITATION_CHAT) {
+      String msg = data.format((String) mapData.get("message"));
+      UUID target = UUID.fromString((String) mapData.get("imitateTo"));
+      Player targetPlayer = Bukkit.getPlayer(target);
+      if (targetPlayer == null) {
+        return;
+      }
+      boolean global = LunaChat.getAPI().getDefaultChannel(targetPlayer.getName()) == null;
+      if (global || msg.charAt(0) == '!') {
+        // TODO send global message from targetPlayer
+      } else {
+        // TODO send channel chat message from targetPlayer
+      }
     } else {
       // TODO error
     }

@@ -5,7 +5,6 @@ import com.github.ucchyocean.lc3.LunaChatConfig;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.japanize.JapanizeType;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -52,33 +51,28 @@ public class MessageDataFactory {
   public SystemMessageData createGeneralSystemChatMessageData(String msg) {
     HashMap<String, Object> map = new HashMap<>();
     map.put("message", msg);
+
+    map.put("type", SystemMessageType.GLOBAL_SYSTEM_MESSAGE.name());
     return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
   }
 
-  public SystemMessageData createPrefixSystemChatMessageData(UUID uuid, String prefix) {
+  public SystemMessageData createPrivateSystemChatMessageData(UUID target, String msg) {
     HashMap<String, Object> map = new HashMap<>();
-    map.put("uuid", uuid.toString());
-    map.put("prefix", prefix);
+    map.put("target", target.toString());
+    map.put("message", msg);
+
+    map.put("type", SystemMessageType.PRIVATE_SYSTEM_MESSAGE.name());
     return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
   }
 
-  public SystemMessageData createSuffixSystemChatMessageData(UUID uuid, String suffix) {
+  public SystemMessageData createImitationChatMessageData(UUID uuid, String msg) {
     HashMap<String, Object> map = new HashMap<>();
-    map.put("uuid", uuid.toString());
-    map.put("suffix", suffix);
+    map.put("imitateTo", uuid.toString());
+    map.put("message", msg);
+
+    map.put("type", SystemMessageType.IMITATION_CHAT.name());
     return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
   }
-
-  public SystemMessageData createPlayerSyncSystemChatMessageData(Collection<Player> players) {
-    HashMap<String, Object> map = new HashMap<>();
-    HashMap<String, String> uuidMap = new HashMap<>();
-    players.forEach(p -> uuidMap.put(p.getName().toLowerCase(), p.getUniqueId().toString()));
-
-    map.put("playerMap", uuidMap);
-
-    return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
-  }
-
 
   private boolean canJapanize(String msg, Player p) {
     LunaChatConfig config = LunaChat.getConfig();

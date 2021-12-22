@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,17 +69,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] [Prefix]");
             return true;
           }
-          UUID uuid = plugin.getTabCompletePlayerNameContainer().getUUID(args[1]);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[1]);
           if (uuid == null) {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
           String prefix = String.join(" ", args).substring((args[0] + args[1]).length() + 2);
-          SystemMessageData data = plugin.getMessageDataFactory()
-              .createPrefixSystemChatMessageData(uuid, prefix);
-
-          RyuZUPluginChat.newChain().async(() -> plugin.getPublisher().publishSystemMessage(data))
-              .execute();
+          plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
         }
         return true;
       }
@@ -99,17 +94,14 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] [Suffix]");
             return true;
           }
-          UUID uuid = plugin.getTabCompletePlayerNameContainer().getUUID(args[1]);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[1]);
           if (uuid == null) {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
           String suffix = String.join(" ", args).substring((args[0] + args[1]).length() + 2);
-          SystemMessageData data = plugin.getMessageDataFactory()
-              .createSuffixSystemChatMessageData(uuid, suffix);
 
-          RyuZUPluginChat.newChain().async(() -> plugin.getPublisher().publishSystemMessage(data))
-              .execute();
+          plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
         }
         return true;
       }
@@ -119,40 +111,47 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
           return true;
         }
+
         if (args.length <= 2) {
           sender.sendMessage(ChatColor.BLUE + "/" + label
               + " message [message/player/playermessage] [Message]:指定されたメッセージをGroupに送信します");
           return true;
         }
-        String msg = "";
-        for (int i = (args[1].equalsIgnoreCase("message") ? 2 : 3); i < args.length; i++) {
-          if (i == (args[1].equalsIgnoreCase("message") ? 2 : 3)) {
-            msg += args[i];
-          } else {
-            msg += (" " + args[i]);
-          }
-        }
+
+        String msg = String.join(" ", args).substring(args[0].length() + args[1].length() + 2);
         if (args[1].equalsIgnoreCase("message")) {
-          RyuZUPluginChat.ryuzupluginchat.sendSystemMessage(msg);
+          SystemMessageData data = plugin.getMessageDataFactory()
+              .createGeneralSystemChatMessageData(msg);
+          plugin.getPublisher().publishSystemMessage(data);
         } else if (args[1].equalsIgnoreCase("player")) {
-          Player p = Bukkit.getPlayer(args[2]);
-          if (p == null) {
+          msg = msg.substring(args[2].length() + 1);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
+          if (uuid == null) {
+            sender.sendMessage(
+                ChatColor.YELLOW + args[2] + ChatColor.RED + "という名前のプレイヤーが見つかりませんでした");
             return true;
           }
-          RyuZUPluginChat.ryuzupluginchat.sendSystemMessage(msg, p);
+
+          SystemMessageData data = plugin.getMessageDataFactory()
+              .createPrivateSystemChatMessageData(uuid, msg);
+          RyuZUPluginChat.newChain()
+              .async(() -> plugin.getPublisher().publishSystemMessage(data))
+              .execute();
         } else if (args[1].equalsIgnoreCase("playermessage")) {
-          Player p = Bukkit.getPlayer(args[2]);
-          if (p == null) {
+          msg = msg.substring(args[2].length() + 1);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
+          if (uuid == null) {
+            sender.sendMessage(
+                ChatColor.YELLOW + args[2] + ChatColor.RED + "という名前のプレイヤーが見つかりませんでした");
             return true;
           }
-          boolean global = RyuZUPluginChat.lunachatapi.getDefaultChannel(p.getName()) == null;
-          if (global || msg.substring(0, 1).equals("!")) {
-            RyuZUPluginChat.sendGlobalMessage(p,
-                msg.substring(0, 1).equals("!") ? msg.substring(1) : msg);
-          } else {
-            RyuZUPluginChat.sendChannelMessage(p, msg,
-                RyuZUPluginChat.lunachatapi.getDefaultChannel(p.getName()));
-          }
+
+          SystemMessageData data = plugin.getMessageDataFactory()
+              .createImitationChatMessageData(uuid, msg);
+
+          RyuZUPluginChat.newChain()
+              .async(() -> plugin.getPublisher().publishSystemMessage(data))
+              .execute();
         }
         return true;
       }
@@ -164,97 +163,43 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length <= 1) {
           sender.sendMessage(ChatColor.BLUE + "/" + label
-              + " config [format/channelformat/tellformat/list/group]:コンフィグを編集します");
+              + " config format set <global/private> [format]: formatを編集します");
           return true;
         }
+
         if (args[1].equalsIgnoreCase("format")) {
           if (args.length <= 4) {
             sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config format [set] [GroupName] [format]:formatを編集します");
+                + " config format set <global/private> [format]: formatを編集します");
             return true;
           }
           if (args[2].equalsIgnoreCase("set")) {
-            String format = "";
-            for (int i = 4; i < args.length; i++) {
-              if (i == 4) {
-                format += args[i];
-              } else {
-                format += (" " + args[i]);
-              }
+            String format = String.join(" ", args)
+                .substring((args[0] + args[1] + args[2] + args[3]).length() + 4);
+
+            switch (args[3].toLowerCase()) {
+              case "global":
+              case "all":
+              case "default":
+                plugin.getRpcConfig().setGlobalChatFormat(format);
+                break;
+              case "private":
+              case "tell":
+              case "reply":
+                plugin.getRpcConfig().setPrivateChatFormat(format);
+                break;
+              default:
+                sender.sendMessage(ChatColor.BLUE + "/" + label
+                    + " config format set <global/private/channel> [format]: formatを編集します");
+                return true;
             }
-            RyuZUPluginChat.ryuzupluginchat.setFormat(args[3], format);
             sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
             return true;
           }
-        }
-        if (args[1].equalsIgnoreCase("channelformat")) {
-          if (args.length <= 4) {
-            sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config channelformat [set] [GroupName] [format]:ChannelFormatを編集します");
-            return true;
-          }
-          if (args[2].equalsIgnoreCase("set")) {
-            String format = "";
-            for (int i = 4; i < args.length; i++) {
-              if (i == 4) {
-                format += args[i];
-              } else {
-                format += (" " + args[i]);
-              }
-            }
-            RyuZUPluginChat.ryuzupluginchat.setChannelFormat(args[3], format);
-            sender.sendMessage(ChatColor.GREEN + "ChannelFormatを編集しました");
-            return true;
-          }
-        }
-        if (args[1].equalsIgnoreCase("tellformat")) {
-          if (args.length <= 4) {
-            sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config tellformat [set] [GroupName] [format]:TellFormatを編集します");
-            return true;
-          }
-          if (args[2].equalsIgnoreCase("set")) {
-            String format = "";
-            for (int i = 4; i < args.length; i++) {
-              if (i == 4) {
-                format += args[i];
-              } else {
-                format += (" " + args[i]);
-              }
-            }
-            RyuZUPluginChat.ryuzupluginchat.setTellFormat(args[3], format);
-            sender.sendMessage(ChatColor.GREEN + "TellFormatを編集しました");
-            return true;
-          }
-        }
-        if (args[1].equalsIgnoreCase("list")) {
-          if (args.length <= 4) {
-            sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config list [add/remove] [GroupName] [ServerName]:共有するServerListを編集します");
-            return true;
-          }
-          if (args[2].equalsIgnoreCase("add")) {
-            RyuZUPluginChat.ryuzupluginchat.addServer(args[3], args[4]);
-            sender.sendMessage(ChatColor.GREEN + "listに追加しました");
-            return true;
-          }
-          if (args[2].equalsIgnoreCase("remove")) {
-            RyuZUPluginChat.ryuzupluginchat.removeServer(args[3], args[4]);
-            sender.sendMessage(ChatColor.GREEN + "listから削除しました");
-            return true;
-          }
-        }
-        if (args[1].equalsIgnoreCase("group")) {
-          if (args.length <= 3) {
-            sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config group [remove] [GroupName]:共有するGroupを編集します");
-            return true;
-          }
-          if (args[2].equalsIgnoreCase("remove")) {
-            RyuZUPluginChat.ryuzupluginchat.removeGroup(args[3]);
-            sender.sendMessage(ChatColor.GREEN + "Groupを削除しました");
-            return true;
-          }
+        } else {
+          sender.sendMessage(ChatColor.BLUE + "/" + label
+              + " config format set <global/private/channel> [format]: formatを編集します");
+          return true;
         }
       }
     }
@@ -264,49 +209,49 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
   @Override
   public @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
       org.bukkit.command.@NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    if (!(sender instanceof Player)) {
+      return null;
+    }
     List<String> list = new ArrayList<>();
-    if (sender instanceof Player) {
-      Player p = (Player) sender;
-      if (command.getName().equalsIgnoreCase("rpc")) {
-        if (args.length == 1) {
-          if (sender.hasPermission("rpc.op")) {
-            list.addAll(Arrays.asList("prefix", "suffix", "message", "config"));
-          }
-          list.addAll(Arrays.asList("tell", "reply"));
+    Player p = (Player) sender;
+
+    if (args.length == 1) {
+      if (sender.hasPermission("rpc.op")) {
+        list.addAll(Arrays.asList("prefix", "suffix", "message", "config"));
+      }
+      list.addAll(Arrays.asList("tell", "reply"));
+    }
+    if (args.length == 2) {
+      if (sender.hasPermission("rpc.op")) {
+        if (args[0].equals("prefix") || args[0].equals("suffix")) {
+          list.add("set");
         }
-        if (args.length == 2) {
-          if (sender.hasPermission("rpc.op")) {
-            if (args[0].equals("prefix") || args[0].equals("suffix")) {
-              list.add("set");
-            }
-            if (args[0].equals("config")) {
-              list.addAll(Arrays.asList("format", "channelformat", "tellformat", "list", "group"));
-            }
-            if (args[0].equals("message")) {
-              list.addAll(Arrays.asList("message", "player", "playermessage"));
-            }
-          }
-          if (args[0].equals("tell")) {
-            list.addAll(RyuZUPluginChat.getPlayers().stream().filter(l -> !l.equals(p.getName()))
-                .collect(Collectors.toList()));
-          }
+        if (args[0].equals("config")) {
+          list.addAll(Arrays.asList("format", "channelformat", "tellformat", "list", "group"));
         }
-        if (args.length == 3) {
-          if (sender.hasPermission("rpc.op")) {
-            if (args[1].equals("format")) {
-              list.add("set");
-            }
-            if (args[1].equals("list")) {
-              list.addAll(Arrays.asList("add", "remove"));
-            }
-            if (args[1].equals("group")) {
-              list.add("remove");
-            }
-            if (Arrays.asList("message", "player", "playermessage").contains(args[1])) {
-              list.addAll(Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName)
-                  .collect(Collectors.toList()));
-            }
-          }
+        if (args[0].equals("message")) {
+          list.addAll(Arrays.asList("message", "player", "playermessage"));
+        }
+      }
+      if (args[0].equals("tell")) {
+        list.addAll(plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+            .filter(name -> !name.equalsIgnoreCase(p.getName()))
+            .collect(Collectors.toList()));
+      }
+    }
+    if (args.length == 3) {
+      if (sender.hasPermission("rpc.op")) {
+        if (args[1].equals("format")) {
+          list.add("set");
+        }
+        if (args[1].equals("list")) {
+          list.addAll(Arrays.asList("add", "remove"));
+        }
+        if (args[1].equals("group")) {
+          list.add("remove");
+        }
+        if (Arrays.asList("player", "playermessage").contains(args[1])) {
+          list.addAll(plugin.getPlayerUUIDMapContainer().getAllNames());
         }
       }
     }

@@ -39,14 +39,14 @@ public class TellCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
-    UUID targetUUID = plugin.getTabCompletePlayerNameContainer().getUUID(args[0]);
+    UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
 
     if (targetUUID == null) {
       p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + "というプレイヤーが見つかりませんでした");
       return true;
     }
 
-    String msg = String.join(" ", args).substring(("/" + label + " " + args[0] + " ").length());
+    String msg = String.join(" ", args).substring(args[0].length() + 1);
     PrivateMessageData data = plugin.getMessageDataFactory()
         .createPrivateMessageData(p, targetUUID, msg);
 
@@ -68,7 +68,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     if (args.length == 1) {
       // TODO 先頭の文字に一致しないプレイヤーは削除しなくていいの...?
       list.addAll(
-          plugin.getTabCompletePlayerNameContainer().getAllNames().stream()
+          plugin.getPlayerUUIDMapContainer().getAllNames().stream()
               .filter(l -> !l.equals(p.getName()))
               .collect(Collectors.toList()));
     }

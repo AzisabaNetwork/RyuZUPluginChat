@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum SystemMessageType {
 
-  CHAT, PREFIX, SUFFIX, PLAYERS;
+  GLOBAL_SYSTEM_MESSAGE, PRIVATE_SYSTEM_MESSAGE, IMITATION_CHAT;
 
   @Override
   public String toString() {

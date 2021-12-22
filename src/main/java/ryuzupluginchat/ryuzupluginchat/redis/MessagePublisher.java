@@ -12,20 +12,14 @@ import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
 @RequiredArgsConstructor
 public class MessagePublisher {
 
-  private final RedisConnectionData redisConnectionData;
+  private final Jedis jedis;
+
   private final String globalChannel;
   private final String privateChannel;
   private final String channelChatChannel;
   private final String systemChannel;
 
   private final JsonDataConverter converter = new JsonDataConverter();
-
-  private Jedis jedis;
-
-  public void connect() {
-    jedis = new Jedis(redisConnectionData.getHostAndPort());
-    jedis.auth(redisConnectionData.getUser(), redisConnectionData.getPassword());
-  }
 
   public boolean publishGlobalMessage(GlobalMessageData data) {
     try {
