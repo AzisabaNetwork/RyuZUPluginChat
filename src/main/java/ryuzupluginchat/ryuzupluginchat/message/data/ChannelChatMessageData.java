@@ -1,33 +1,35 @@
 package ryuzupluginchat.ryuzupluginchat.message.data;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
-@Getter
-@RequiredArgsConstructor
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChannelChatMessageData {
 
-  private final String lunaChatChannelName;
-  private final String channelColorCode;
-  private final String lunaChatChannelFormat;
-  private final String lunaChatPrefix;
-  private final String luckPermsPrefix;
-  private final String ryuzuMapPrefix;
-  private final String sendServerName;
-  private final String receiveServerName;
-  private final String playerName;
-  private final String playerDisplayName;
-  private final String ryuzuMapSuffix;
-  private final String lunaChatSuffix;
-  private final String luckPermsSuffix;
+  private String lunaChatChannelName;
+  private String channelColorCode;
+  private String lunaChatChannelFormat;
+  private String lunaChatPrefix;
+  private String luckPermsPrefix;
+  private String ryuzuMapPrefix;
+  private String sendServerName;
+  private String receiveServerName;
+  private String playerName;
+  private String playerDisplayName;
+  private String ryuzuMapSuffix;
+  private String lunaChatSuffix;
+  private String luckPermsSuffix;
 
-  private final boolean japanized;
-  private final String preReplaceMessage;
+  private boolean japanized;
+  private String preReplaceMessage;
 
-  private final boolean fromDiscord;
+  private boolean fromDiscord;
 
-  private final String message;
+  private String message;
 
   public String format() {
     // DisplayName が存在する場合はそれを使用し、ない場合はPlayerName
@@ -40,7 +42,7 @@ public class ChannelChatMessageData {
         .replace("%ch", lunaChatChannelName)
         .replace("%color", channelColorCode);
     msg = ColorUtils.setColor(msg);
-    return msg.replace("%msg", msg)
+    return msg.replace("%msg", message)
         .replace("%premsg", preReplaceMessage);
   }
 

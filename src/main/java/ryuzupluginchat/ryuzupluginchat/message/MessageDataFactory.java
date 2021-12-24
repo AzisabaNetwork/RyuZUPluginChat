@@ -42,10 +42,10 @@ public class MessageDataFactory {
   public ChannelChatMessageData createChannelChatMessageData(Player p, String message) {
     Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
 
-    return new ChannelChatMessageData(ch.getName(), ch.getColorCode(),
-        ch.getFormat(), null, LuckPermsPrefixSuffixUtils.getPrefix(p),
-        plugin.getPrefixSuffixContainer().getPrefix(p), plugin.getRpcConfig().getServerName(), null,
-        p.getName(), p.getDisplayName(), plugin.getPrefixSuffixContainer().getSuffix(p), null,
+    return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null,
+        LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
+        plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
+        plugin.getPrefixSuffixContainer().getSuffix(p), null,
         LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), message, false,
         replaceMessage(message, p).replace("$", "").replace("#", ""));
   }
