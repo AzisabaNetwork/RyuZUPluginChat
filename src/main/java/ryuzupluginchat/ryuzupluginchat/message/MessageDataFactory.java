@@ -61,7 +61,7 @@ public class MessageDataFactory {
   public SystemMessageData createPrivateSystemChatMessageData(UUID target, String msg) {
     HashMap<String, Object> map = new HashMap<>();
     map.put("target", target.toString());
-    map.put("message", msg);
+    map.put("message", ColorUtils.setColor(msg));
 
     map.put("type", SystemMessageType.PRIVATE_SYSTEM_MESSAGE.name());
     return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
