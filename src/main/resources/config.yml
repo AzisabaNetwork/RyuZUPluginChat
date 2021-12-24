@@ -14,6 +14,7 @@ redis:
     suffix: "test-suffix"
     uuid: "test-uuid"
     reply: "test-reply"
+    privateChatIdManage: "test-private-chat-id-manage"
 formats:
   global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &8[PreReplaceMessage]"
-  private: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &8[PreReplaceMessage]"
+  private: "[PlayerName]&7([SendServerName]) -> &f[ReceivePlayerName]&7([ReceiveServerName]) &9>> &r[Message] &8[PreReplaceMessage]"

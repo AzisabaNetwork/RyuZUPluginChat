@@ -18,6 +18,7 @@ import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 public class MessageSubscriber {
 
   private final RyuZUPluginChat plugin;
+  private final JsonDataConverter converter;
 
   private final Jedis jedis;
 
@@ -26,7 +27,6 @@ public class MessageSubscriber {
   private final String channelChatChannel;
   private final String systemChannel;
 
-  private final JsonDataConverter converter = new JsonDataConverter();
 
   private final List<Consumer<GlobalMessageData>> globalChannelConsumers = new ArrayList<>();
   private final List<Consumer<PrivateMessageData>> privateChatConsumers = new ArrayList<>();
@@ -73,9 +73,9 @@ public class MessageSubscriber {
       }
     };
 
-    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-      jedis.subscribe(subscriber, globalChannel, privateChannel, channelChatChannel, systemChannel);
-    });
+    Bukkit.getScheduler().runTaskAsynchronously(plugin,
+        () -> jedis.subscribe(subscriber, globalChannel, privateChannel, channelChatChannel,
+            systemChannel));
   }
 
   public void registerFunctions() {

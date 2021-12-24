@@ -51,6 +51,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
         .createPrivateMessageData(p, targetUUID, msg);
 
     RyuZUPluginChat.newChain()
+        .sync(() -> plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L))
         .async(() -> plugin.getPublisher().publishPrivateMessage(data)).execute();
     return true;
   }
@@ -66,10 +67,9 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     List<String> list = new ArrayList<>();
     Player p = (Player) sender;
     if (args.length == 1) {
-      // TODO 先頭の文字に一致しないプレイヤーは削除しなくていいの...?
       list.addAll(
           plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-              .filter(l -> !l.equals(p.getName()))
+              .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0]))
               .collect(Collectors.toList()));
     }
     return list;

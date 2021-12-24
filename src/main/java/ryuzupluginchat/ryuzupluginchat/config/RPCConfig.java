@@ -31,8 +31,10 @@ public class RPCConfig {
   private String uuidMapKey;
 
   private String replyTargetKey;
+  private String privateChatIdManageKey;
 
   public void load() {
+    plugin.saveDefaultConfig();
     FileConfiguration conf = plugin.getConfig();
 
     serverName = conf.getString("serverName");
@@ -42,7 +44,7 @@ public class RPCConfig {
 
     globalChatFormat = conf.getString("formats.global");
     privateChatFormat = conf.getString("formats.private");
-    
+
     globalChannel = conf.getString("redis.channels.global");
     privateChannel = conf.getString("redis.channels.private");
     channelChatChannel = conf.getString("redis.channels.channelChat");
@@ -54,6 +56,7 @@ public class RPCConfig {
     uuidMapKey = conf.getString("redis.keys.uuid");
 
     replyTargetKey = conf.getString("redis.keys.reply");
+    privateChatIdManageKey = conf.getString("redis.keys.privateChatIdManage");
   }
 
   public void setGlobalChatFormat(String format) {

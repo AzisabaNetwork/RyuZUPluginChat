@@ -14,11 +14,15 @@ import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
+import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.message.MessageDataFactory;
 import ryuzupluginchat.ryuzupluginchat.message.MessageProcessor;
 import ryuzupluginchat.ryuzupluginchat.redis.MessagePublisher;
 import ryuzupluginchat.ryuzupluginchat.redis.MessageSubscriber;
 import ryuzupluginchat.ryuzupluginchat.redis.PlayerUUIDMapContainer;
+import ryuzupluginchat.ryuzupluginchat.redis.PrivateChatIDGetter;
+import ryuzupluginchat.ryuzupluginchat.redis.PrivateChatReachedSubscriber;
+import ryuzupluginchat.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import ryuzupluginchat.ryuzupluginchat.redis.ReplyTargetFetcher;
 import ryuzupluginchat.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 
@@ -33,9 +37,13 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private RyuZUPrefixSuffixContainer prefixSuffixContainer;
   private PlayerUUIDMapContainer playerUUIDMapContainer;
   private ReplyTargetFetcher replyTargetFetcher;
+  private JsonDataConverter jsonDataConverter;
+  private PrivateChatIDGetter privateChatIDGetter;
+  private final PrivateChatResponseWaiter privateChatResponseWaiter = new PrivateChatResponseWaiter();
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
+  private PrivateChatReachedSubscriber privateChatReachedSubscriber;
 
 
   @Override
@@ -47,6 +55,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     messageDataFactory = new MessageDataFactory(this);
     messageProcessor = new MessageProcessor(this);
+    jsonDataConverter = new JsonDataConverter(this);
 
     setupRedisConnections();
 
@@ -66,15 +75,21 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private void setupRedisConnections() {
     Jedis jedis = getConnectedJedis();
 
-    publisher = new MessagePublisher(jedis, rpcConfig.getGlobalChannel(),
+    publisher = new MessagePublisher(jedis, jsonDataConverter, rpcConfig.getGlobalChannel(),
         rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
         rpcConfig.getSystemChannel());
 
     // create new jedis instance because subscribe will block other actions like hset etc.
-    subscriber = new MessageSubscriber(this, getConnectedJedis(), rpcConfig.getGlobalChannel(),
+    subscriber = new MessageSubscriber(this, jsonDataConverter, getConnectedJedis(),
+        rpcConfig.getGlobalChannel(),
         rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
         rpcConfig.getSystemChannel());
     subscriber.subscribe();
+
+    // Same as above
+    privateChatReachedSubscriber = new PrivateChatReachedSubscriber(this, getConnectedJedis(),
+        rpcConfig.getPrivateChannel());
+    privateChatReachedSubscriber.subscribe();
 
     subscriber.registerFunctions();
 
@@ -83,6 +98,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis,
         rpcConfig.getUuidMapKey());
     replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getReplyTargetKey());
+    privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getPrivateChatIdManageKey());
   }
 
   private Jedis getConnectedJedis() {

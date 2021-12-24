@@ -1,6 +1,8 @@
 package ryuzupluginchat.ryuzupluginchat.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
@@ -13,13 +15,13 @@ import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 public class MessagePublisher {
 
   private final Jedis jedis;
+  private final JsonDataConverter converter;
 
   private final String globalChannel;
   private final String privateChannel;
   private final String channelChatChannel;
   private final String systemChannel;
 
-  private final JsonDataConverter converter = new JsonDataConverter();
 
   public boolean publishGlobalMessage(GlobalMessageData data) {
     try {
@@ -66,6 +68,21 @@ public class MessagePublisher {
     } catch (JsonProcessingException e) {
       e.printStackTrace();
       return false;
+    }
+  }
+
+  public void notifyPrivateChatReached(long id, String serverName, String receivedPlayerName) {
+    ObjectMapper mapper = new ObjectMapper();
+    HashMap<String, Object> map = new HashMap<>();
+
+    map.put("id", id);
+    map.put("server", serverName);
+    map.put("target", receivedPlayerName);
+
+    try {
+      jedis.publish(privateChannel + ".response", mapper.writeValueAsString(map));
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
   }
 

@@ -42,7 +42,9 @@ public class ReplyCommand implements CommandExecutor {
 
     PrivateMessageData data = plugin.getMessageDataFactory()
         .createPrivateMessageData(p, targetUUID, msg);
+
     RyuZUPluginChat.newChain()
+        .sync(() -> plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L))
         .async(() -> plugin.getPublisher().publishPrivateMessage(data)).execute();
     return true;
   }

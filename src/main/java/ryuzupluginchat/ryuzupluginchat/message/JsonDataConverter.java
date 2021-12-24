@@ -4,12 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
+@RequiredArgsConstructor
 public class JsonDataConverter {
+
+  private final RyuZUPluginChat plugin;
 
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -18,7 +23,12 @@ public class JsonDataConverter {
   }
 
   public PrivateMessageData convertIntoPrivateMessageData(String data) {
-    return (PrivateMessageData) convertInto(data, PrivateMessageData.class);
+    PrivateMessageData convertedData = (PrivateMessageData) convertInto(data,
+        PrivateMessageData.class);
+    if (convertedData != null) {
+      convertedData.setReceiveServerName(plugin.getRpcConfig().getServerName());
+    }
+    return convertedData;
   }
 
   public ChannelChatMessageData convertIntoChannelChatMessageData(String data) {

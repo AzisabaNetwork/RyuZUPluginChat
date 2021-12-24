@@ -1,34 +1,45 @@
 package ryuzupluginchat.ryuzupluginchat.message.data;
 
 import java.util.UUID;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
-@Getter
-@RequiredArgsConstructor
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PrivateMessageData {
 
-  private final String format;
-  private final String sendServerName;
-  private final String receiveServerName;
-  private final String sentPlayerName;
-  private final UUID receivedPlayerUUID;
+  private long id;
 
-  private final boolean japanized;
-  private final String preReplaceMessage;
+  private String format;
+  private String sendServerName;
+  private String receiveServerName;
+  private String sentPlayerName;
+  private String receivedPlayerName;
+  private UUID receivedPlayerUUID;
 
-  private final String message;
+  private boolean japanized;
+  private String preReplaceMessage;
+
+  private String message;
 
   public String format() {
     // format が存在する場合はそれを使用し、ない場合は空白
     String defaultFormat = format != null ? format : "";
-    // targetPlayerが存在する場合は名前を取得し、ない場合はUUIDで置き換え
-    Player targetPlayer = Bukkit.getPlayer(receivedPlayerUUID);
-    String receivedPlayerName =
-        targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
+
+    // receivedPlayerNameが存在する場合はそれにし、targetPlayerが存在する場合は名前を取得し、ない場合はUUIDで置き換え
+    String receivedPlayerName;
+    if (this.receivedPlayerName != null) {
+      receivedPlayerName = this.receivedPlayerName;
+    } else {
+      Player targetPlayer = Bukkit.getPlayer(receivedPlayerUUID);
+      receivedPlayerName =
+          targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
+    }
 
     String formatted = defaultFormat
         .replace("[SendServerName]", convertEmptyIfNull(sendServerName))

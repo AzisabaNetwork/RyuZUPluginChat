@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.message.SystemMessageType;
 import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
@@ -63,6 +62,20 @@ public class MessageProcessor {
     }
 
     targetPlayer.sendMessage(message);
+
+    RyuZUPluginChat.newChain()
+        .async(() -> {
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
+          if (uuid == null) {
+            return;
+          }
+          plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, uuid);
+        })
+        .async(() -> {
+              plugin.getPublisher().notifyPrivateChatReached(data.getId(), plugin.getRpcConfig()
+                  .getServerName(), targetPlayer.getName());
+            }
+        ).execute();
   }
 
   public void processSystemMessage(SystemMessageData data) {

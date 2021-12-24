@@ -10,12 +10,12 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
-import ryuzupluginchat.ryuzupluginchat.useful.LuckPermsPrefixSuffixUtils;
 import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.useful.LuckPermsPrefixSuffixUtils;
 
 @RequiredArgsConstructor
 public class MessageDataFactory {
@@ -32,7 +32,9 @@ public class MessageDataFactory {
   }
 
   public PrivateMessageData createPrivateMessageData(Player p, UUID targetUuid, String message) {
-    return new PrivateMessageData(null, plugin.getRpcConfig().getServerName(), null, p.getName(),
+    long id = plugin.getPrivateChatIDGetter().getNewId();
+    return new PrivateMessageData(id, plugin.getRpcConfig().getPrivateChatFormat(),
+        plugin.getRpcConfig().getServerName(), null, p.getName(), null,
         targetUuid, canJapanize(message, p), message,
         replaceMessage(message, p).replace("$", "").replace("#", ""));
   }
