@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util.message;
+package ryuzupluginchat.ryuzupluginchat.message.data;
 
 import java.util.Map;
 import lombok.Getter;
@@ -14,7 +14,8 @@ public class SystemMessageData {
   private final Map<String, Object> map;
 
   public String format(String msg) {
-    return msg.replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+    return msg
+        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
         .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName));
   }
 

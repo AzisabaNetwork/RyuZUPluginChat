@@ -12,11 +12,13 @@ public class RPCConfig {
 
   private final RyuZUPluginChat plugin;
 
-  private String chatFormat;
   private String serverName;
   private HostAndPort hostAndPort;
   private String redisUserName;
   private String redisPassword;
+
+  private String globalChatFormat;
+  private String privateChatFormat;
 
   private String globalChannel;
   private String privateChannel;
@@ -28,14 +30,19 @@ public class RPCConfig {
 
   private String uuidMapKey;
 
+  private String replyTargetKey;
+
   public void load() {
     FileConfiguration conf = plugin.getConfig();
-    chatFormat = conf.getString("format");
+
     serverName = conf.getString("serverName");
     hostAndPort = new HostAndPort(conf.getString("redis.hostname"), conf.getInt("redis.port"));
     redisUserName = conf.getString("redis.user");
     redisPassword = conf.getString("redis.password");
 
+    globalChatFormat = conf.getString("formats.global");
+    privateChatFormat = conf.getString("formats.private");
+    
     globalChannel = conf.getString("redis.channels.global");
     privateChannel = conf.getString("redis.channels.private");
     channelChatChannel = conf.getString("redis.channels.channelChat");
@@ -45,6 +52,8 @@ public class RPCConfig {
     suffixMapKey = conf.getString("redis.keys.suffix");
 
     uuidMapKey = conf.getString("redis.keys.uuid");
+
+    replyTargetKey = conf.getString("redis.keys.reply");
   }
 
   public void setGlobalChatFormat(String format) {

@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.util.JsonDataConverter;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class MessageSubscriber {
@@ -72,7 +73,9 @@ public class MessageSubscriber {
       }
     };
 
-    jedis.subscribe(subscriber, globalChannel, privateChannel);
+    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+      jedis.subscribe(subscriber, globalChannel, privateChannel, channelChatChannel, systemChannel);
+    });
   }
 
   public void registerFunctions() {

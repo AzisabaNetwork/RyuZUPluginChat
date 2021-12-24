@@ -1,13 +1,13 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.message;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 public class JsonDataConverter {
 

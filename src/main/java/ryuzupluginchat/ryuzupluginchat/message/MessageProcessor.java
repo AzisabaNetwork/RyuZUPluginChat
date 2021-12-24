@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat;
+package ryuzupluginchat.ryuzupluginchat.message;
 
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
@@ -10,11 +10,12 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import ryuzupluginchat.ryuzupluginchat.util.SystemMessageType;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
+import ryuzupluginchat.ryuzupluginchat.message.SystemMessageType;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class MessageProcessor {

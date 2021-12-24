@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 
 @RequiredArgsConstructor
 public class TellCommand implements CommandExecutor, TabCompleter {

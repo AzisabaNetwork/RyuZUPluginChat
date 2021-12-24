@@ -7,8 +7,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 
 @RequiredArgsConstructor
 public class ChatListener implements Listener {

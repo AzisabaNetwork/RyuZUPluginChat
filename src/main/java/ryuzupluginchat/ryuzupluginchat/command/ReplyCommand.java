@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 
 @RequiredArgsConstructor
 public class ReplyCommand implements CommandExecutor {
@@ -26,15 +26,14 @@ public class ReplyCommand implements CommandExecutor {
       return true;
     }
     Player p = (Player) sender;
-    String targetName = plugin.getReplyTargetContainer().getReplyPlayer(p);
+    UUID targetUUID = plugin.getReplyTargetFetcher().getReplyTarget(p);
 
-    if (targetName == null) {
+    if (targetUUID == null) {
       sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
       return true;
     }
 
-    UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(targetName);
-    if (targetUUID == null) {
+    if (!plugin.getPlayerUUIDMapContainer().isOnline(targetUUID)) {
       sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです");
       return true;
     }

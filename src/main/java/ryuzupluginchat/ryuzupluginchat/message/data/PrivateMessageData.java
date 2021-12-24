@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util.message;
+package ryuzupluginchat.ryuzupluginchat.message.data;
 
 import java.util.UUID;
 import lombok.Getter;
@@ -30,7 +30,8 @@ public class PrivateMessageData {
     String receivedPlayerName =
         targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
 
-    String formatted = defaultFormat.replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+    String formatted = defaultFormat
+        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
         .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
         .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
         .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));

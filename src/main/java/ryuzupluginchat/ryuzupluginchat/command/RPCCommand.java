@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class RPCCommand implements CommandExecutor, TabCompleter {

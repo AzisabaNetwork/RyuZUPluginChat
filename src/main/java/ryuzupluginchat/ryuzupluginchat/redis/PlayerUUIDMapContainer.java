@@ -1,7 +1,8 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.redis;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class PlayerUUIDMapContainer {
   private final Jedis jedis;
   private final String playerMapKey;
 
-  private Set<String> playerNamesCache;
+  private Map<String, String> playerCache;
   private long lastCacheUpdated;
 
   public void register(String name, UUID uuid) {
@@ -53,11 +54,22 @@ public class PlayerUUIDMapContainer {
   public Set<String> getAllNames() {
     long holdingAllPlayerNamesCacheMillisecond = 5000L;
     if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
-      return new HashSet<>(playerNamesCache);
+      return new HashSet<>(playerCache.keySet());
     }
-    playerNamesCache = jedis.hgetAll(playerMapKey).keySet();
+    playerCache = jedis.hgetAll(playerMapKey);
     lastCacheUpdated = System.currentTimeMillis();
 
     return getAllNames();
+  }
+
+  public boolean isOnline(UUID uuid) {
+    long holdingAllPlayerNamesCacheMillisecond = 5000L;
+    if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
+      return playerCache.containsValue(uuid.toString());
+    }
+    playerCache = jedis.hgetAll(playerMapKey);
+    lastCacheUpdated = System.currentTimeMillis();
+
+    return isOnline(uuid);
   }
 }

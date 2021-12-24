@@ -9,6 +9,11 @@ redis:
     private: "test-private"
     channelChat: "test-channelChat"
     system: "test-system"
+  keys:
+    prefix: "test-prefix"
+    suffix: "test-suffix"
+    uuid: "test-uuid"
+    reply: "test-reply"
 formats:
-  global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]{color:255,255,255}[PlayerName][LunaChatSuffix][LuckPermsSuffix] {color:85,85,255}>> {color:255,255,255}[Message] {color:192,192,192}[PreReplaceMessage]"
-  private: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]{color:255,255,255}[PlayerName][LunaChatSuffix][LuckPermsSuffix] {color:85,85,255}>> {color:255,255,255}[Message] {color:192,192,192}[PreReplaceMessage]"
+  global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &8[PreReplaceMessage]"
+  private: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &8[PreReplaceMessage]"

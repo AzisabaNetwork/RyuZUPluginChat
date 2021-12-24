@@ -1,30 +1,34 @@
-package ryuzupluginchat.ryuzupluginchat.util.message;
+package ryuzupluginchat.ryuzupluginchat.message.data;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.bukkit.ChatColor;
 import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
-@RequiredArgsConstructor
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class GlobalMessageData {
 
-  private final String format;
-  private final String lunaChatPrefix; // TODO: remove (存在しない)
-  private final String luckPermsPrefix;
-  private final String ryuzuMapPrefix;
-  private final String sendServerName;
-  private final String receiveServerName;
-  private final String playerName;
-  private final String playerDisplayName;
-  private final String ryuzuMapSuffix;
-  private final String lunaChatSuffix; // TODO: remove (存在しない)
-  private final String luckPermsSuffix;
+  private String format;
+  private String lunaChatPrefix; // TODO: remove (存在しない)
+  private String luckPermsPrefix;
+  private String ryuzuMapPrefix;
+  private String sendServerName;
+  private String receiveServerName;
+  private String playerName;
+  private String playerDisplayName;
+  private String ryuzuMapSuffix;
+  private String lunaChatSuffix; // TODO: remove (存在しない)
+  private String luckPermsSuffix;
 
-  private final boolean japanized;
-  private final String preReplaceMessage;
+  private boolean japanized;
+  private String preReplaceMessage;
 
-  private final boolean fromDiscord;
+  private boolean fromDiscord;
 
-  private final String message;
+  private String message;
 
   public String format() {
     // format が存在する場合はそれを使用し、ない場合は空白
@@ -38,7 +42,8 @@ public class GlobalMessageData {
               + defaultFormat;
     }
 
-    String formatted = defaultFormat.replace("[LuckPermsPrefix]", luckPermsPrefix)
+    String formatted = defaultFormat
+        .replace("[LuckPermsPrefix]", convertEmptyIfNull(luckPermsPrefix))
         .replace("[LunaChatPrefix]", convertEmptyIfNull(lunaChatPrefix))
         .replace("[RyuZUMapPrefix]", convertEmptyIfNull(ryuzuMapPrefix))
         .replace("[SendServerName]", convertEmptyIfNull(sendServerName))

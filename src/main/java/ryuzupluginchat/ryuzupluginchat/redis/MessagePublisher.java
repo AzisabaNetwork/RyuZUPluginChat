@@ -3,11 +3,11 @@ package ryuzupluginchat.ryuzupluginchat.redis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.Jedis;
-import ryuzupluginchat.ryuzupluginchat.util.JsonDataConverter;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class MessagePublisher {

@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.message;
 
 import lombok.Getter;
 

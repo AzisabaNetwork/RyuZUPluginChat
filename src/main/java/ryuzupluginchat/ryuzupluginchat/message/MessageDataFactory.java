@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.util;
+package ryuzupluginchat.ryuzupluginchat.message;
 
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatConfig;
@@ -12,10 +12,10 @@ import org.bukkit.entity.Player;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 import ryuzupluginchat.ryuzupluginchat.useful.LuckPermsPrefixSuffixUtils;
-import ryuzupluginchat.ryuzupluginchat.util.message.ChannelChatMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.GlobalMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.PrivateMessageData;
-import ryuzupluginchat.ryuzupluginchat.util.message.SystemMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class MessageDataFactory {
@@ -23,7 +23,7 @@ public class MessageDataFactory {
   private final RyuZUPluginChat plugin;
 
   public GlobalMessageData createGlobalMessageData(Player p, String message) {
-    return new GlobalMessageData(plugin.getRpcConfig().getChatFormat(), null,
+    return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null,
         LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
         plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
         plugin.getPrefixSuffixContainer().getSuffix(p), null,
