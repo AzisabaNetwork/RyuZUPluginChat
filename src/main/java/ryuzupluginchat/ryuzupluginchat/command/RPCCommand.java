@@ -69,12 +69,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "/" + label + " prefix set [MCID] [Prefix]");
             return true;
           }
-          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[1]);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
           if (uuid == null) {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
-          String prefix = String.join(" ", args).substring((args[0] + args[1]).length() + 2);
+          String prefix = String.join(" ", args)
+              .substring((args[0] + args[1] + args[2]).length() + 3);
           plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
         }
         return true;
@@ -94,12 +95,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "/" + label + " suffix set [MCID] [Suffix]");
             return true;
           }
-          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[1]);
+          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
           if (uuid == null) {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
-          String suffix = String.join(" ", args).substring((args[0] + args[1]).length() + 2);
+          String suffix = String.join(" ", args)
+              .substring((args[0] + args[1] + args[2]).length() + 3);
 
           plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
         }
