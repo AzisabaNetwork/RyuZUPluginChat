@@ -45,13 +45,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
       if (args[0].equalsIgnoreCase("tell")) {
         String tellCommand = String.join(" ", args);
-        Bukkit.dispatchCommand(sender, "/" + plugin.getName().toLowerCase() + ":" + tellCommand);
+        Bukkit.dispatchCommand(sender, plugin.getName().toLowerCase() + ":" + tellCommand);
         return true;
       }
 
       if (args[0].equalsIgnoreCase("reply")) {
         String replyCommand = String.join(" ", args);
-        Bukkit.dispatchCommand(sender, "/" + plugin.getName().toLowerCase() + ":" + replyCommand);
+        Bukkit.dispatchCommand(sender, plugin.getName().toLowerCase() + ":" + replyCommand);
         return true;
       }
 
