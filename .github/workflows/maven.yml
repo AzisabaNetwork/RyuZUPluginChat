@@ -12,12 +12,7 @@ jobs:
         with:
           java-version: "8"
           distribution: "adopt"
+          cache: "maven"
       - run: java -version
       - run: mvn --version
-      - uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-build-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-build-
       - run: mvn -B package
