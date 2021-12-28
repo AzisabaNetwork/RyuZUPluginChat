@@ -305,6 +305,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public static void sendChannelMessage(Player p, String message, Channel channel) {
         runAsyncTask(() -> {
+
             Map<String , String> map = new HashMap<>();
             map.put("Message" , replaceMessage(message , p).replace("$" , "").replace("#" , ""));
             map.put("ChannelName" , channel.getName());
@@ -408,7 +409,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         String message = msg;
         LunaChatConfig config = LunaChat.getConfig();
         if(canJapanese(msg , p)) {message = lunachatapi.japanize(message , config.getJapanizeType()); }
-        if(config.isEnableNormalChatColorCode() || p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
+        if(p.hasPermission("lunachat.allowcc")) {message = setColor(message); }
         return message;
     }
 
