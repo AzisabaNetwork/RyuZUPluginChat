@@ -1,17 +1,10 @@
 package ryuzupluginchat.ryuzupluginchat;
 
-import com.github.ucchyocean.lc.channel.ChannelPlayer;
-import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.LunaChatConfig;
-import com.github.ucchyocean.lc3.LunaChatLogger;
-import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelChatEvent;
-import com.github.ucchyocean.lc3.bukkit.event.LunaChatBukkitChannelMessageEvent;
-import com.github.ucchyocean.lc3.channel.BukkitChannel;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.japanize.JapanizeType;
-import com.github.ucchyocean.lc3.member.ChannelMember;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
 import com.github.ucchyocean.lc3.util.Utility;
 import com.google.common.collect.Iterables;
@@ -19,15 +12,6 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
-import com.sun.corba.se.impl.orbutil.concurrent.Mutex;
-import com.sun.org.apache.regexp.internal.RE;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import me.leoko.advancedban.bungee.BungeeMain;
-import me.leoko.advancedban.bungee.BungeeMethods;
-import me.leoko.advancedban.manager.PunishmentManager;
-import me.leoko.advancedban.manager.UUIDManager;
-import me.leoko.advancedban.utils.commands.PunishmentProcessor;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -42,7 +26,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -52,7 +35,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -311,8 +293,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         if(!e.isCancelled()) {
             Player p = e.getPlayer();
             boolean global = lunachatapi.getDefaultChannel(p.getName()) == null;
-            if(global || e.getMessage().substring(0 , 1).equals("!")) {
-                sendGlobalMessage(p , e.getMessage().substring(0 , 1).equals("!") ? e.getMessage().substring(1) : e.getMessage());
+            if(global || e.getMessage().charAt(0) == '!') {
+                sendGlobalMessage(p , e.getMessage().charAt(0) == '!' ? e.getMessage().substring(1) : e.getMessage());
             } else {
                 sendChannelMessage(p , e.getMessage() , lunachatapi.getDefaultChannel(p.getName()));
             }
@@ -439,8 +421,8 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
         return lunachatapi.isPlayerJapanize(p.getName()) &&
                 config.getJapanizeType() != JapanizeType.NONE &&
                 msg.getBytes(StandardCharsets.UTF_8).length <= msg.length() &&
-                !msg.substring(0 , 1).equals("#") &&
-                !msg.substring(0 , 1).equals("$");
+                msg.charAt(0) != '#' &&
+                msg.charAt(0) != '$';
     }
 
     private static String setColor(String msg) {
