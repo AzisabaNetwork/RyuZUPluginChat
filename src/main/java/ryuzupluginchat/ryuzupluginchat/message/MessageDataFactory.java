@@ -90,7 +90,7 @@ public class MessageDataFactory {
     if (canJapanize(msg, p)) {
       message = LunaChat.getAPI().japanize(message, config.getJapanizeType());
     }
-    if (config.isEnableNormalChatColorCode() || p.hasPermission("lunachat.allowcc")) {
+    if (p.hasPermission("lunachat.allowcc")) {
       message = ColorUtils.setColor(message);
     }
     return message;
