@@ -3,5 +3,6 @@
     "config:base",
     "github>hatena/renovate-config:automergeTypesMinor"
   ],
-  "assignees": ["siloneco"]
+  "assignees": ["siloneco"],
+  "labels": ["dependencies"]
 }
