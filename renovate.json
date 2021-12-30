@@ -1,6 +1,7 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    "github>hatena/renovate-config:automergeTypesMinor"
   ],
   "assignees": ["siloneco"]
 }
