@@ -69,7 +69,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     if (args.length == 1) {
       list.addAll(
           plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-              .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0]))
+              .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
               .collect(Collectors.toList()));
     }
     return list;
