@@ -49,7 +49,7 @@ public class Tell implements CommandExecutor,TabCompleter {
             Player p = (Player) sender;
             if (command.getName().equalsIgnoreCase("tell") || command.getName().equalsIgnoreCase("t")) {
                 if(args.length == 1) {
-                    list.addAll(RyuZUPluginChat.getPlayers().stream().filter(l -> !l.equals(p.getName())).collect(Collectors.toList()));
+                    list.addAll(RyuZUPluginChat.getPlayers().stream().filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase())).collect(Collectors.toList()));
                 }
             }
         }
