@@ -96,7 +96,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                         msg = msg.replace("[PreReplaceMessage]", (Boolean.parseBoolean(map.get("CanJapanese")) ? "(" + map.get("PreReplaceMessage") + ")" : ""))
                                 .replace("[Message]", map.getOrDefault("Message", ""));
                         if (map.containsKey("ReceivePlayerName")) {
-                            Player rp = getServer().getPlayer(map.get("ReceivePlayerName"));
+                            Player rp = getServer().getPlayerExact(map.get("ReceivePlayerName"));
                             if (map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
                                 msg = map.get("TellFormat");
                                 msg = msg.replace("[LuckPermsPrefix]", map.getOrDefault("LuckPermsPrefix", ""))
@@ -154,7 +154,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
                             }
                             sendReturnPrivateMessage(playername, map);
                         } else if (map.containsKey("ReceivedPlayerName")) {
-                            Player p = getServer().getPlayer(playername);
+                            Player p = getServer().getPlayerExact(playername);
                             if (p == null) { return; }
                             if (map.containsKey("TellFormat") && !map.get("TellFormat").equals("")) {
                                 msg = map.get("TellFormat");
@@ -390,7 +390,7 @@ public final class RyuZUPluginChat extends JavaPlugin implements PluginMessageLi
 
     public void sendReturnPrivateMessage(String p , Map<String , String> data) {
         runAsyncTask(() -> {
-            Player rp = Bukkit.getPlayer(data.get("ReceivePlayerName"));
+            Player rp = Bukkit.getPlayerExact(data.get("ReceivePlayerName"));
             Map<String , String> map = new HashMap<>(data);
             map.put("ReceivedPlayerName" , map.get("ReceivePlayerName"));
             map.remove("ReceivePlayerName");
