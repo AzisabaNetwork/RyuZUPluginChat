@@ -42,8 +42,12 @@ public class ChannelChatMessageData {
         .replace("%ch", lunaChatChannelName)
         .replace("%color", channelColorCode);
     msg = ColorUtils.setColor(msg);
-    return msg.replace("%msg", message)
-        .replace("%premsg", preReplaceMessage);
+    if (japanized) {
+      msg = msg.replace("%premsg", preReplaceMessage);
+    } else {
+      msg = msg.replace("%premsg", "");
+    }
+    return msg.replace("%msg", message);
   }
 
   private String getAllPrefixes() {
