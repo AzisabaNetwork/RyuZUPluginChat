@@ -77,6 +77,10 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           String prefix = String.join(" ", args)
               .substring((args[0] + args[1] + args[2]).length() + 3);
           plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
+          sender.sendMessage(
+              ChatColor.YELLOW + args[2] + ChatColor.GREEN + "のPrefixを " + ChatColor.RESET
+                  + ChatColor.translateAlternateColorCodes('&', prefix) + ChatColor.GREEN
+                  + " に変更しました");
         }
         return true;
       }
@@ -104,6 +108,10 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
               .substring((args[0] + args[1] + args[2]).length() + 3);
 
           plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
+          sender.sendMessage(
+              ChatColor.YELLOW + args[2] + ChatColor.GREEN + "のSuffixを " + ChatColor.RESET
+                  + ChatColor.translateAlternateColorCodes('&', suffix) + ChatColor.GREEN
+                  + " に変更しました");
         }
         return true;
       }
