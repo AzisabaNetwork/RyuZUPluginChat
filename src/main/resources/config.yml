@@ -2,19 +2,8 @@ serverName: hoge
 redis:
   hostname: "localhost"
   port: 6379
-  user: "user"
   password: "password"
-  channels:
-    global: "test-global"
-    private: "test-private"
-    channelChat: "test-channelChat"
-    system: "test-system"
-  keys:
-    prefix: "test-prefix"
-    suffix: "test-suffix"
-    uuid: "test-uuid"
-    reply: "test-reply"
-    privateChatIdManage: "test-private-chat-id-manage"
+  group: "test"
 formats:
-  global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &8[PreReplaceMessage]"
-  private: "[PlayerName]&7([SendServerName]) -> &f[ReceivePlayerName]&7([ReceiveServerName]) &9>> &r[Message] &8[PreReplaceMessage]"
+  global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &7[PreReplaceMessage]"
+  private: "[PlayerName]&7([SendServerName]) -> &f[ReceivePlayerName]&7([ReceiveServerName]) &9>> &r[Message] &7[PreReplaceMessage]"
