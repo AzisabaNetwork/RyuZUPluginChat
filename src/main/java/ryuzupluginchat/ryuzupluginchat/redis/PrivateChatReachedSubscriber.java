@@ -16,7 +16,7 @@ public class PrivateChatReachedSubscriber {
   private final RyuZUPluginChat plugin;
   private final Jedis jedis;
 
-  private final String channelName;
+  private final String groupName;
 
   private final ObjectMapper mapper = new ObjectMapper();
 
@@ -44,7 +44,7 @@ public class PrivateChatReachedSubscriber {
     };
 
     Bukkit.getScheduler().runTaskAsynchronously(plugin,
-        () -> jedis.subscribe(subscriber, channelName + ".response"));
+        () -> jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response"));
   }
 
   public void close() {

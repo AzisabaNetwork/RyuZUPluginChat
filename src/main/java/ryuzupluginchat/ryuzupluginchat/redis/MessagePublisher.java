@@ -17,17 +17,14 @@ public class MessagePublisher {
   private final Jedis jedis;
   private final JsonDataConverter converter;
 
-  private final String globalChannel;
-  private final String privateChannel;
-  private final String channelChatChannel;
-  private final String systemChannel;
+  private final String groupName;
 
 
   public boolean publishGlobalMessage(GlobalMessageData data) {
     try {
       String jsonMessage = converter.convertIntoString(data);
 
-      jedis.publish(globalChannel, jsonMessage);
+      jedis.publish("rpc:" + groupName + ":global-chat", jsonMessage);
       return true;
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -39,7 +36,7 @@ public class MessagePublisher {
     try {
       String jsonMessage = converter.convertIntoString(data);
 
-      jedis.publish(privateChannel, jsonMessage);
+      jedis.publish("rpc:" + groupName + ":private-chat", jsonMessage);
       return true;
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -51,7 +48,7 @@ public class MessagePublisher {
     try {
       String jsonMessage = converter.convertIntoString(data);
 
-      jedis.publish(channelChatChannel, jsonMessage);
+      jedis.publish("rpc:" + groupName + ":channel-chat", jsonMessage);
       return true;
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -63,7 +60,7 @@ public class MessagePublisher {
     try {
       String jsonMessage = converter.convertIntoString(data);
 
-      jedis.publish(systemChannel, jsonMessage);
+      jedis.publish("rpc:" + groupName + ":system-message", jsonMessage);
       return true;
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -80,7 +77,7 @@ public class MessagePublisher {
     map.put("target", receivedPlayerName);
 
     try {
-      jedis.publish(privateChannel + ".response", mapper.writeValueAsString(map));
+      jedis.publish("rpc:" + groupName + ":private-chat-response", mapper.writeValueAsString(map));
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }

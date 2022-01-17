@@ -22,11 +22,7 @@ public class MessageSubscriber {
 
   private final Jedis jedis;
 
-  private final String globalChannel;
-  private final String privateChannel;
-  private final String channelChatChannel;
-  private final String systemChannel;
-
+  private final String groupName;
 
   private final List<Consumer<GlobalMessageData>> globalChannelConsumers = new ArrayList<>();
   private final List<Consumer<PrivateMessageData>> privateChatConsumers = new ArrayList<>();
@@ -36,8 +32,8 @@ public class MessageSubscriber {
   public void subscribe() {
     JedisPubSub subscriber = new JedisPubSub() {
       @Override
-      public void onMessage(String channel, String message) {
-        if (channel.equals(globalChannel)) {
+      public void onPMessage(String pattern, String channel, String message) {
+        if (channel.equals("rpc:" + groupName + ":global-chat")) {
           GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
           if (data != null) {
             globalChannelConsumers.forEach(c -> c.accept(data));
@@ -45,7 +41,7 @@ public class MessageSubscriber {
             // TODO error log
           }
 
-        } else if (channel.equals(privateChannel)) {
+        } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
           PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
           if (data != null) {
             privateChatConsumers.forEach(c -> c.accept(data));
@@ -53,7 +49,7 @@ public class MessageSubscriber {
             // TODO error log
           }
 
-        } else if (channel.equals(channelChatChannel)) {
+        } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
           ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
           if (data != null) {
             channelChatConsumers.forEach(c -> c.accept(data));
@@ -61,7 +57,7 @@ public class MessageSubscriber {
             // TODO error log
           }
 
-        } else if (channel.equals(systemChannel)) {
+        } else if (channel.equals("rpc:" + groupName + ":system-message")) {
           SystemMessageData data = converter.convertIntoSystemMessageData(message);
           if (data != null) {
             systemMessageConsumers.forEach(c -> c.accept(data));
@@ -73,9 +69,9 @@ public class MessageSubscriber {
       }
     };
 
-    Bukkit.getScheduler().runTaskAsynchronously(plugin,
-        () -> jedis.subscribe(subscriber, globalChannel, privateChannel, channelChatChannel,
-            systemChannel));
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(plugin,
+            () -> jedis.psubscribe(subscriber, "rpc:" + groupName + ":*"));
   }
 
   public void registerFunctions() {

@@ -16,13 +16,14 @@ public class PlayerUUIDMapContainer {
   private final RyuZUPluginChat plugin;
 
   private final Jedis jedis;
-  private final String playerMapKey;
+
+  private final String groupName;
 
   private Map<String, String> playerCache;
   private long lastCacheUpdated;
 
   public void register(String name, UUID uuid) {
-    jedis.hset(playerMapKey, name.toLowerCase(Locale.ROOT), uuid.toString());
+    jedis.hset("rpc:" + groupName + ":uuid-map", name.toLowerCase(Locale.ROOT), uuid.toString());
   }
 
   public void register(Player p) {
@@ -30,7 +31,7 @@ public class PlayerUUIDMapContainer {
   }
 
   public void unregister(String name) {
-    jedis.hdel(playerMapKey, name.toLowerCase());
+    jedis.hdel("rpc:" + groupName + ":uuid-map", name.toLowerCase());
   }
 
   public void unregister(Player p) {
@@ -38,7 +39,7 @@ public class PlayerUUIDMapContainer {
   }
 
   public UUID getUUID(String name) {
-    String value = jedis.hget(playerMapKey, name.toLowerCase());
+    String value = jedis.hget("rpc:" + groupName + ":uuid-map", name.toLowerCase());
     if (value == null) {
       return null;
     }
@@ -56,7 +57,7 @@ public class PlayerUUIDMapContainer {
     if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
       return new HashSet<>(playerCache.keySet());
     }
-    playerCache = jedis.hgetAll(playerMapKey);
+    playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
     lastCacheUpdated = System.currentTimeMillis();
 
     return getAllNames();
@@ -67,7 +68,7 @@ public class PlayerUUIDMapContainer {
     if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
       return playerCache.containsValue(uuid.toString());
     }
-    playerCache = jedis.hgetAll(playerMapKey);
+    playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
     lastCacheUpdated = System.currentTimeMillis();
 
     return isOnline(uuid);

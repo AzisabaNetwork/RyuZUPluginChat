@@ -10,14 +10,14 @@ public class ReplyTargetFetcher {
 
   private final Jedis jedis;
 
-  private final String replyCacheKeyName;
+  private final String groupName;
 
   public void setReplyTarget(Player p, UUID target) {
-    jedis.hset(replyCacheKeyName, p.getUniqueId().toString(), target.toString());
+    jedis.hset("rpc:" + groupName + ":reply-map", p.getUniqueId().toString(), target.toString());
   }
 
   public UUID getReplyTarget(Player p) {
-    String uuidStr = jedis.hget(replyCacheKeyName, p.getUniqueId().toString());
+    String uuidStr = jedis.hget("rpc:" + groupName + ":reply-map", p.getUniqueId().toString());
     return UUID.fromString(uuidStr);
   }
 

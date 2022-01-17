@@ -75,30 +75,25 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private void setupRedisConnections() {
     Jedis jedis = getConnectedJedis();
 
-    publisher = new MessagePublisher(jedis, jsonDataConverter, rpcConfig.getGlobalChannel(),
-        rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
-        rpcConfig.getSystemChannel());
+    publisher = new MessagePublisher(jedis, jsonDataConverter, rpcConfig.getGroupName());
 
     // create new jedis instance because subscribe will block other actions like hset etc.
     subscriber = new MessageSubscriber(this, jsonDataConverter, getConnectedJedis(),
-        rpcConfig.getGlobalChannel(),
-        rpcConfig.getPrivateChannel(), rpcConfig.getChannelChatChannel(),
-        rpcConfig.getSystemChannel());
+        rpcConfig.getGroupName());
     subscriber.subscribe();
 
     // Same as above
     privateChatReachedSubscriber = new PrivateChatReachedSubscriber(this, getConnectedJedis(),
-        rpcConfig.getPrivateChannel());
+        rpcConfig.getGroupName());
     privateChatReachedSubscriber.subscribe();
 
     subscriber.registerFunctions();
 
-    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedis, rpcConfig.getPrefixMapKey(),
-        rpcConfig.getSuffixMapKey());
-    playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis,
-        rpcConfig.getUuidMapKey());
-    replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getReplyTargetKey());
-    privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getPrivateChatIdManageKey());
+    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedis,
+        rpcConfig.getGroupName());
+    playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis, rpcConfig.getGroupName());
+    replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
+    privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
   }
 
   private Jedis getConnectedJedis() {

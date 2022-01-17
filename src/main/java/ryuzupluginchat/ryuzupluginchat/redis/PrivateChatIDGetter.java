@@ -7,13 +7,13 @@ import redis.clients.jedis.Jedis;
 public class PrivateChatIDGetter {
 
   private final Jedis jedis;
-  private final String privateChatIdKey;
+  private final String groupName;
 
   public void setup() {
-    jedis.setnx(privateChatIdKey, "0");
+    jedis.setnx("rpc:" + groupName + ":private-chat-id-counter", "0");
   }
 
   public long getNewId() {
-    return jedis.incr(privateChatIdKey);
+    return jedis.incr("rpc:" + groupName + ":private-chat-id-counter");
   }
 }

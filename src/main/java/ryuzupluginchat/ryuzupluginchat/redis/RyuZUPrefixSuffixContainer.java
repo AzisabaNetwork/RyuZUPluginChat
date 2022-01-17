@@ -11,11 +11,10 @@ public class RyuZUPrefixSuffixContainer {
 
   private final Jedis jedis;
 
-  private final String prefixMapKey;
-  private final String suffixMapKey;
+  private final String groupName;
 
   public String getPrefix(UUID uuid) {
-    return jedis.hget(prefixMapKey, uuid.toString());
+    return jedis.hget("rpc:" + groupName + ":prefixes", uuid.toString());
   }
 
   public String getPrefix(Player p) {
@@ -23,7 +22,7 @@ public class RyuZUPrefixSuffixContainer {
   }
 
   public String getSuffix(UUID uuid) {
-    return jedis.hget(suffixMapKey, uuid.toString());
+    return jedis.hget("rpc:" + groupName + ":suffixes", uuid.toString());
   }
 
   public String getSuffix(Player p) {
@@ -37,7 +36,7 @@ public class RyuZUPrefixSuffixContainer {
           .execute();
       return;
     }
-    jedis.hset(prefixMapKey, uuid.toString(), prefix);
+    jedis.hset("rpc:" + groupName + ":prefixes", uuid.toString(), prefix);
   }
 
   public void setPrefix(Player p, String prefix, boolean async) {
@@ -51,7 +50,7 @@ public class RyuZUPrefixSuffixContainer {
           .execute();
       return;
     }
-    jedis.hset(suffixMapKey, uuid.toString(), suffix);
+    jedis.hset("rpc:" + groupName + ":suffixes", uuid.toString(), suffix);
   }
 
   public void setSuffix(Player p, String suffix, boolean async) {
