@@ -3,6 +3,7 @@ package ryuzupluginchat.ryuzupluginchat.message;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
+import com.github.ucchyocean.lc3.member.ChannelMember;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
 import java.util.Map;
 import java.util.UUID;
@@ -24,9 +25,14 @@ public class MessageProcessor {
   public void processGlobalMessage(GlobalMessageData data) {
     String message = data.format();
 
-    for (Player p : Bukkit.getOnlinePlayers()) {
-      p.sendMessage(message);
-    }
+    LunaChatAPI api = LunaChat.getAPI();
+    ChannelMember sender = ChannelMemberBukkit.getChannelMember(data.getPlayerName());
+
+    Bukkit.getOnlinePlayers().stream()
+        .filter(p -> sender == null ||
+            !api.getHideinfo(ChannelMemberBukkit.getChannelMember(p.getUniqueId()))
+                .contains(sender))
+        .forEach((p) -> p.sendMessage(message));
   }
 
   public void processChannelChatMessage(ChannelChatMessageData data) {
@@ -42,13 +48,16 @@ public class MessageProcessor {
               .contains(p) || p.hasPermission("rpc.op"))
           .forEach(p -> p.sendMessage(message));
     } else {
-      ChannelMemberBukkit member = ChannelMemberBukkit.getChannelMemberBukkit(data.getPlayerName());
+      ChannelMemberBukkit sender = ChannelMemberBukkit.getChannelMemberBukkit(data.getPlayerName());
       Bukkit.getOnlinePlayers().stream()
-          .filter(p -> channel.getMembers().stream()
-              .map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList())
-              .contains(p) || p.hasPermission("rpc.op"))
-          .filter(p -> !api.getHidelist(ChannelMemberBukkit.getChannelMember((p.getName())))
-              .contains(member))
+          .filter(p ->
+              channel.getMembers().stream()
+                  .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+                  .collect(Collectors.toList()).contains(p)
+                  || p.hasPermission("rpc.op"))
+          .filter(p ->
+              !api.getHideinfo(ChannelMemberBukkit.getChannelMember(p.getUniqueId()))
+                  .contains(sender))
           .forEach(p -> p.sendMessage(message));
     }
   }
