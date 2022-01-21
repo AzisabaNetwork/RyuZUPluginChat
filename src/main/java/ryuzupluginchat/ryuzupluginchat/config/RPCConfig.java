@@ -44,15 +44,15 @@ public class RPCConfig {
     discordBotEnabled = conf.getBoolean("discord.enable", false);
     if (discordBotEnabled) {
 
-      discordBotToken = conf.getString("discord.token", "Token here");
+      discordBotToken = conf.getString("discord.voice.token", "Token here");
 
       if (discordBotToken.equals("Token here")) {
         plugin.getLogger().warning("Discord Bot Token is not specified. Bot has been disabled.");
         discordBotEnabled = false;
       }
 
-      discordChannelId = conf.getLong("discord.discord-channel-id", -1);
-      discordLunaChatChannelName = conf.getString("discord.lunachat-channel-name");
+      discordChannelId = conf.getLong("discord.voice.discord-channel-id", -1);
+      discordLunaChatChannelName = conf.getString("discord.voice.lunachat-channel-name");
     }
   }
 
