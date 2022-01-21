@@ -3,6 +3,7 @@ package ryuzupluginchat.ryuzupluginchat;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import discord4j.common.util.Snowflake;
 import java.util.Objects;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -12,6 +13,7 @@ import ryuzupluginchat.ryuzupluginchat.command.RPCCommand;
 import ryuzupluginchat.ryuzupluginchat.command.ReplyCommand;
 import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
+import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
@@ -45,8 +47,10 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private MessageSubscriber subscriber;
   private PrivateChatReachedSubscriber privateChatReachedSubscriber;
 
+  private DiscordHandler discordHandler;
 
   @Override
+
   public void onEnable() {
     taskChainFactory = BukkitTaskChainFactory.create(this);
 
@@ -64,11 +68,19 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     registerCommands();
 
+    if (rpcConfig.isDiscordBotEnabled()) {
+      setupDiscordConnection();
+    }
+
     getLogger().info(getName() + " enabled.");
   }
 
   @Override
   public void onDisable() {
+    if (discordHandler != null) {
+      discordHandler.disconnect();
+    }
+
     Bukkit.getLogger().info(getName() + " disabled.");
   }
 
@@ -94,6 +106,19 @@ public final class RyuZUPluginChat extends JavaPlugin {
     playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis, rpcConfig.getGroupName());
     replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
     privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
+  }
+
+  private void setupDiscordConnection() {
+    discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
+    boolean initResult = discordHandler.init();
+
+    if (!initResult) {
+      getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
+      return;
+    }
+
+    discordHandler.connectLunaChatAndDiscordChannel(rpcConfig.getDiscordLunaChatChannelName(),
+        Snowflake.of(rpcConfig.getDiscordChannelId()));
   }
 
   private Jedis getConnectedJedis() {
