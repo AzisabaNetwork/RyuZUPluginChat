@@ -3,7 +3,9 @@ package ryuzupluginchat.ryuzupluginchat.command;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.member.ChannelMember;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
@@ -25,6 +27,8 @@ public class VCCommand implements CommandExecutor {
   private List<String> channelMembersMCIDListCache;
   private long cacheLastUpdated = 0L;
 
+  private HashMap<UUID, Long> lastExecuted = new HashMap<>();
+
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd,
       @NotNull String label, @NotNull String[] args) {
@@ -42,6 +46,12 @@ public class VCCommand implements CommandExecutor {
     Player p = (Player) sender;
     String message = String.join(" ", args);
     String vcChannelName = vcChannelGetter.getLunaChatChannelName();
+
+    if (lastExecuted.getOrDefault(p.getUniqueId(), 0L) + 1000L > System.currentTimeMillis()) {
+      p.sendMessage(ChatColor.RED + "クールタイム中です。1秒間待って実行してください。");
+      return true;
+    }
+    lastExecuted.put(p.getUniqueId(), System.currentTimeMillis());
 
     if (vcChannelName == null) {
       p.sendMessage(ChatColor.RED + "エラーが発生しました (Discordと連携するLunaChatチャンネルが不明です)");
