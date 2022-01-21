@@ -22,6 +22,11 @@ public class RPCConfig {
 
   private String groupName;
 
+  private boolean discordBotEnabled;
+  private String discordBotToken;
+  private Long discordChannelId;
+  private String discordLunaChatChannelName;
+
   public void load() {
     plugin.saveDefaultConfig();
     FileConfiguration conf = plugin.getConfig();
@@ -35,6 +40,20 @@ public class RPCConfig {
     privateChatFormat = conf.getString("formats.private");
 
     groupName = conf.getString("redis.group");
+
+    discordBotEnabled = conf.getBoolean("discord.enable", false);
+    if (discordBotEnabled) {
+
+      discordBotToken = conf.getString("discord.token", "Token here");
+
+      if (discordBotToken.equals("Token here")) {
+        plugin.getLogger().warning("Discord Bot Token is not specified. Bot has been disabled.");
+        discordBotEnabled = false;
+      }
+
+      discordChannelId = conf.getLong("discord.discord-channel-id", -1);
+      discordLunaChatChannelName = conf.getString("discord.lunachat-channel-name");
+    }
   }
 
   public void setGlobalChatFormat(String format) {
