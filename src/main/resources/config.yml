@@ -12,4 +12,4 @@ discord:
   voice:
     token: "Token here"
     discord-channel-id: 123456789
-    lunachat-channel-name: voicechat
+    lunachat-channel-name: "voicechat"
