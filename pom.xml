@@ -100,6 +100,7 @@
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>LunaChat</artifactId>
       <version>v3.0.16</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.discord4j</groupId>
