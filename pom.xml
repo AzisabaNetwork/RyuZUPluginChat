@@ -41,6 +41,12 @@
             </goals>
             <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
+              <relocations>
+                <relocation>
+                  <pattern>io.netty</pattern>
+                  <shadedPattern>com.discord4j.shaded.io.netty</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>

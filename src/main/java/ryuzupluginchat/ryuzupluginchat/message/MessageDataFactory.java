@@ -31,6 +31,11 @@ public class MessageDataFactory {
         replaceMessage(message, p).replace("$", "").replace("#", ""));
   }
 
+  public GlobalMessageData createGlobalMessageDataFromDiscord(String userName, String message) {
+    return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null, null, null,
+        null, null, userName, userName, null, null, null, false, message, true, message);
+  }
+
   public PrivateMessageData createPrivateMessageData(Player p, UUID targetUuid, String message) {
     long id = plugin.getPrivateChatIDGetter().getNewId();
     return new PrivateMessageData(id, plugin.getRpcConfig().getPrivateChatFormat(),
@@ -39,8 +44,18 @@ public class MessageDataFactory {
         replaceMessage(message, p).replace("$", "").replace("#", ""));
   }
 
+  /**
+   * @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead.
+   */
+  @Deprecated
   public ChannelChatMessageData createChannelChatMessageData(Player p, String message) {
     Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
+    return createChannelChatMessageData(p, ch.getName(), message);
+  }
+
+  public ChannelChatMessageData createChannelChatMessageData(Player p, String lunaChatChannel,
+      String message) {
+    Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
     return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null,
         LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
@@ -48,6 +63,14 @@ public class MessageDataFactory {
         plugin.getPrefixSuffixContainer().getSuffix(p), null,
         LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), message, false,
         replaceMessage(message, p).replace("$", "").replace("#", ""));
+  }
+
+  public ChannelChatMessageData createChannelChatMessageDataFromDiscord(String userName,
+      String lunaChatChannel, String message) {
+    Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
+
+    return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null, null,
+        null, null, null, userName, userName, null, null, null, false, message, true, message);
   }
 
   public SystemMessageData createGeneralSystemChatMessageData(String msg) {

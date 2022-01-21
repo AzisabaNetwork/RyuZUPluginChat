@@ -19,6 +19,10 @@ commands:
     usage: /reply
     description: 個人チャットを返信します
     aliases: [ "r" ]
+  vc:
+    usage: /vc <message>
+    description: Discordと連携しているDiscordチャンネルにメッセージを送信します
+    permission: rpc.player
 
 permissions:
   rpc.player:

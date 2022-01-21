@@ -7,3 +7,9 @@ redis:
 formats:
   global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &7[PreReplaceMessage]"
   private: "[PlayerName]&7([SendServerName]) -> &f[ReceivePlayerName]&7([ReceiveServerName]) &9>> &r[Message] &7[PreReplaceMessage]"
+discord:
+  enable: false
+  voice:
+    token: "Token here"
+    discord-channel-id: 123456789
+    lunachat-channel-name: "voicechat"

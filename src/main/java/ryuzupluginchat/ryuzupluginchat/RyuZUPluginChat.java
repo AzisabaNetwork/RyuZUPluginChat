@@ -3,6 +3,7 @@ package ryuzupluginchat.ryuzupluginchat;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import discord4j.common.util.Snowflake;
 import java.util.Objects;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -11,7 +12,9 @@ import redis.clients.jedis.Jedis;
 import ryuzupluginchat.ryuzupluginchat.command.RPCCommand;
 import ryuzupluginchat.ryuzupluginchat.command.ReplyCommand;
 import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
+import ryuzupluginchat.ryuzupluginchat.command.VCCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
+import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
@@ -25,6 +28,7 @@ import ryuzupluginchat.ryuzupluginchat.redis.PrivateChatReachedSubscriber;
 import ryuzupluginchat.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import ryuzupluginchat.ryuzupluginchat.redis.ReplyTargetFetcher;
 import ryuzupluginchat.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
+import ryuzupluginchat.ryuzupluginchat.redis.VCLunaChatChannelSharer;
 
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
@@ -39,14 +43,17 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private ReplyTargetFetcher replyTargetFetcher;
   private JsonDataConverter jsonDataConverter;
   private PrivateChatIDGetter privateChatIDGetter;
+  private VCLunaChatChannelSharer vcLunaChatChannelSharer;
   private final PrivateChatResponseWaiter privateChatResponseWaiter = new PrivateChatResponseWaiter();
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
   private PrivateChatReachedSubscriber privateChatReachedSubscriber;
 
+  private DiscordHandler discordHandler;
 
   @Override
+
   public void onEnable() {
     taskChainFactory = BukkitTaskChainFactory.create(this);
 
@@ -64,11 +71,19 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     registerCommands();
 
+    if (rpcConfig.isDiscordBotEnabled()) {
+      setupDiscordConnection();
+    }
+
     getLogger().info(getName() + " enabled.");
   }
 
   @Override
   public void onDisable() {
+    if (discordHandler != null) {
+      discordHandler.disconnect();
+    }
+
     Bukkit.getLogger().info(getName() + " disabled.");
   }
 
@@ -94,6 +109,21 @@ public final class RyuZUPluginChat extends JavaPlugin {
     playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis, rpcConfig.getGroupName());
     replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
     privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
+    vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedis, rpcConfig.getGroupName());
+  }
+
+  private void setupDiscordConnection() {
+    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getDiscordLunaChatChannelName());
+    discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
+    boolean initResult = discordHandler.init();
+
+    if (!initResult) {
+      getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
+      return;
+    }
+
+    discordHandler.connectLunaChatAndDiscordChannel(rpcConfig.getDiscordLunaChatChannelName(),
+        Snowflake.of(rpcConfig.getDiscordChannelId()));
   }
 
   private Jedis getConnectedJedis() {
@@ -108,12 +138,14 @@ public final class RyuZUPluginChat extends JavaPlugin {
     RPCCommand rpcCommand = new RPCCommand(this);
     TellCommand tellCommand = new TellCommand(this);
     ReplyCommand replyCommand = new ReplyCommand(this);
+    VCCommand vcCommand = new VCCommand(this, vcLunaChatChannelSharer);
 
     Objects.requireNonNull(getCommand("rpc")).setExecutor(rpcCommand);
     Objects.requireNonNull(getCommand("rpc")).setTabCompleter(rpcCommand);
     Objects.requireNonNull(getCommand("tell")).setExecutor(tellCommand);
     Objects.requireNonNull(getCommand("tell")).setTabCompleter(tellCommand);
     Objects.requireNonNull(getCommand("reply")).setExecutor(replyCommand);
+    Objects.requireNonNull(getCommand("vc")).setExecutor(vcCommand);
   }
 
   public static <T> TaskChain<T> newChain() {
