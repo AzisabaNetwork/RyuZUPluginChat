@@ -7,7 +7,10 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
+import discord4j.discordjson.json.MessageData;
+import discord4j.discordjson.json.MessageEditRequest;
 import discord4j.rest.entity.RestChannel;
+import discord4j.rest.util.MultipartRequest;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
@@ -80,7 +83,21 @@ public class DiscordHandler {
           .async(() -> {
             String message = data.getMessage();
             message = message.replace('@', '＠');
-            discordMessageChannel.createMessage(message).block();
+            MessageData jsonMessageData = discordMessageChannel.createMessage(message).block();
+
+            if (jsonMessageData == null) {
+              return;
+            }
+
+            long channelId = jsonMessageData.channelId().asLong();
+            long messageId = jsonMessageData.id().asLong();
+
+            String editedMessageContent = data.getPlayerName() + ": " + data.getMessage();
+
+            MultipartRequest<MessageEditRequest> req = MultipartRequest.ofRequest(
+                MessageEditRequest.builder().contentOrNull(editedMessageContent).build());
+
+            client.getChannelService().editMessage(channelId, messageId, req).block();
           }).execute();
     });
   }
