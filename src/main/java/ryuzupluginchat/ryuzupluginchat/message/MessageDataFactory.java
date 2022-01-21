@@ -44,8 +44,18 @@ public class MessageDataFactory {
         replaceMessage(message, p).replace("$", "").replace("#", ""));
   }
 
+  /**
+   * @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead.
+   */
+  @Deprecated
   public ChannelChatMessageData createChannelChatMessageData(Player p, String message) {
     Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
+    return createChannelChatMessageData(p, ch.getName(), message);
+  }
+
+  public ChannelChatMessageData createChannelChatMessageData(Player p, String lunaChatChannel,
+      String message) {
+    Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
     return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null,
         LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
