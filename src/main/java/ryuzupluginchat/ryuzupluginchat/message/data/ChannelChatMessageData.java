@@ -3,6 +3,7 @@ package ryuzupluginchat.ryuzupluginchat.message.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bukkit.ChatColor;
 import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
 
 @Data
@@ -51,6 +52,10 @@ public class ChannelChatMessageData {
   }
 
   private String getAllPrefixes() {
+    if (fromDiscord) {
+      return ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]"
+          + ChatColor.RESET;
+    }
     return convertEmptyIfNull(luckPermsPrefix) + convertEmptyIfNull(ryuzuMapPrefix)
         + convertEmptyIfNull(lunaChatPrefix);
   }
