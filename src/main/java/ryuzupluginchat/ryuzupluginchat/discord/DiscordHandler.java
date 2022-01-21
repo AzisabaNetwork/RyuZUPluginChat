@@ -77,7 +77,11 @@ public class DiscordHandler {
       }
 
       RyuZUPluginChat.newChain()
-          .async(() -> discordMessageChannel.createMessage(data.getMessage()).block()).execute();
+          .async(() -> {
+            String message = data.getMessage();
+            message = message.replace('@', '＠');
+            discordMessageChannel.createMessage(message).block();
+          }).execute();
     });
   }
 
