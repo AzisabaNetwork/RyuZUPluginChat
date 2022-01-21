@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
@@ -33,6 +34,8 @@ public class MessageProcessor {
             !api.getHideinfo(ChannelMemberBukkit.getChannelMember(p.getUniqueId()))
                 .contains(sender))
         .forEach((p) -> p.sendMessage(message));
+
+    plugin.getLogger().info("[Global-Chat] " + ChatColor.stripColor(message));
   }
 
   public void processChannelChatMessage(ChannelChatMessageData data) {
@@ -42,8 +45,13 @@ public class MessageProcessor {
     Channel channel = api.getChannel(data.getLunaChatChannelName());
 
     if (channel == null) {
+      plugin.getLogger()
+          .warning("[Chat] The channel named " + data.getLunaChatChannelName() + " was not found.");
       return;
     }
+
+    plugin.getLogger()
+        .info("[Channel-Chat] (" + channel.getName() + ") " + ChatColor.stripColor(message));
 
     if (data.isFromDiscord()) {
       Bukkit.getOnlinePlayers().stream()
@@ -75,6 +83,7 @@ public class MessageProcessor {
     }
 
     targetPlayer.sendMessage(message);
+    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
 
     RyuZUPluginChat.newChain()
         .async(() -> {

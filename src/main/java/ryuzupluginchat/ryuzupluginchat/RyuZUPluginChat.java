@@ -44,7 +44,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private JsonDataConverter jsonDataConverter;
   private PrivateChatIDGetter privateChatIDGetter;
   private VCLunaChatChannelSharer vcLunaChatChannelSharer;
-  private final PrivateChatResponseWaiter privateChatResponseWaiter = new PrivateChatResponseWaiter();
+  private PrivateChatResponseWaiter privateChatResponseWaiter;
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
@@ -63,6 +63,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     messageDataFactory = new MessageDataFactory(this);
     messageProcessor = new MessageProcessor(this);
     jsonDataConverter = new JsonDataConverter(this);
+    privateChatResponseWaiter = new PrivateChatResponseWaiter(this);
 
     setupRedisConnections();
 
