@@ -2,12 +2,18 @@ package ryuzupluginchat.ryuzupluginchat.redis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 
+@RequiredArgsConstructor
 public class PrivateChatResponseWaiter {
+
+  private final RyuZUPluginChat plugin;
 
   private HashMap<Long, PrivateMessageData> dataMap = new HashMap<>();
   private HashMap<Long, Long> timeouts = new HashMap<>();
@@ -43,5 +49,6 @@ public class PrivateChatResponseWaiter {
     }
 
     sentPlayer.sendMessage(message);
+    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
   }
 }
