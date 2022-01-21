@@ -41,6 +41,10 @@ public class MessageProcessor {
     LunaChatAPI api = LunaChat.getAPI();
     Channel channel = api.getChannel(data.getLunaChatChannelName());
 
+    if (channel == null) {
+      return;
+    }
+
     if (data.isFromDiscord()) {
       Bukkit.getOnlinePlayers().stream()
           .filter(p -> channel.getMembers().stream()
