@@ -13,16 +13,16 @@ RedisとLunaChatを使用して、複数マイクラサーバーのグローバ�
 * 特定のプレイヤーのチャットを非表示にする /hide 機能
 
 ## 導入
-1. Configを書く
+1. [最新リリース](https://github.com/AzisabaNetwork/RyuZUPluginChat/releases/latest)からjarをダウンロードし、pluginsディレクトリに導入する
+2. Configを書く
     1. Configを自動生成する場合
-        1. [最新リリース](https://github.com/AzisabaNetwork/RyuZUPluginChat/releases/latest)からjarをダウンロードし、pluginsディレクトリに導入する
-        2. サーバーを起動して、`plugins/RyuZUPluginChat/config.yml` が生成されたことを確認したらサーバーを閉じる
-        3. config.yml の内容を編集する
+        1. サーバーを起動して、`plugins/RyuZUPluginChat/config.yml` が生成されたことを確認したらサーバーを閉じる
+        2. config.yml の内容を編集する
     2. Configを自分で書く場合
         1. [config.yml](https://github.com/AzisabaNetwork/RyuZUPluginChat/blob/main/src/main/resources/config.yml)の内容を `plugins/RyuZUPluginChat/config.yml` に書く
         2. 内容を任意の内容に編集する
-2. サーバーを起動する
-3. チャットが共有されていることを確認する
+3. サーバーを起動する
+4. チャットが共有されていることを確認する
 
 ## 設定項目
 |  Key  |  Value  |
