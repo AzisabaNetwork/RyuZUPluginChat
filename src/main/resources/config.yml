@@ -8,8 +8,28 @@ formats:
   global: "[LuckPermsPrefix][RyuZUMapPrefix][RyuZUMapSuffix][LunaChatPrefix]&f[PlayerName][LunaChatSuffix][LuckPermsSuffix] &9>> &r[Message] &7[PreReplaceMessage]"
   private: "[PlayerName]&7([SendServerName]) -> &f[ReceivePlayerName]&7([ReceiveServerName]) &9>> &r[Message] &7[PreReplaceMessage]"
 discord:
-  enable: false
-  voice:
-    token: "Token here"
-    discord-channel-id: 123456789
-    lunachat-channel-name: "voicechat"
+  enable: true
+  token: "Token here"
+  vc-command-lunachat-channel: "voicechat"
+  connections:
+    voicechat:
+      discord-channel-id: 123456789
+      global:
+        enable: false
+      channel:
+        enable: true
+        discord-input: true
+        vc-mode: true
+        matches:
+          - "voicechat"
+      private:
+        enable: false
+    admin:
+      discord-channel-id: 987654321
+      discord-input: false
+      global:
+        enable: true
+      channel:
+        enable: true
+      private:
+        enable: true
