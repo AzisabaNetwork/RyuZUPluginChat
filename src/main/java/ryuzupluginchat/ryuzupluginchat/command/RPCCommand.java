@@ -225,7 +225,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       if (sender.hasPermission("rpc.op")) {
         list.addAll(Arrays.asList("prefix", "suffix", "message", "config"));
       }
-      list.addAll(Arrays.asList("tell", "reply", "hide", "unhide"));
+      list.addAll(redirectArgs);
     }
     if (args.length == 2) {
       if (sender.hasPermission("rpc.op")) {
