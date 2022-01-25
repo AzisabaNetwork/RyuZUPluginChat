@@ -20,6 +20,7 @@ import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.message.MessageDataFactory;
 import ryuzupluginchat.ryuzupluginchat.message.MessageProcessor;
+import ryuzupluginchat.ryuzupluginchat.redis.HideInfoController;
 import ryuzupluginchat.ryuzupluginchat.redis.MessagePublisher;
 import ryuzupluginchat.ryuzupluginchat.redis.MessageSubscriber;
 import ryuzupluginchat.ryuzupluginchat.redis.PlayerUUIDMapContainer;
@@ -45,6 +46,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private PrivateChatIDGetter privateChatIDGetter;
   private VCLunaChatChannelSharer vcLunaChatChannelSharer;
   private PrivateChatResponseWaiter privateChatResponseWaiter;
+  private HideInfoController hideInfoController;
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
@@ -111,6 +113,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
     privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
     vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedis, rpcConfig.getGroupName());
+    hideInfoController = new HideInfoController(jedis, rpcConfig.getGroupName());
   }
 
   private void setupDiscordConnection() {
