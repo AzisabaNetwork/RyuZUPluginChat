@@ -38,7 +38,7 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
       p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + " という名前のプレイヤーが見つかりませんでした。");
       return true;
     }
-    if (uuid == p.getUniqueId()) {
+    if (uuid.equals(p.getUniqueId())) {
       p.sendMessage(ChatColor.RED + "自分自身のチャットの非表示設定を編集することはできません！");
       return true;
     }
