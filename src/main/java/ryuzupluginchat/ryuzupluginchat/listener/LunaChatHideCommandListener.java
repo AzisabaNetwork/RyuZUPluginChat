@@ -16,7 +16,7 @@ public class LunaChatHideCommandListener implements Listener {
 
   private final RyuZUPluginChat plugin;
 
-  private final List<String> chCommandList = Arrays.asList("/ch", "/lunachat:ch");
+  private final List<String> chCommandList = Arrays.asList("/ch", "/lunachat:ch", "/lc", "/lunachat:lc",  "/lunachat", "/lunachat:lunachat");
 
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
