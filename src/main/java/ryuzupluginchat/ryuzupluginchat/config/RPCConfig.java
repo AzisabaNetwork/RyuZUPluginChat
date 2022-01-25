@@ -73,7 +73,7 @@ public class RPCConfig {
 
     for (String id : section.getKeys(false)) {
       DiscordMessageConnection connection = importConnectionDataFromConfig(conf,
-          "discord.connections" + id, id);
+          "discord.connections." + id, id);
 
       if (connection == null) {
         plugin.getLogger().warning("Failed to load 'discord.connections." + id + "' section.");
