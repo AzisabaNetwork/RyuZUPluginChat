@@ -6,7 +6,7 @@
 
   <groupId>RyuZUPluginChat</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.2.1</version>
+  <version>1.4.0</version>
   <packaging>jar</packaging>
 
   <name>RyuZUPluginChat</name>
