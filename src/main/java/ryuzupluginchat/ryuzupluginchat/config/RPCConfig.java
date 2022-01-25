@@ -105,9 +105,9 @@ public class RPCConfig {
     }
     Snowflake discordChannelId = Snowflake.of(discordChIdLong);
 
-    GlobalChatSyncData globalData = null;
-    ChannelChatSyncData channelData = null;
-    PrivateChatSyncData privateData = null;
+    GlobalChatSyncData globalData;
+    ChannelChatSyncData channelData;
+    PrivateChatSyncData privateData;
 
     // global
     if (conf.getBoolean(section + ".global.enable", false)) {
@@ -115,6 +115,8 @@ public class RPCConfig {
       boolean discordInput = conf.getBoolean(section + ".global.discord-input",
           discordInputDefault);
       globalData = new GlobalChatSyncData(true, vc, discordInput);
+    } else {
+      globalData = new GlobalChatSyncData(false, false, false);
     }
 
     // channel
@@ -131,12 +133,16 @@ public class RPCConfig {
         }
       }
       channelData = new ChannelChatSyncData(true, vc, discordInput, matches);
+    } else {
+      channelData = new ChannelChatSyncData(false, false, false, null);
     }
 
     // private
     if (conf.getBoolean(section + ".private.enable", false)) {
       boolean vc = conf.getBoolean(section + ".private.vc-mode", vcModeDefault);
       privateData = new PrivateChatSyncData(true, vc);
+    } else {
+      privateData = new PrivateChatSyncData(false, false);
     }
 
     return new DiscordMessageConnection(id, discordChannelId, globalData, channelData, privateData);
