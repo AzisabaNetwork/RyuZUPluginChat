@@ -22,6 +22,8 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
   private final RyuZUPluginChat plugin;
 
+  private final List<String> redirectArgs = Arrays.asList("tell", "reply", "hide", "unhide");
+
   @Override
   public boolean onCommand(@NotNull CommandSender sender,
       org.bukkit.command.@NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -43,15 +45,9 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
                 return true;
             }*/
 
-      if (args[0].equalsIgnoreCase("tell")) {
+      if (redirectArgs.contains(args[0])) {
         String tellCommand = String.join(" ", args);
         Bukkit.dispatchCommand(sender, plugin.getName().toLowerCase() + ":" + tellCommand);
-        return true;
-      }
-
-      if (args[0].equalsIgnoreCase("reply")) {
-        String replyCommand = String.join(" ", args);
-        Bukkit.dispatchCommand(sender, plugin.getName().toLowerCase() + ":" + replyCommand);
         return true;
       }
 
@@ -229,7 +225,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       if (sender.hasPermission("rpc.op")) {
         list.addAll(Arrays.asList("prefix", "suffix", "message", "config"));
       }
-      list.addAll(Arrays.asList("tell", "reply"));
+      list.addAll(Arrays.asList("tell", "reply", "hide", "unhide"));
     }
     if (args.length == 2) {
       if (sender.hasPermission("rpc.op")) {
@@ -243,7 +239,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           list.addAll(Arrays.asList("message", "player", "playermessage"));
         }
       }
-      if (args[0].equals("tell")) {
+      if (Arrays.asList("tell", "hide", "unhide").contains(args[0])) {
         list.addAll(plugin.getPlayerUUIDMapContainer().getAllNames().stream()
             .filter(name -> !name.equalsIgnoreCase(p.getName()))
             .collect(Collectors.toList()));
