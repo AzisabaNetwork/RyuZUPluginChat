@@ -273,7 +273,7 @@ public class DiscordHandler {
   }
 
   private String sanitize(String message) {
-    message = message.replace('@', '＠');
+    message = message.replace("@", "\\@");
     message = ChatColor.translateAlternateColorCodes('&', message);
     message = ChatColor.stripColor(message);
     return message;
