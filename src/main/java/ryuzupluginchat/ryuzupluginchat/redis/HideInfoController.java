@@ -3,6 +3,7 @@ package ryuzupluginchat.ryuzupluginchat.redis;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +27,10 @@ public class HideInfoController {
   public void setHide(UUID actor, UUID target) {
     lock.lock();
     try {
-      Set<UUID> hideList = hideMap.getOrDefault(target, Collections.emptySet());
+      Set<UUID> hideList = hideMap.getOrDefault(target, null);
+      if (hideList == null) {
+        hideList = new HashSet<>();
+      }
 
       if (hideList.contains(actor)) {
         return;
@@ -38,19 +42,35 @@ public class HideInfoController {
       lock.unlock();
     }
 
-    Set<String> uuidSetStr = hideMap.get(target).stream()
-        .map(UUID::toString)
-        .collect(Collectors.toSet());
+    updateRedisInfo(target);
+  }
 
-    String oneLine = String.join(",", uuidSetStr);
+  public void removeHide(UUID actor, UUID target) {
+    lock.lock();
+    try {
+      Set<UUID> hideList = hideMap.getOrDefault(target, Collections.emptySet());
 
-    jedis.hset("rpc:" + groupName + ":hide-map", target.toString(), oneLine);
+      if (!hideList.contains(actor)) {
+        return;
+      }
+
+      hideList.remove(actor);
+      hideMap.put(target, hideList);
+    } finally {
+      lock.unlock();
+    }
+
+    updateRedisInfo(target);
   }
 
   public Set<UUID> getPlayersWhoHide(UUID uuid) {
     lock.lock();
     try {
-      return hideMap.getOrDefault(uuid, Collections.emptySet());
+      Set<UUID> uuidSet = hideMap.getOrDefault(uuid, null);
+      if (uuidSet == null) {
+        uuidSet = new HashSet<>();
+      }
+      return uuidSet;
     } finally {
       lock.unlock();
     }
@@ -81,5 +101,15 @@ public class HideInfoController {
     } finally {
       lock.unlock();
     }
+  }
+
+  private void updateRedisInfo(UUID uuid) {
+    Set<String> uuidSetStr = hideMap.get(uuid).stream()
+        .map(UUID::toString)
+        .collect(Collectors.toSet());
+
+    String oneLine = String.join(",", uuidSetStr);
+
+    jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine);
   }
 }
