@@ -41,7 +41,7 @@ public class RPCConfig {
     plugin.saveDefaultConfig();
     FileConfiguration conf = plugin.getConfig();
 
-    serverName = conf.getString("serverName");
+    serverName = conf.getString("server-name");
     hostAndPort = new HostAndPort(conf.getString("redis.hostname"), conf.getInt("redis.port"));
     redisUserName = conf.getString("redis.user");
     redisPassword = conf.getString("redis.password");
