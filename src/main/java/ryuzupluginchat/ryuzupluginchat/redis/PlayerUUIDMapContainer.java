@@ -53,24 +53,31 @@ public class PlayerUUIDMapContainer {
   }
 
   public Set<String> getAllNames() {
-    long holdingAllPlayerNamesCacheMillisecond = 5000L;
-    if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
-      return new HashSet<>(playerCache.keySet());
-    }
-    playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
-    lastCacheUpdated = System.currentTimeMillis();
-
-    return getAllNames();
+    updateCacheIfOutdated();
+    return new HashSet<>(playerCache.keySet());
   }
 
   public boolean isOnline(UUID uuid) {
-    long holdingAllPlayerNamesCacheMillisecond = 5000L;
-    if (lastCacheUpdated + holdingAllPlayerNamesCacheMillisecond > System.currentTimeMillis()) {
-      return playerCache.containsValue(uuid.toString());
-    }
-    playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
-    lastCacheUpdated = System.currentTimeMillis();
+    updateCacheIfOutdated();
+    return playerCache.containsValue(uuid.toString());
+  }
 
-    return isOnline(uuid);
+  public String getNameFromUUID(UUID uuid) {
+    updateCacheIfOutdated();
+    for (String name : playerCache.keySet()) {
+      String uuidStr = playerCache.get(name);
+      if (uuidStr.equals(uuid.toString())) {
+        return name;
+      }
+    }
+
+    return null;
+  }
+
+  private void updateCacheIfOutdated() {
+    if (lastCacheUpdated + 5000L < System.currentTimeMillis()) {
+      playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
+      lastCacheUpdated = System.currentTimeMillis();
+    }
   }
 }
