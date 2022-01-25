@@ -3,9 +3,10 @@ package ryuzupluginchat.ryuzupluginchat.message;
 import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
-import com.github.ucchyocean.lc3.member.ChannelMember;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,16 @@ public class MessageProcessor {
   public void processGlobalMessage(GlobalMessageData data) {
     String message = data.format();
 
-    LunaChatAPI api = LunaChat.getAPI();
-    ChannelMember sender = ChannelMemberBukkit.getChannelMember(data.getPlayerName());
+    UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+    final Set<UUID> deafenPlayers;
+    if (senderUUID != null) {
+      deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
+    } else {
+      deafenPlayers = Collections.emptySet();
+    }
 
     Bukkit.getOnlinePlayers().stream()
-        .filter(p -> sender == null ||
-            !api.getHideinfo(ChannelMemberBukkit.getChannelMember(p.getUniqueId()))
-                .contains(sender))
+        .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
         .forEach((p) -> p.sendMessage(message));
 
     plugin.getLogger().info("[Global-Chat] " + ChatColor.stripColor(message));
@@ -60,16 +64,22 @@ public class MessageProcessor {
               .contains(p) || p.hasPermission("rpc.op"))
           .forEach(p -> p.sendMessage(message));
     } else {
-      ChannelMemberBukkit sender = ChannelMemberBukkit.getChannelMemberBukkit(data.getPlayerName());
+
+      UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+      final Set<UUID> deafenPlayers;
+      if (senderUUID != null) {
+        deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
+      } else {
+        deafenPlayers = Collections.emptySet();
+      }
+
       Bukkit.getOnlinePlayers().stream()
           .filter(p ->
               channel.getMembers().stream()
                   .map(m -> ((ChannelMemberBukkit) m).getPlayer())
                   .collect(Collectors.toList()).contains(p)
                   || p.hasPermission("rpc.op"))
-          .filter(p ->
-              !api.getHideinfo(ChannelMemberBukkit.getChannelMember(p.getUniqueId()))
-                  .contains(sender))
+          .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
           .forEach(p -> p.sendMessage(message));
     }
   }
@@ -82,16 +92,18 @@ public class MessageProcessor {
       return;
     }
 
-    targetPlayer.sendMessage(message);
+    UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
+    if (!plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
+      targetPlayer.sendMessage(message);
+    }
     plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
 
     RyuZUPluginChat.newChain()
         .async(() -> {
-          UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
-          if (uuid == null) {
+          if (senderUUID == null) {
             return;
           }
-          plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, uuid);
+          plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
         })
         .async(() -> {
               plugin.getPublisher().notifyPrivateChatReached(data.getId(), plugin.getRpcConfig()
