@@ -17,6 +17,7 @@ import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
 import ryuzupluginchat.ryuzupluginchat.discord.DiscordMessageConnection;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
+import ryuzupluginchat.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.message.MessageDataFactory;
 import ryuzupluginchat.ryuzupluginchat.message.MessageProcessor;
@@ -69,6 +70,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     getServer().getPluginManager().registerEvents(new ChatListener(this), this);
     getServer().getPluginManager().registerEvents(new JoinQuitListener(this), this);
+    getServer().getPluginManager().registerEvents(new OutdatedCommandCaptureListener(this), this);
 
     registerCommands();
 
