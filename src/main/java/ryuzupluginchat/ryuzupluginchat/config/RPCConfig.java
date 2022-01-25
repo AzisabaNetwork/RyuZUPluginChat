@@ -35,7 +35,7 @@ public class RPCConfig {
   private String discordBotToken;
   private String vcCommandLunaChatChannel;
 
-  private List<DiscordMessageConnection> messageConnections = new ArrayList<>();
+  private final List<DiscordMessageConnection> messageConnections = new ArrayList<>();
 
   public void load() {
     plugin.saveDefaultConfig();
