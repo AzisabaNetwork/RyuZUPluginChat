@@ -3,14 +3,18 @@ package ryuzupluginchat.ryuzupluginchat;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
-import java.util.Objects;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.Jedis;
+import ryuzupluginchat.ryuzupluginchat.command.HideCommand;
 import ryuzupluginchat.ryuzupluginchat.command.RPCCommand;
 import ryuzupluginchat.ryuzupluginchat.command.ReplyCommand;
 import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
+import ryuzupluginchat.ryuzupluginchat.command.UnHideCommand;
 import ryuzupluginchat.ryuzupluginchat.command.VCCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
 import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
@@ -18,9 +22,11 @@ import ryuzupluginchat.ryuzupluginchat.discord.DiscordMessageConnection;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
 import ryuzupluginchat.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
+import ryuzupluginchat.ryuzupluginchat.listener.LunaChatHideCommandListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.message.MessageDataFactory;
 import ryuzupluginchat.ryuzupluginchat.message.MessageProcessor;
+import ryuzupluginchat.ryuzupluginchat.redis.HideInfoController;
 import ryuzupluginchat.ryuzupluginchat.redis.MessagePublisher;
 import ryuzupluginchat.ryuzupluginchat.redis.MessageSubscriber;
 import ryuzupluginchat.ryuzupluginchat.redis.PlayerUUIDMapContainer;
@@ -46,6 +52,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private PrivateChatIDGetter privateChatIDGetter;
   private VCLunaChatChannelSharer vcLunaChatChannelSharer;
   private PrivateChatResponseWaiter privateChatResponseWaiter;
+  private HideInfoController hideInfoController;
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
@@ -71,6 +78,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new ChatListener(this), this);
     getServer().getPluginManager().registerEvents(new JoinQuitListener(this), this);
     getServer().getPluginManager().registerEvents(new OutdatedCommandCaptureListener(this), this);
+    getServer().getPluginManager().registerEvents(new LunaChatHideCommandListener(this), this);
 
     registerCommands();
 
@@ -113,6 +121,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
     privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
     vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedis, rpcConfig.getGroupName());
+    hideInfoController = new HideInfoController(jedis, rpcConfig.getGroupName());
   }
 
   private void setupDiscordConnection() {
@@ -139,17 +148,25 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void registerCommands() {
-    RPCCommand rpcCommand = new RPCCommand(this);
-    TellCommand tellCommand = new TellCommand(this);
-    ReplyCommand replyCommand = new ReplyCommand(this);
-    VCCommand vcCommand = new VCCommand(this, vcLunaChatChannelSharer);
+    registerCommand("rpc", new RPCCommand(this));
+    registerCommand("tell", new TellCommand(this));
+    registerCommand("reply", new ReplyCommand(this));
+    registerCommand("vc", new VCCommand(this, vcLunaChatChannelSharer));
+    registerCommand("hide", new HideCommand(this));
+    registerCommand("unhide", new UnHideCommand(this));
+  }
 
-    Objects.requireNonNull(getCommand("rpc")).setExecutor(rpcCommand);
-    Objects.requireNonNull(getCommand("rpc")).setTabCompleter(rpcCommand);
-    Objects.requireNonNull(getCommand("tell")).setExecutor(tellCommand);
-    Objects.requireNonNull(getCommand("tell")).setTabCompleter(tellCommand);
-    Objects.requireNonNull(getCommand("reply")).setExecutor(replyCommand);
-    Objects.requireNonNull(getCommand("vc")).setExecutor(vcCommand);
+  private void registerCommand(String commandName, CommandExecutor executor) {
+    PluginCommand cmd = getCommand(commandName);
+    if (cmd == null) {
+      getLogger().warning("Failed to register command named " + commandName);
+      return;
+    }
+
+    cmd.setExecutor(executor);
+    if (executor instanceof TabCompleter) {
+      cmd.setTabCompleter((TabCompleter) executor);
+    }
   }
 
   public static <T> TaskChain<T> newChain() {

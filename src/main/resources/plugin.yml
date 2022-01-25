@@ -23,6 +23,14 @@ commands:
     usage: /vc <message>
     description: Discordと連携しているDiscordチャンネルにメッセージを送信します
     permission: rpc.player
+  hide:
+    usage: /hide <player>
+    description: 指定したプレイヤーのチャットを非表示にします
+    permission: rpc.player
+  unhide:
+    usage: /unhide <player>
+    description: 指定したプレイヤーのチャットの非表示設定を解除します
+    permission: rpc.player
 
 permissions:
   rpc.player:
