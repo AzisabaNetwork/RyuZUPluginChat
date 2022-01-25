@@ -14,7 +14,7 @@ commands:
   tell:
     usage: /tell
     description: 個人チャットを送信します
-    aliases: [ "t" ]
+    aliases: [ "t", "message", "msg", "m" ]
   reply:
     usage: /reply
     description: 個人チャットを返信します

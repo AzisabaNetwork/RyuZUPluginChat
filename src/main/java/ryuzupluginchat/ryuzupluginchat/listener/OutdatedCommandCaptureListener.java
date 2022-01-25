@@ -13,7 +13,8 @@ public class OutdatedCommandCaptureListener implements Listener {
 
   private final RyuZUPluginChat plugin;
 
-  private final List<String> commands = Arrays.asList("/tell", "/reply", "/t", "/r");
+  private final List<String> commands = Arrays.asList("/tell", "/reply", "/t", "/r", "/msg",
+      "/message", "/m");
 
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
