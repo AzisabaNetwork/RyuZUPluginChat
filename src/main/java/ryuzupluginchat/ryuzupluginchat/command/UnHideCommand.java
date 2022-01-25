@@ -43,7 +43,7 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
-    if (plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
+    if (!plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
       p.sendMessage(ChatColor.RED + "あなたはまだ" + args[0] + "のチャットを非表示にしていません" + "\n"
           + ChatColor.YELLOW + "/hide " + args[0] + ChatColor.RED + " で非表示設定が可能です");
       return true;
