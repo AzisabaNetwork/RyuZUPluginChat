@@ -3,7 +3,6 @@ package ryuzupluginchat.ryuzupluginchat;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
-import discord4j.common.util.Snowflake;
 import java.util.Objects;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -15,6 +14,7 @@ import ryuzupluginchat.ryuzupluginchat.command.TellCommand;
 import ryuzupluginchat.ryuzupluginchat.command.VCCommand;
 import ryuzupluginchat.ryuzupluginchat.config.RPCConfig;
 import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
+import ryuzupluginchat.ryuzupluginchat.discord.DiscordMessageConnection;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
@@ -123,8 +123,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
       return;
     }
 
-    discordHandler.connectLunaChatAndDiscordChannel(rpcConfig.getDiscordLunaChatChannelName(),
-        Snowflake.of(rpcConfig.getDiscordChannelId()));
+    for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
+      discordHandler.connectUsing(connectionData);
+    }
   }
 
   private Jedis getConnectedJedis() {

@@ -1,5 +1,7 @@
 package ryuzupluginchat.ryuzupluginchat.discord;
 
+import com.github.ucchyocean.lc3.LunaChat;
+import com.github.ucchyocean.lc3.channel.Channel;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
@@ -11,10 +13,17 @@ import discord4j.discordjson.json.MessageData;
 import discord4j.discordjson.json.MessageEditRequest;
 import discord4j.rest.entity.RestChannel;
 import discord4j.rest.util.MultipartRequest;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
+import ryuzupluginchat.ryuzupluginchat.discord.data.ChannelChatSyncData;
+import ryuzupluginchat.ryuzupluginchat.discord.data.GlobalChatSyncData;
+import ryuzupluginchat.ryuzupluginchat.discord.data.PrivateChatSyncData;
 import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
+import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 
 @RequiredArgsConstructor
 public class DiscordHandler {
@@ -37,8 +46,41 @@ public class DiscordHandler {
     return true;
   }
 
-  public void connectLunaChatAndDiscordChannel(String lunaChatChannelName,
-      Snowflake discordChannelId) {
+  public void connectUsing(DiscordMessageConnection connectionData) {
+    if (connectionData.getGlobalChatSyncData().isEnabled()) {
+      GlobalChatSyncData data = connectionData.getGlobalChatSyncData();
+      if (data.isDiscordInputEnabled()) {
+        registerDiscordToGlobal(connectionData.getDiscordChannelId());
+      }
+
+      registerGlobalToDiscord(connectionData.getDiscordChannelId(), data.isVoiceChatMode());
+    }
+
+    if (connectionData.getChannelChatSyncData().isEnabled()) {
+      ChannelChatSyncData data = connectionData.getChannelChatSyncData();
+
+      List<String> lunaChatChannels = new ArrayList<>();
+      for (Channel ch : LunaChat.getAPI().getChannels()) {
+        if (data.isMatch(ch.getName())) {
+          lunaChatChannels.add(ch.getName());
+        }
+      }
+
+      if (data.isDiscordInputEnabled()) {
+        registerDiscordToChannels(connectionData.getDiscordChannelId(), lunaChatChannels);
+      }
+
+      registerLunaChatChannelToDiscord(lunaChatChannels, connectionData.getDiscordChannelId(),
+          data.isVoiceChatMode());
+    }
+
+    if (connectionData.getPrivateChatSyncData().isEnabled()) {
+      PrivateChatSyncData data = connectionData.getPrivateChatSyncData();
+      registerPrivateToDiscord(connectionData.getDiscordChannelId(), data.isVoiceChatMode());
+    }
+  }
+
+  private void registerDiscordToGlobal(Snowflake discordChannelId) {
     gateway.on(MessageCreateEvent.class).subscribe(event -> {
       try {
         Message message = event.getMessage();
@@ -62,44 +104,179 @@ public class DiscordHandler {
 
         String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
 
-        ChannelChatMessageData data = plugin.getMessageDataFactory()
-            .createChannelChatMessageDataFromDiscord(senderName,
-                plugin.getRpcConfig().getDiscordLunaChatChannelName(), content);
+        GlobalMessageData data = plugin.getMessageDataFactory()
+            .createGlobalMessageDataFromDiscord(senderName, content);
 
-        plugin.getPublisher().publishChannelChatMessage(data);
+        plugin.getPublisher().publishGlobalMessage(data);
       } catch (Exception e) {
         e.printStackTrace();
       }
     });
+  }
 
-    RestChannel discordMessageChannel = client.getChannelById(discordChannelId);
+  private void registerDiscordToChannels(Snowflake discordChannelId,
+      List<String> lunaChatChannels) {
+    gateway.on(MessageCreateEvent.class).subscribe(event -> {
+      try {
+        Message message = event.getMessage();
+        User user = message.getAuthor().orElse(null);
+        if (user == null || user.isBot()) {
+          return;
+        }
+        if (!message.getChannelId().equals(discordChannelId)) {
+          return;
+        }
 
-    plugin.getSubscriber().registerChannelChatConsumer((data) -> {
-      if (data.isFromDiscord() || !data.getLunaChatChannelName().equals(lunaChatChannelName)) {
+        String content = message.getContent();
+        if (content.length() <= 0) {
+          return;
+        }
+
+        Member messageAuthor = message.getAuthorAsMember().block();
+        if (messageAuthor == null) {
+          return;
+        }
+
+        String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
+
+        for (String lunaChatChannelName : lunaChatChannels) {
+          ChannelChatMessageData data = plugin.getMessageDataFactory()
+              .createChannelChatMessageDataFromDiscord(senderName, lunaChatChannelName, content);
+          plugin.getPublisher().publishChannelChatMessage(data);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+  private void registerGlobalToDiscord(Snowflake discordChannelId, boolean vcMode) {
+    RestChannel targetChannel = client.getChannelById(discordChannelId);
+    plugin.getSubscriber().registerPublicConsumer((data) -> {
+      if (data.isFromDiscord()) {
         return;
       }
 
       RyuZUPluginChat.newChain()
           .async(() -> {
-            String message = data.getMessage();
-            message = message.replace('@', '＠');
-            MessageData jsonMessageData = discordMessageChannel.createMessage(message).block();
-
-            if (jsonMessageData == null) {
-              return;
+            String message;
+            if (vcMode) {
+              message = data.getMessage();
+            } else {
+              message = data.format();
             }
+            message = sanitize(message);
+            MessageData jsonMessageData = targetChannel.createMessage(message).block();
 
-            long channelId = jsonMessageData.channelId().asLong();
-            long messageId = jsonMessageData.id().asLong();
+            if (vcMode) {
+              if (jsonMessageData == null) {
+                return;
+              }
 
-            String editedMessageContent = data.getPlayerName() + ": " + data.getMessage();
+              long channelId = jsonMessageData.channelId().asLong();
+              long messageId = jsonMessageData.id().asLong();
 
-            MultipartRequest<MessageEditRequest> req = MultipartRequest.ofRequest(
-                MessageEditRequest.builder().contentOrNull(editedMessageContent).build());
+              String editedMessageContent = sanitize(data.format());
 
-            client.getChannelService().editMessage(channelId, messageId, req).block();
+              MultipartRequest<MessageEditRequest> req = MultipartRequest.ofRequest(
+                  MessageEditRequest.builder().contentOrNull(editedMessageContent).build());
+
+              client.getChannelService().editMessage(channelId, messageId, req).block();
+            }
           }).execute();
     });
+  }
+
+  private void registerLunaChatChannelToDiscord(List<String> lunaChatChannels,
+      Snowflake discordChannelId, boolean vcMode) {
+    RestChannel targetChannel = client.getChannelById(discordChannelId);
+    plugin.getSubscriber().registerChannelChatConsumer((data) -> {
+      if (data.isFromDiscord()) {
+        return;
+      }
+      if (!lunaChatChannels.contains(data.getLunaChatChannelName())) {
+        return;
+      }
+
+      RyuZUPluginChat.newChain()
+          .async(() -> {
+            String message;
+            if (vcMode) {
+              message = data.getMessage();
+            } else {
+              message = data.format();
+            }
+            message = sanitize(message);
+            MessageData jsonMessageData = targetChannel.createMessage(message).block();
+
+            if (vcMode) {
+              if (jsonMessageData == null) {
+                return;
+              }
+
+              long channelId = jsonMessageData.channelId().asLong();
+              long messageId = jsonMessageData.id().asLong();
+
+              String editedMessageContent = sanitize(data.format());
+
+              MultipartRequest<MessageEditRequest> req = MultipartRequest.ofRequest(
+                  MessageEditRequest.builder().contentOrNull(editedMessageContent).build());
+
+              client.getChannelService().editMessage(channelId, messageId, req).block();
+            }
+          }).execute();
+    });
+  }
+
+  private void registerPrivateToDiscord(Snowflake discordChannelId, boolean vcMode) {
+    RestChannel targetChannel = client.getChannelById(discordChannelId);
+    plugin.getSubscriber().registerTellConsumer((data) -> {
+      RyuZUPluginChat.newChain()
+          .async(() -> {
+            String message;
+            if (vcMode) {
+              message = data.getMessage();
+            } else {
+              message = data.format();
+            }
+            message = sanitize(message);
+
+            // 名前がnullだとUUIDが表示されてしまうのでmcidに変更する
+            if (data.getReceivedPlayerName() == null) {
+              String receivePlayerName = plugin.getPlayerUUIDMapContainer()
+                  .getNameFromUUID(data.getReceivedPlayerUUID());
+              if (receivePlayerName != null) {
+                message = message.replace(data.getReceivedPlayerUUID().toString(),
+                    receivePlayerName); // TODO もうすこしきれいな処理にできるはず
+              }
+            }
+
+            MessageData jsonMessageData = targetChannel.createMessage(message).block();
+
+            if (vcMode) {
+              if (jsonMessageData == null) {
+                return;
+              }
+
+              long channelId = jsonMessageData.channelId().asLong();
+              long messageId = jsonMessageData.id().asLong();
+
+              String editedMessageContent = sanitize(data.format());
+
+              MultipartRequest<MessageEditRequest> req = MultipartRequest.ofRequest(
+                  MessageEditRequest.builder().contentOrNull(editedMessageContent).build());
+
+              client.getChannelService().editMessage(channelId, messageId, req).block();
+            }
+          }).execute();
+    });
+  }
+
+  private String sanitize(String message) {
+    message = message.replace('@', '＠');
+    message = ChatColor.translateAlternateColorCodes('&', message);
+    message = ChatColor.stripColor(message);
+    return message;
   }
 
   public void disconnect() {
