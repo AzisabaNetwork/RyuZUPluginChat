@@ -33,7 +33,7 @@ public class RPCConfig {
 
   private boolean discordBotEnabled;
   private String discordBotToken;
-  private String discordLunaChatChannelName;
+  private String vcCommandLunaChatChannel;
 
   private List<DiscordMessageConnection> messageConnections = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class RPCConfig {
       discordBotEnabled = false;
     }
 
-    discordLunaChatChannelName = conf.getString("discord.vc-command-lunachat-channel", null);
+    vcCommandLunaChatChannel = conf.getString("discord.vc-command-lunachat-channel", null);
 
     ConfigurationSection section = conf.getConfigurationSection("discord.connections");
     if (section == null) {

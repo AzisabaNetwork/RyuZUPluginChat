@@ -114,7 +114,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupDiscordConnection() {
-    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getDiscordLunaChatChannelName());
+    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
     discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
     boolean initResult = discordHandler.init();
 
