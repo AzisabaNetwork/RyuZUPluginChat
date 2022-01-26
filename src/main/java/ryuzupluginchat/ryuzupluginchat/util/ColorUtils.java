@@ -1,4 +1,4 @@
-package ryuzupluginchat.ryuzupluginchat.useful;
+package ryuzupluginchat.ryuzupluginchat.util;
 
 import org.bukkit.ChatColor;
 

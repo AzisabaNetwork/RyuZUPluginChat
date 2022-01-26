@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.ChatColor;
-import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
 
 @Data
 @AllArgsConstructor
