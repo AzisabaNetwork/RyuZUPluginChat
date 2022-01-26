@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
 
 @Data
 @AllArgsConstructor

@@ -14,8 +14,8 @@ import ryuzupluginchat.ryuzupluginchat.message.data.ChannelChatMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.GlobalMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 import ryuzupluginchat.ryuzupluginchat.message.data.SystemMessageData;
-import ryuzupluginchat.ryuzupluginchat.useful.ColorUtils;
-import ryuzupluginchat.ryuzupluginchat.useful.LuckPermsPrefixSuffixUtils;
+import ryuzupluginchat.ryuzupluginchat.util.ColorUtils;
+import ryuzupluginchat.ryuzupluginchat.util.LuckPermsPrefixSuffixUtils;
 
 @RequiredArgsConstructor
 public class MessageDataFactory {
