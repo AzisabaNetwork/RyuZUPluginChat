@@ -70,7 +70,7 @@ public class PlayerUUIDMapContainer {
       } catch (IllegalArgumentException e) {
         plugin.getLogger()
             .warning(
-                "Invalid string uuid has been responded from Redis server. ( " + uuidStr + " )");
+                "Received invalid UUID from Redis server ( " + uuidStr + " )");
         return null;
       }
     } finally {
