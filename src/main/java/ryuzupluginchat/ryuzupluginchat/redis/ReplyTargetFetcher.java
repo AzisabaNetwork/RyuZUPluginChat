@@ -18,6 +18,9 @@ public class ReplyTargetFetcher {
 
   public UUID getReplyTarget(Player p) {
     String uuidStr = jedis.hget("rpc:" + groupName + ":reply-map", p.getUniqueId().toString());
+    if (uuidStr == null) {
+      return null;
+    }
     return UUID.fromString(uuidStr);
   }
 
