@@ -36,7 +36,13 @@ public class MessageSubscriber {
         if (channel.equals("rpc:" + groupName + ":global-chat")) {
           GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
           if (data != null) {
-            globalChannelConsumers.forEach(c -> c.accept(data));
+            globalChannelConsumers.forEach(c -> {
+              try {
+                c.accept(data);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
           } else {
             // TODO error log
           }
@@ -44,7 +50,13 @@ public class MessageSubscriber {
         } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
           PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
           if (data != null) {
-            privateChatConsumers.forEach(c -> c.accept(data));
+            privateChatConsumers.forEach(c -> {
+              try {
+                c.accept(data);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
           } else {
             // TODO error log
           }
@@ -52,7 +64,13 @@ public class MessageSubscriber {
         } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
           ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
           if (data != null) {
-            channelChatConsumers.forEach(c -> c.accept(data));
+            channelChatConsumers.forEach(c -> {
+              try {
+                c.accept(data);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
           } else {
             // TODO error log
           }
@@ -60,7 +78,13 @@ public class MessageSubscriber {
         } else if (channel.equals("rpc:" + groupName + ":system-message")) {
           SystemMessageData data = converter.convertIntoSystemMessageData(message);
           if (data != null) {
-            systemMessageConsumers.forEach(c -> c.accept(data));
+            systemMessageConsumers.forEach(c -> {
+              try {
+                c.accept(data);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            });
           } else {
             // TODO error log
           }
