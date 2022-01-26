@@ -42,8 +42,22 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
 
     if (targetUUID == null) {
-      p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + "というプレイヤーが見つかりませんでした");
-      return true;
+
+      List<String> matchNames = plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+          .filter(name -> !name.equalsIgnoreCase(p.getName())
+              && name.toLowerCase().startsWith(args[0].toLowerCase()))
+          .collect(Collectors.toList());
+
+      if (matchNames.isEmpty()) {
+        p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + "というプレイヤーが見つかりませんでした");
+        return true;
+      } else if (matchNames.size() > 1) {
+        p.sendMessage(
+            ChatColor.RED + "複数プレイヤーが該当するため宛先が絞り込めません " + createColoredPlayerNameList(matchNames));
+        return true;
+      }
+
+      targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(matchNames.get(0));
     }
 
     String msg = String.join(" ", args).substring(args[0].length() + 1);
@@ -54,6 +68,11 @@ public class TellCommand implements CommandExecutor, TabCompleter {
         .sync(() -> plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L))
         .async(() -> plugin.getPublisher().publishPrivateMessage(data)).execute();
     return true;
+  }
+
+  private String createColoredPlayerNameList(List<String> playerNames) {
+    return ChatColor.GRAY + "( " + ChatColor.YELLOW + String.join(
+        ChatColor.GRAY + ", " + ChatColor.YELLOW, playerNames) + ChatColor.GRAY + " )";
   }
 
   @Override
@@ -69,7 +88,8 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     if (args.length == 1) {
       list.addAll(
           plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-              .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
+              .filter(
+                  l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
               .collect(Collectors.toList()));
     }
     return list;
