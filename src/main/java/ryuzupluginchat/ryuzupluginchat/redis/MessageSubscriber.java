@@ -37,11 +37,13 @@ public class MessageSubscriber {
           GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
           if (data != null) {
             globalChannelConsumers.forEach(c -> {
-              try {
-                c.accept(data);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              RyuZUPluginChat.newChain().async(() -> {
+                try {
+                  c.accept(data);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }).execute();
             });
           } else {
             // TODO error log
@@ -51,11 +53,13 @@ public class MessageSubscriber {
           PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
           if (data != null) {
             privateChatConsumers.forEach(c -> {
-              try {
-                c.accept(data);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              RyuZUPluginChat.newChain().async(() -> {
+                try {
+                  c.accept(data);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }).execute();
             });
           } else {
             // TODO error log
@@ -65,11 +69,13 @@ public class MessageSubscriber {
           ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
           if (data != null) {
             channelChatConsumers.forEach(c -> {
-              try {
-                c.accept(data);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              RyuZUPluginChat.newChain().async(() -> {
+                try {
+                  c.accept(data);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }).execute();
             });
           } else {
             // TODO error log
@@ -79,11 +85,13 @@ public class MessageSubscriber {
           SystemMessageData data = converter.convertIntoSystemMessageData(message);
           if (data != null) {
             systemMessageConsumers.forEach(c -> {
-              try {
-                c.accept(data);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              RyuZUPluginChat.newChain().async(() -> {
+                try {
+                  c.accept(data);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }).execute();
             });
           } else {
             // TODO error log
