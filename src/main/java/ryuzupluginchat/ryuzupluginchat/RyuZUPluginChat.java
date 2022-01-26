@@ -21,8 +21,8 @@ import ryuzupluginchat.ryuzupluginchat.discord.DiscordHandler;
 import ryuzupluginchat.ryuzupluginchat.discord.DiscordMessageConnection;
 import ryuzupluginchat.ryuzupluginchat.listener.ChatListener;
 import ryuzupluginchat.ryuzupluginchat.listener.JoinQuitListener;
-import ryuzupluginchat.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import ryuzupluginchat.ryuzupluginchat.listener.LunaChatHideCommandListener;
+import ryuzupluginchat.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
 import ryuzupluginchat.ryuzupluginchat.message.MessageDataFactory;
 import ryuzupluginchat.ryuzupluginchat.message.MessageProcessor;
@@ -72,6 +72,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     messageProcessor = new MessageProcessor(this);
     jsonDataConverter = new JsonDataConverter(this);
     privateChatResponseWaiter = new PrivateChatResponseWaiter(this);
+
+    privateChatResponseWaiter.runTimeoutDetectTask(this);
 
     setupRedisConnections();
 
