@@ -34,7 +34,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
       p.sendMessage(ChatColor.RED + "/" + label + " [MCID] [Message]");
       return true;
     }
-    if (args[0].equals(p.getName())) {
+    if (args[0].equalsIgnoreCase(p.getName())) {
       p.sendMessage(ChatColor.RED + "自分にプライベートメッセージを送ることはできません");
       return true;
     }
