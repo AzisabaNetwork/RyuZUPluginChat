@@ -85,7 +85,18 @@ public class MessageProcessor {
   }
 
   public void processPrivateMessage(PrivateMessageData data) {
+    String receiverName = plugin.getPlayerUUIDMapContainer()
+        .getNameFromUUID(data.getReceivedPlayerUUID());
+    if (receiverName != null) {
+      data.setReceivedPlayerName(receiverName);
+    }
     String message = data.format();
+
+    Bukkit.getOnlinePlayers().stream()
+        .filter(p -> p.hasPermission("rpc.op"))
+        .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+            && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
+        .forEach(p -> p.sendMessage(message));
 
     Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer == null) {
