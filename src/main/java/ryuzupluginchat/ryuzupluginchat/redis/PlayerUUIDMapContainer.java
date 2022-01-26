@@ -22,16 +22,18 @@ public class PlayerUUIDMapContainer {
   private final String groupName;
 
   private Map<String, String> playerCache = new HashMap<>();
+  private Map<String, String> playerCacheCaseSensitive = new HashMap<>();
   private long lastCacheUpdated;
 
   private final ReentrantLock lock = new ReentrantLock(true);
 
   public void register(String name, UUID uuid) {
-    jedis.hset("rpc:" + groupName + ":uuid-map", name.toLowerCase(Locale.ROOT), uuid.toString());
+    jedis.hset("rpc:" + groupName + ":uuid-map", name, uuid.toString());
 
     lock.lock();
     try {
-      playerCache.put(name.toLowerCase(Locale.ROOT), uuid.toString());
+      playerCache.put(name.toLowerCase(), uuid.toString());
+      playerCacheCaseSensitive.put(name, uuid.toString());
     } finally {
       lock.unlock();
     }
@@ -42,11 +44,12 @@ public class PlayerUUIDMapContainer {
   }
 
   public void unregister(String name) {
-    jedis.hdel("rpc:" + groupName + ":uuid-map", name.toLowerCase());
+    jedis.hdel("rpc:" + groupName + ":uuid-map", name);
 
     lock.lock();
     try {
       playerCache.remove(name.toLowerCase(Locale.ROOT));
+      playerCacheCaseSensitive.remove(name);
     } finally {
       lock.unlock();
     }
@@ -60,7 +63,7 @@ public class PlayerUUIDMapContainer {
     updateCacheIfOutdated();
     lock.lock();
     try {
-      String uuidStr = playerCache.getOrDefault(name, null);
+      String uuidStr = playerCache.getOrDefault(name.toLowerCase(), null);
 
       if (uuidStr == null) {
         return null;
@@ -82,7 +85,7 @@ public class PlayerUUIDMapContainer {
     updateCacheIfOutdated();
     lock.lock();
     try {
-      return new HashSet<>(playerCache.keySet());
+      return new HashSet<>(playerCacheCaseSensitive.keySet());
     } finally {
       lock.unlock();
     }
@@ -103,8 +106,8 @@ public class PlayerUUIDMapContainer {
 
     lock.lock();
     try {
-      for (String name : playerCache.keySet()) {
-        String uuidStr = playerCache.get(name);
+      for (String name : playerCacheCaseSensitive.keySet()) {
+        String uuidStr = playerCacheCaseSensitive.get(name);
         if (uuidStr.equals(uuid.toString())) {
           return name;
         }
@@ -120,7 +123,11 @@ public class PlayerUUIDMapContainer {
     if (lastCacheUpdated + 5000L < System.currentTimeMillis()) {
       lock.lock();
       try {
-        playerCache = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
+        playerCacheCaseSensitive = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
+        playerCache.clear();
+        for (String mcid : playerCacheCaseSensitive.keySet()) {
+          playerCache.put(mcid.toLowerCase(), playerCacheCaseSensitive.get(mcid));
+        }
         lastCacheUpdated = System.currentTimeMillis();
       } finally {
         lock.unlock();
