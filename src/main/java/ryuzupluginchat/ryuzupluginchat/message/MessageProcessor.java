@@ -92,11 +92,13 @@ public class MessageProcessor {
     }
     String message = data.format();
 
-    Bukkit.getOnlinePlayers().stream()
-        .filter(p -> p.hasPermission("rpc.op"))
-        .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-            && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
-        .forEach(p -> p.sendMessage(message));
+    if (receiverName != null) {
+      Bukkit.getOnlinePlayers().stream()
+          .filter(p -> p.hasPermission("rpc.op"))
+          .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+              && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
+          .forEach(p -> p.sendMessage(message));
+    }
 
     Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer == null) {

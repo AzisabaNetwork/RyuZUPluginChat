@@ -15,8 +15,8 @@ public class PrivateChatResponseWaiter {
 
   private final RyuZUPluginChat plugin;
 
-  private HashMap<Long, PrivateMessageData> dataMap = new HashMap<>();
-  private HashMap<Long, Long> timeouts = new HashMap<>();
+  private final HashMap<Long, PrivateMessageData> dataMap = new HashMap<>();
+  private final HashMap<Long, Long> timeouts = new HashMap<>();
 
   public void register(long id, PrivateMessageData data, long timeout) {
     dataMap.put(id, data);
@@ -27,8 +27,15 @@ public class PrivateChatResponseWaiter {
     Bukkit.getScheduler().runTaskTimer(plugin, () -> {
       for (long id : new HashSet<>(timeouts.keySet())) {
         if (timeouts.get(id) < System.currentTimeMillis()) {
-          dataMap.remove(id);
+          PrivateMessageData data = dataMap.remove(id);
           timeouts.remove(id);
+
+          if (data != null) {
+            Player p = Bukkit.getPlayer(data.getSentPlayerName());
+            if (p != null) {
+              p.sendMessage(ChatColor.YELLOW + "[Error] " + ChatColor.RED + "個人チャットの送信に失敗しました");
+            }
+          }
         }
       }
     }, 10L, 10L);
@@ -50,5 +57,8 @@ public class PrivateChatResponseWaiter {
 
     sentPlayer.sendMessage(message);
     plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
+
+    dataMap.remove(id);
+    timeouts.remove(id);
   }
 }
