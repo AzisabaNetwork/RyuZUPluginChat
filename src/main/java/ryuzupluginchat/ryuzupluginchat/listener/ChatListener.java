@@ -27,7 +27,12 @@ public class ChatListener implements Listener {
     Player p = e.getPlayer();
     boolean global = LunaChat.getAPI().getDefaultChannel(p.getName()) == null;
     if (global || e.getMessage().charAt(0) == '!' || e.getMessage().startsWith("#!")) {
-      String msg = e.getMessage().substring(0, 2).replace("!", "") + e.getMessage().substring(2);
+      String msg;
+      if (e.getMessage().length() >= 2) {
+        msg = e.getMessage().substring(0, 2).replace("!", "") + e.getMessage().substring(2);
+      } else {
+        msg = e.getMessage().replace("!", "");
+      }
       GlobalMessageData data = plugin.getMessageDataFactory().createGlobalMessageData(p, msg);
 
       RyuZUPluginChat.newChain()
