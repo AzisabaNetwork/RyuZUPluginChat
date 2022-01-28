@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 
@@ -14,7 +16,7 @@ import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 public class PrivateChatReachedSubscriber {
 
   private final RyuZUPluginChat plugin;
-  private final Jedis jedis;
+  private final JedisPool jedisPool;
 
   private final String groupName;
 
@@ -43,11 +45,27 @@ public class PrivateChatReachedSubscriber {
       }
     };
 
-    Bukkit.getScheduler().runTaskAsynchronously(plugin,
-        () -> jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response"));
-  }
+    ExecutorService service = Executors.newFixedThreadPool(1);
+    for (int i = 0; i < 10000; i++) {
+      service.execute(() -> {
+        try {
 
-  public void close() {
-    jedis.close();
+          Jedis jedis = jedisPool.getResource();
+          try {
+            jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+          } finally {
+            jedis.close();
+          }
+
+        } finally {
+          // 接続に失敗したら3秒待ってから再接続する
+          try {
+            Thread.sleep(3000L);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+      });
+    }
   }
 }

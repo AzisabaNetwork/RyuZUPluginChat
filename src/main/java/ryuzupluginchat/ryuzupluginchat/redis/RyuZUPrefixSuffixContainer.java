@@ -3,18 +3,20 @@ package ryuzupluginchat.ryuzupluginchat.redis;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
+import ryuzupluginchat.ryuzupluginchat.util.JedisUtils;
 
 @RequiredArgsConstructor
 public class RyuZUPrefixSuffixContainer {
 
-  private final Jedis jedis;
+  private final JedisPool jedisPool;
 
   private final String groupName;
 
   public String getPrefix(UUID uuid) {
-    return jedis.hget("rpc:" + groupName + ":prefixes", uuid.toString());
+    return JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+        (jedis) -> jedis.hget("rpc:" + groupName + ":prefixes", uuid.toString()));
   }
 
   public String getPrefix(Player p) {
@@ -22,7 +24,8 @@ public class RyuZUPrefixSuffixContainer {
   }
 
   public String getSuffix(UUID uuid) {
-    return jedis.hget("rpc:" + groupName + ":suffixes", uuid.toString());
+    return JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+        (jedis) -> jedis.hget("rpc:" + groupName + ":suffixes", uuid.toString()));
   }
 
   public String getSuffix(Player p) {
@@ -36,7 +39,9 @@ public class RyuZUPrefixSuffixContainer {
           .execute();
       return;
     }
-    jedis.hset("rpc:" + groupName + ":prefixes", uuid.toString(), prefix);
+
+    JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+        (jedis) -> jedis.hset("rpc:" + groupName + ":prefixes", uuid.toString(), prefix));
   }
 
   public void setPrefix(Player p, String prefix, boolean async) {
@@ -50,7 +55,9 @@ public class RyuZUPrefixSuffixContainer {
           .execute();
       return;
     }
-    jedis.hset("rpc:" + groupName + ":suffixes", uuid.toString(), suffix);
+
+    JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+        (jedis) -> jedis.hset("rpc:" + groupName + ":suffixes", uuid.toString(), suffix));
   }
 
   public void setSuffix(Player p, String suffix, boolean async) {

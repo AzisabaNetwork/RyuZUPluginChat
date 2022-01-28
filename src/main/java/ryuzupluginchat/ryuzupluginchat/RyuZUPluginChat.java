@@ -9,7 +9,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import ryuzupluginchat.ryuzupluginchat.command.HideCommand;
 import ryuzupluginchat.ryuzupluginchat.command.RPCCommand;
 import ryuzupluginchat.ryuzupluginchat.command.ReplyCommand;
@@ -60,6 +61,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   private DiscordHandler discordHandler;
 
+  private JedisPool jedisPool;
+
   @Override
 
   public void onEnable() {
@@ -101,29 +104,29 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupRedisConnections() {
-    Jedis jedis = getConnectedJedis();
+    jedisPool = new JedisPool(new JedisPoolConfig(), rpcConfig.getHostAndPort().getHost(),
+        rpcConfig.getHostAndPort().getPort(), 3000, rpcConfig.getRedisPassword());
 
-    publisher = new MessagePublisher(jedis, jsonDataConverter, rpcConfig.getGroupName());
+    publisher = new MessagePublisher(this, jedisPool, jsonDataConverter, rpcConfig.getGroupName());
 
-    // create new jedis instance because subscribe will block other actions like hset etc.
-    subscriber = new MessageSubscriber(this, jsonDataConverter, getConnectedJedis(),
+    subscriber = new MessageSubscriber(this, jsonDataConverter, jedisPool,
         rpcConfig.getGroupName());
     subscriber.subscribe();
 
     // Same as above
-    privateChatReachedSubscriber = new PrivateChatReachedSubscriber(this, getConnectedJedis(),
+    privateChatReachedSubscriber = new PrivateChatReachedSubscriber(this, jedisPool,
         rpcConfig.getGroupName());
     privateChatReachedSubscriber.subscribe();
 
     subscriber.registerFunctions();
 
-    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedis,
+    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedisPool,
         rpcConfig.getGroupName());
-    playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedis, rpcConfig.getGroupName());
-    replyTargetFetcher = new ReplyTargetFetcher(jedis, rpcConfig.getGroupName());
-    privateChatIDGetter = new PrivateChatIDGetter(jedis, rpcConfig.getGroupName());
-    vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedis, rpcConfig.getGroupName());
-    hideInfoController = new HideInfoController(jedis, rpcConfig.getGroupName());
+    playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedisPool, rpcConfig.getGroupName());
+    replyTargetFetcher = new ReplyTargetFetcher(jedisPool, rpcConfig.getGroupName());
+    privateChatIDGetter = new PrivateChatIDGetter(jedisPool, rpcConfig.getGroupName());
+    vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedisPool, rpcConfig.getGroupName());
+    hideInfoController = new HideInfoController(jedisPool, rpcConfig.getGroupName());
   }
 
   private void setupDiscordConnection() {
@@ -139,14 +142,6 @@ public final class RyuZUPluginChat extends JavaPlugin {
     for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
       discordHandler.connectUsing(connectionData);
     }
-  }
-
-  private Jedis getConnectedJedis() {
-    Jedis jedis = new Jedis(rpcConfig.getHostAndPort());
-    jedis.auth(
-//        rpcConfig.getRedisUserName(),
-        rpcConfig.getRedisPassword());
-    return jedis;
   }
 
   private void registerCommands() {

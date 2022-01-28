@@ -2,10 +2,12 @@ package ryuzupluginchat.ryuzupluginchat.redis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
 import ryuzupluginchat.ryuzupluginchat.message.JsonDataConverter;
@@ -20,7 +22,7 @@ public class MessageSubscriber {
   private final RyuZUPluginChat plugin;
   private final JsonDataConverter converter;
 
-  private final Jedis jedis;
+  private final JedisPool jedisPool;
 
   private final String groupName;
 
@@ -101,9 +103,28 @@ public class MessageSubscriber {
       }
     };
 
-    Bukkit.getScheduler()
-        .runTaskAsynchronously(plugin,
-            () -> jedis.psubscribe(subscriber, "rpc:" + groupName + ":*"));
+    ExecutorService service = Executors.newFixedThreadPool(1);
+    for (int i = 0; i < 10000; i++) {
+      service.execute(() -> {
+        try {
+
+          Jedis jedis = jedisPool.getResource();
+          try {
+            jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
+          } finally {
+            jedis.close();
+          }
+
+        } finally {
+          // 接続に失敗したら3秒待ってから再接続する
+          try {
+            Thread.sleep(3000L);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
+      });
+    }
   }
 
   public void registerFunctions() {
@@ -128,9 +149,5 @@ public class MessageSubscriber {
 
   public void registerSystemChatConsumer(Consumer<SystemMessageData> consumer) {
     systemMessageConsumers.add(consumer);
-  }
-
-  public void close() {
-    jedis.close();
   }
 }
