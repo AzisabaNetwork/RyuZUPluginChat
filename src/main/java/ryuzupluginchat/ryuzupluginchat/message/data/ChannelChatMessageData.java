@@ -36,13 +36,13 @@ public class ChannelChatMessageData {
     // DisplayName が存在する場合はそれを使用し、ない場合はPlayerName
     String formattedPlayerName = playerDisplayName != null ? playerDisplayName : playerName;
 
-    String msg = lunaChatChannelFormat.replace("%prefix", getAllPrefixes())
-        .replace("%suffix", getAllSuffixes())
-        .replace("%username", playerName)
-        .replace("%displayname", formattedPlayerName)
-        .replace("%ch", lunaChatChannelName)
-        .replace("%color", channelColorCode)
-        .replace("%servername", sendServerName);
+    String msg = lunaChatChannelFormat.replace("%prefix", convertEmptyIfNull(getAllPrefixes()))
+        .replace("%suffix", convertEmptyIfNull(getAllSuffixes()))
+        .replace("%username", convertEmptyIfNull(playerName))
+        .replace("%displayname", convertEmptyIfNull(formattedPlayerName))
+        .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
+        .replace("%color", convertEmptyIfNull(channelColorCode))
+        .replace("%servername", convertEmptyIfNull(sendServerName));
     msg = ColorUtils.setColor(msg);
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);

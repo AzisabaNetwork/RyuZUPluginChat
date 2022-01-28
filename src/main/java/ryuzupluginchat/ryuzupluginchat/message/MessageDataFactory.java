@@ -38,7 +38,7 @@ public class MessageDataFactory {
 
   public GlobalMessageData createGlobalMessageDataFromDiscord(String userName, String message) {
     return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null, null, null,
-        null, null, userName, userName, null, null, null, false, message, true, message);
+        "Discord", null, userName, userName, null, null, null, false, message, true, message);
   }
 
   public PrivateMessageData createPrivateMessageData(Player p, UUID targetUuid, String message) {
@@ -85,7 +85,7 @@ public class MessageDataFactory {
     Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
     return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null, null,
-        null, null, null, userName, userName, null, null, null, false, message, true, message);
+        null, "Discord", null, userName, userName, null, null, null, false, message, true, message);
   }
 
   public SystemMessageData createGeneralSystemChatMessageData(String msg) {
