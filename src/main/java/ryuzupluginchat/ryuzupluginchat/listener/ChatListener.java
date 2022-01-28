@@ -26,16 +26,8 @@ public class ChatListener implements Listener {
   public void onChat(AsyncPlayerChatEvent e) {
     Player p = e.getPlayer();
     boolean global = LunaChat.getAPI().getDefaultChannel(p.getName()) == null;
-    if (global || e.getMessage().charAt(0) == '!') {
-
-      String msg = e.getMessage();
-      // 最初の文字が #! の場合は #! を除外する
-      msg = msg.startsWith("#!") ? msg.substring(2) : msg;
-      // 最初の文字が ! の場合は ! を除外する
-      msg = msg.charAt(0) == '!' ? msg.substring(1) : msg;
-      // 最初の文字が # の場合は # を除外する
-      msg = msg.charAt(0) == '#' ? msg.substring(1) : msg;
-
+    if (global || e.getMessage().charAt(0) == '!' || e.getMessage().startsWith("#!")) {
+      String msg = e.getMessage().substring(0, 2).replace("!", "") + e.getMessage().substring(2);
       GlobalMessageData data = plugin.getMessageDataFactory().createGlobalMessageData(p, msg);
 
       RyuZUPluginChat.newChain()
