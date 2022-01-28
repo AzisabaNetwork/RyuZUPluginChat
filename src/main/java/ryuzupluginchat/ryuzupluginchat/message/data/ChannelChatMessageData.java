@@ -38,7 +38,7 @@ public class ChannelChatMessageData {
 
     String msg = lunaChatChannelFormat.replace("%prefix", convertEmptyIfNull(getAllPrefixes()))
         .replace("%suffix", convertEmptyIfNull(getAllSuffixes()))
-        .replace("%username", convertEmptyIfNull(playerName))
+        .replace("%username", convertEmptyIfNull(formattedPlayerName))
         .replace("%displayname", convertEmptyIfNull(formattedPlayerName))
         .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
         .replace("%color", convertEmptyIfNull(channelColorCode))
