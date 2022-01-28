@@ -1,6 +1,7 @@
 package ryuzupluginchat.ryuzupluginchat.discord;
 
 import com.github.ucchyocean.lc3.LunaChat;
+import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
@@ -59,18 +60,11 @@ public class DiscordHandler {
     if (connectionData.getChannelChatSyncData().isEnabled()) {
       ChannelChatSyncData data = connectionData.getChannelChatSyncData();
 
-      List<String> lunaChatChannels = new ArrayList<>();
-      for (Channel ch : LunaChat.getAPI().getChannels()) {
-        if (data.isMatch(ch.getName())) {
-          lunaChatChannels.add(ch.getName());
-        }
-      }
-
       if (data.isDiscordInputEnabled()) {
-        registerDiscordToChannels(connectionData.getDiscordChannelId(), lunaChatChannels);
+        registerDiscordToChannels(connectionData.getDiscordChannelId(), data);
       }
 
-      registerLunaChatChannelToDiscord(lunaChatChannels, connectionData.getDiscordChannelId(),
+      registerLunaChatChannelToDiscord(data, connectionData.getDiscordChannelId(),
           data.isVoiceChatMode());
     }
 
@@ -115,7 +109,7 @@ public class DiscordHandler {
   }
 
   private void registerDiscordToChannels(Snowflake discordChannelId,
-      List<String> lunaChatChannels) {
+      ChannelChatSyncData channelChatSyncData) {
     gateway.on(MessageCreateEvent.class).subscribe(event -> {
       try {
         Message message = event.getMessage();
@@ -139,11 +133,23 @@ public class DiscordHandler {
 
         String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
 
-        for (String lunaChatChannelName : lunaChatChannels) {
-          ChannelChatMessageData data = plugin.getMessageDataFactory()
-              .createChannelChatMessageDataFromDiscord(senderName, lunaChatChannelName, content);
-          plugin.getPublisher().publishChannelChatMessage(data);
-        }
+        RyuZUPluginChat.newChain()
+            .asyncFirst(() -> {
+              LunaChatAPI api = LunaChat.getAPI();
+              List<Channel> channelList = new ArrayList<>();
+              for (Channel channel : api.getChannels()) {
+                if (channelChatSyncData.isMatch(channel.getName())) {
+                  channelList.add(channel);
+                }
+              }
+              return channelList;
+            }).asyncLast((list) -> {
+              for (Channel ch : list) {
+                ChannelChatMessageData data = plugin.getMessageDataFactory()
+                    .createChannelChatMessageDataFromDiscord(senderName, ch.getName(), content);
+                plugin.getPublisher().publishChannelChatMessage(data);
+              }
+            }).execute();
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -187,14 +193,14 @@ public class DiscordHandler {
     });
   }
 
-  private void registerLunaChatChannelToDiscord(List<String> lunaChatChannels,
+  private void registerLunaChatChannelToDiscord(ChannelChatSyncData channelChatSyncData,
       Snowflake discordChannelId, boolean vcMode) {
     RestChannel targetChannel = client.getChannelById(discordChannelId);
     plugin.getSubscriber().registerChannelChatConsumer((data) -> {
       if (data.isFromDiscord()) {
         return;
       }
-      if (!lunaChatChannels.contains(data.getLunaChatChannelName())) {
+      if (!channelChatSyncData.isMatch(data.getLunaChatChannelName())) {
         return;
       }
 
