@@ -41,7 +41,8 @@ public class ChannelChatMessageData {
         .replace("%username", playerName)
         .replace("%displayname", formattedPlayerName)
         .replace("%ch", lunaChatChannelName)
-        .replace("%color", channelColorCode);
+        .replace("%color", channelColorCode)
+        .replace("%servername", sendServerName);
     msg = ColorUtils.setColor(msg);
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);
