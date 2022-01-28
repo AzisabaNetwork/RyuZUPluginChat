@@ -10,12 +10,13 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import ryuzupluginchat.ryuzupluginchat.util.JedisUtils;
 
 @RequiredArgsConstructor
 public class HideInfoController {
 
-  private final Jedis jedis;
+  private final JedisPool jedisPool;
 
   private final String groupName;
 
@@ -89,7 +90,8 @@ public class HideInfoController {
     lock.lock();
     try {
       hideMap.clear();
-      Map<String, String> rawData = jedis.hgetAll("rpc:" + groupName + ":hide-map");
+      Map<String, String> rawData = JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+          (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
       for (String key : rawData.keySet()) {
         UUID keyUUID = UUID.fromString(key);
         Set<UUID> uuidList = Arrays.stream(rawData.get(key).split(","))
@@ -110,6 +112,7 @@ public class HideInfoController {
 
     String oneLine = String.join(",", uuidSetStr);
 
-    jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine);
+    JedisUtils.executeUsingJedisPool(jedisPool,
+        (jedis) -> jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine));
   }
 }

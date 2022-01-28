@@ -9,15 +9,16 @@ import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
+import ryuzupluginchat.ryuzupluginchat.util.JedisUtils;
 
 @RequiredArgsConstructor
 public class PlayerUUIDMapContainer {
 
   private final RyuZUPluginChat plugin;
 
-  private final Jedis jedis;
+  private final JedisPool jedisPool;
 
   private final String groupName;
 
@@ -28,7 +29,8 @@ public class PlayerUUIDMapContainer {
   private final ReentrantLock lock = new ReentrantLock(true);
 
   public void register(String name, UUID uuid) {
-    jedis.hset("rpc:" + groupName + ":uuid-map", name, uuid.toString());
+    JedisUtils.executeUsingJedisPool(jedisPool,
+        (jedis) -> jedis.hset("rpc:" + groupName + ":uuid-map", name, uuid.toString()));
 
     lock.lock();
     try {
@@ -44,7 +46,8 @@ public class PlayerUUIDMapContainer {
   }
 
   public void unregister(String name) {
-    jedis.hdel("rpc:" + groupName + ":uuid-map", name);
+    JedisUtils.executeUsingJedisPool(jedisPool,
+        (jedis) -> jedis.hdel("rpc:" + groupName + ":uuid-map", name));
 
     lock.lock();
     try {
@@ -123,7 +126,8 @@ public class PlayerUUIDMapContainer {
     if (lastCacheUpdated + 5000L < System.currentTimeMillis()) {
       lock.lock();
       try {
-        playerCacheCaseSensitive = jedis.hgetAll("rpc:" + groupName + ":uuid-map");
+        playerCacheCaseSensitive = JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
+            (jedis) -> jedis.hgetAll("rpc:" + groupName + ":uuid-map"));
         playerCache.clear();
         for (String mcid : playerCacheCaseSensitive.keySet()) {
           playerCache.put(mcid.toLowerCase(), playerCacheCaseSensitive.get(mcid));
