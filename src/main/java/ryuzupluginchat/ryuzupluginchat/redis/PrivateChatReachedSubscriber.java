@@ -62,7 +62,7 @@ public class PrivateChatReachedSubscriber {
           try {
             Thread.sleep(3000L);
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
           }
         }
       });
