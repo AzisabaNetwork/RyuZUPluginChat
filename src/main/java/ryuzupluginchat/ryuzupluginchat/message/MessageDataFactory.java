@@ -23,12 +23,17 @@ public class MessageDataFactory {
   private final RyuZUPluginChat plugin;
 
   public GlobalMessageData createGlobalMessageData(Player p, String message) {
+    String fixedMessage = message;
+    if (message.startsWith("#")) {
+      fixedMessage = message.substring(1);
+    }
+
     return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null,
         LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
         plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
         plugin.getPrefixSuffixContainer().getSuffix(p), null,
-        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), message, false,
-        replaceMessage(message, p).replace("$", "").replace("#", ""));
+        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), fixedMessage, false,
+        replaceMessage(message, p));
   }
 
   public GlobalMessageData createGlobalMessageDataFromDiscord(String userName, String message) {
@@ -37,11 +42,16 @@ public class MessageDataFactory {
   }
 
   public PrivateMessageData createPrivateMessageData(Player p, UUID targetUuid, String message) {
+    String fixedMessage = message;
+    if (message.startsWith("#")) {
+      fixedMessage = message.substring(1);
+    }
+
     long id = plugin.getPrivateChatIDGetter().getNewId();
     return new PrivateMessageData(id, plugin.getRpcConfig().getPrivateChatFormat(),
         plugin.getRpcConfig().getServerName(), null, p.getName(), null,
-        targetUuid, canJapanize(message, p), message,
-        replaceMessage(message, p).replace("$", "").replace("#", ""));
+        targetUuid, canJapanize(message, p), fixedMessage,
+        replaceMessage(message, p));
   }
 
   /**
@@ -57,12 +67,17 @@ public class MessageDataFactory {
       String message) {
     Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
+    String fixedMessage = message;
+    if (message.startsWith("#")) {
+      fixedMessage = message.substring(1);
+    }
+
     return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null,
         LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
         plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
         plugin.getPrefixSuffixContainer().getSuffix(p), null,
-        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), message, false,
-        replaceMessage(message, p).replace("$", "").replace("#", ""));
+        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), fixedMessage, false,
+        replaceMessage(message, p));
   }
 
   public ChannelChatMessageData createChannelChatMessageDataFromDiscord(String userName,
@@ -101,10 +116,17 @@ public class MessageDataFactory {
 
   private boolean canJapanize(String msg, Player p) {
     LunaChatConfig config = LunaChat.getConfig();
-    return LunaChat.getAPI().isPlayerJapanize(p.getName()) &&
-        config.getJapanizeType() != JapanizeType.NONE &&
-        msg.getBytes(StandardCharsets.UTF_8).length <= msg.length() &&
-        msg.charAt(0) != '#' && msg.charAt(0) != '$';
+    if (!LunaChat.getAPI().isPlayerJapanize(p.getName())) {
+      return false;
+    }
+    if (config.getJapanizeType() == JapanizeType.NONE) {
+      return false;
+    }
+    if (msg.getBytes(StandardCharsets.UTF_8).length > msg.length()) {
+      return false;
+    }
+
+    return !msg.startsWith("#");
   }
 
   private String replaceMessage(String msg, Player p) {
@@ -112,6 +134,9 @@ public class MessageDataFactory {
     LunaChatConfig config = LunaChat.getConfig();
     if (canJapanize(msg, p)) {
       message = LunaChat.getAPI().japanize(message, config.getJapanizeType());
+    }
+    if (message.startsWith("#")) {
+      message = message.substring(1);
     }
     if (p.hasPermission("lunachat.allowcc")) {
       message = ColorUtils.setColor(message);
