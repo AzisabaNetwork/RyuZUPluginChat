@@ -1,6 +1,7 @@
 package ryuzupluginchat.ryuzupluginchat.listener;
 
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,17 +18,15 @@ public class JoinQuitListener implements Listener {
   public void onJoin(PlayerJoinEvent e) {
     Player p = e.getPlayer();
 
-    RyuZUPluginChat.newChain()
-        .async(() -> plugin.getPlayerUUIDMapContainer().register(p))
-        .execute();
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(plugin, () -> plugin.getPlayerUUIDMapContainer().register(p));
   }
 
   @EventHandler
   public void onQuit(PlayerQuitEvent e) {
     Player p = e.getPlayer();
 
-    RyuZUPluginChat.newChain()
-        .async(() -> plugin.getPlayerUUIDMapContainer().unregister(p))
-        .execute();
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(plugin, () -> plugin.getPlayerUUIDMapContainer().unregister(p));
   }
 }
