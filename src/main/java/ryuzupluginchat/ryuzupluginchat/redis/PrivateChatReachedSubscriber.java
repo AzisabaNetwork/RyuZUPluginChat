@@ -56,7 +56,7 @@ public class PrivateChatReachedSubscriber {
     // 初回のみ待機処理無しでタスクを追加する
     executorService.submit(() -> {
       try (Jedis jedis = jedisPool.getResource()) {
-        jedis.psubscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+        jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
       }
     });
 
@@ -70,7 +70,7 @@ public class PrivateChatReachedSubscriber {
         }
 
         try (Jedis jedis = jedisPool.getResource()) {
-          jedis.psubscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+          jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
         }
       });
     }
