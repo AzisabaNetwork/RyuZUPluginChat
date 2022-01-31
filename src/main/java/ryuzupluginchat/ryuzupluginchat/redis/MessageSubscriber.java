@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -30,6 +32,10 @@ public class MessageSubscriber {
   private final List<Consumer<PrivateMessageData>> privateChatConsumers = new ArrayList<>();
   private final List<Consumer<ChannelChatMessageData>> channelChatConsumers = new ArrayList<>();
   private final List<Consumer<SystemMessageData>> systemMessageConsumers = new ArrayList<>();
+
+  @Getter
+  @Setter
+  private ExecutorService executorService;
 
   public void subscribe() {
     JedisPubSub subscriber = new JedisPubSub() {
@@ -103,25 +109,26 @@ public class MessageSubscriber {
       }
     };
 
-    ExecutorService service = Executors.newFixedThreadPool(1);
+    executorService = Executors.newFixedThreadPool(1);
+    // 初回のみ待機処理無しでタスクを追加する
+    executorService.execute(() -> {
+      try (Jedis jedis = jedisPool.getResource()) {
+        jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
+      }
+    });
+
+    // 2回目以降は最初に3秒待機する
     for (int i = 0; i < 10000; i++) {
-      service.execute(() -> {
+      executorService.execute(() -> {
+
         try {
+          Thread.sleep(3000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
 
-          Jedis jedis = jedisPool.getResource();
-          try {
-            jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
-          } finally {
-            jedis.close();
-          }
-
-        } finally {
-          // 接続に失敗したら3秒待ってから再接続する
-          try {
-            Thread.sleep(3000L);
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
+        try (Jedis jedis = jedisPool.getResource()) {
+          jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
         }
       });
     }
@@ -149,5 +156,12 @@ public class MessageSubscriber {
 
   public void registerSystemChatConsumer(Consumer<SystemMessageData> consumer) {
     systemMessageConsumers.add(consumer);
+  }
+
+  public void unregisterAll() {
+    globalChannelConsumers.clear();
+    privateChatConsumers.clear();
+    channelChatConsumers.clear();
+    systemMessageConsumers.clear();
   }
 }

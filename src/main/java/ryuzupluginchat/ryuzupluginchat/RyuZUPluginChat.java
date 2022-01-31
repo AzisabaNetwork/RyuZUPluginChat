@@ -103,6 +103,32 @@ public final class RyuZUPluginChat extends JavaPlugin {
     Bukkit.getLogger().info(getName() + " disabled.");
   }
 
+  public void executeFullReload() {
+    /**
+     * Shutdown Processes
+     */
+    // Redis Subscribers
+    subscriber.getExecutorService().shutdownNow();
+    subscriber.unregisterAll();
+    privateChatReachedSubscriber.getExecutorService().shutdownNow();
+
+    // Discord
+    if (discordHandler != null) {
+      discordHandler.disconnect();
+    }
+
+    /**
+     * Startup Processes
+     */
+    // Redis
+    setupRedisConnections();
+
+    // Discord
+    if (rpcConfig.isDiscordBotEnabled()) {
+      setupDiscordConnection();
+    }
+  }
+
   private void setupRedisConnections() {
     jedisPool = new JedisPool(new JedisPoolConfig(), rpcConfig.getHostAndPort().getHost(),
         rpcConfig.getHostAndPort().getPort(), 3000, rpcConfig.getRedisPassword());

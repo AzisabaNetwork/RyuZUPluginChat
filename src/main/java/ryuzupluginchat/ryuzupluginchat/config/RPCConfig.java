@@ -71,6 +71,7 @@ public class RPCConfig {
       return;
     }
 
+    messageConnections.clear();
     for (String id : section.getKeys(false)) {
       DiscordMessageConnection connection = importConnectionDataFromConfig(conf,
           "discord.connections." + id, id);
@@ -90,6 +91,11 @@ public class RPCConfig {
 
   public void setPrivateChatFormat(String format) {
     // TODO implement
+  }
+
+  public void reloadConfig() {
+    plugin.reloadConfig();
+    load();
   }
 
   private DiscordMessageConnection importConnectionDataFromConfig(FileConfiguration conf,
