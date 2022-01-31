@@ -22,7 +22,7 @@ public class ChatListener implements Listener {
 
   private HashMap<UUID, Long> lastDiscordChannelChatMap = new HashMap<>();
 
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
   public void onChat(AsyncPlayerChatEvent e) {
     Player p = e.getPlayer();
     boolean global = LunaChat.getAPI().getDefaultChannel(p.getName()) == null;
