@@ -6,12 +6,20 @@
 
   <groupId>RyuZUPluginChat</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.5.10</version>
+  <version>1.5.11</version>
   <packaging>jar</packaging>
 
-  <name>RyuZUPluginChat</name>
+  <name>${project.artifactId}</name>
+  <description>Plugin that works with LunaChat, Redis, and Discord(Optional) to share chats between
+    Spigot servers.
+  </description>
 
-  <description>RyuZUPluginChat</description>
+  <url>https://github.com/AzisabaNetwork/RyuZUPluginChat</url>
+  <organization>
+    <name>AzisabaNetwork</name>
+    <url>https://github.com/AzisabaNetwork</url>
+  </organization>
+
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

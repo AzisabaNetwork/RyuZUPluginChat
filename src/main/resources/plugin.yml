@@ -1,8 +1,10 @@
-name: RyuZUPluginChat
+name: ${project.name}
 version: ${project.version}
 main: ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat
 api-version: 1.13
-description: RyuZUPluginChat
+description: ${project.description}
+author: ${project.organization.name}
+website: ${project.url}
 depend:
   - LuckPerms
   - LunaChat
