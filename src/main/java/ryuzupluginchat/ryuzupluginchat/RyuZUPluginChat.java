@@ -96,6 +96,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   @Override
   public void onDisable() {
+    subscriber.getExecutorService().shutdownNow();
+    privateChatReachedSubscriber.getExecutorService().shutdownNow();
+    subscriber.unregisterAll();
     if (discordHandler != null) {
       discordHandler.disconnect();
     }

@@ -54,7 +54,7 @@ public class PrivateChatReachedSubscriber {
     executorService = Executors.newFixedThreadPool(1);
 
     // 初回のみ待機処理無しでタスクを追加する
-    executorService.execute(() -> {
+    executorService.submit(() -> {
       try (Jedis jedis = jedisPool.getResource()) {
         jedis.psubscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
       }
@@ -62,7 +62,7 @@ public class PrivateChatReachedSubscriber {
 
     // 2回目以降は最初に3秒待機する
     for (int i = 0; i < 10000; i++) {
-      executorService.execute(() -> {
+      executorService.submit(() -> {
         try {
           Thread.sleep(3000);
         } catch (InterruptedException e) {
