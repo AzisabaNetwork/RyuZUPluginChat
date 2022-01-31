@@ -286,6 +286,8 @@ public class DiscordHandler {
   }
 
   public void disconnect() {
-    gateway.logout().block();
+    if (gateway != null) {
+      gateway.logout().block();
+    }
   }
 }

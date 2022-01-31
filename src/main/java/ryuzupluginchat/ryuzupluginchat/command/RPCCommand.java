@@ -40,10 +40,21 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         return true;
       }
 
-            /*if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r")) {
-                sender.sendMessage(ChatColor.GREEN + "リロード完了");
-                return true;
-            }*/
+      if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r")) {
+        sender.sendMessage(ChatColor.YELLOW + "非同期でリロードを実行しています...");
+        RyuZUPluginChat.newSharedChain("reload")
+            .async(() -> {
+              long start = System.currentTimeMillis();
+
+              plugin.getRpcConfig().reloadConfig();
+              plugin.executeFullReload();
+
+              long end = System.currentTimeMillis();
+              sender.sendMessage(ChatColor.GREEN
+                  + "非同期でシステムをリロードしました " + ChatColor.GRAY + "(" + (end - start) + "ms)");
+            }).execute();
+        return true;
+      }
 
       if (redirectArgs.contains(args[0])) {
         String tellCommand = String.join(" ", args);

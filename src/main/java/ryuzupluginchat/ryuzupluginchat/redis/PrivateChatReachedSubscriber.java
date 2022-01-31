@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -21,6 +23,10 @@ public class PrivateChatReachedSubscriber {
   private final String groupName;
 
   private final ObjectMapper mapper = new ObjectMapper();
+
+  @Setter
+  @Getter
+  private ExecutorService executorService;
 
   public void subscribe() {
     JedisPubSub subscriber = new JedisPubSub() {
@@ -45,25 +51,26 @@ public class PrivateChatReachedSubscriber {
       }
     };
 
-    ExecutorService service = Executors.newFixedThreadPool(1);
+    executorService = Executors.newFixedThreadPool(1);
+
+    // 初回のみ待機処理無しでタスクを追加する
+    executorService.submit(() -> {
+      try (Jedis jedis = jedisPool.getResource()) {
+        jedis.psubscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+      }
+    });
+
+    // 2回目以降は最初に3秒待機する
     for (int i = 0; i < 10000; i++) {
-      service.execute(() -> {
+      executorService.submit(() -> {
         try {
+          Thread.sleep(3000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
 
-          Jedis jedis = jedisPool.getResource();
-          try {
-            jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
-          } finally {
-            jedis.close();
-          }
-
-        } finally {
-          // 接続に失敗したら3秒待ってから再接続する
-          try {
-            Thread.sleep(3000L);
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
+        try (Jedis jedis = jedisPool.getResource()) {
+          jedis.psubscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
         }
       });
     }

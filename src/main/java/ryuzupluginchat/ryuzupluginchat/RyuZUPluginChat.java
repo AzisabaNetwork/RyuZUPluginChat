@@ -96,11 +96,40 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   @Override
   public void onDisable() {
+    subscriber.getExecutorService().shutdownNow();
+    privateChatReachedSubscriber.getExecutorService().shutdownNow();
+    subscriber.unregisterAll();
     if (discordHandler != null) {
       discordHandler.disconnect();
     }
 
     Bukkit.getLogger().info(getName() + " disabled.");
+  }
+
+  public void executeFullReload() {
+    /**
+     * Shutdown Processes
+     */
+    // Redis Subscribers
+    subscriber.getExecutorService().shutdownNow();
+    subscriber.unregisterAll();
+    privateChatReachedSubscriber.getExecutorService().shutdownNow();
+
+    // Discord
+    if (discordHandler != null) {
+      discordHandler.disconnect();
+    }
+
+    /**
+     * Startup Processes
+     */
+    // Redis
+    setupRedisConnections();
+
+    // Discord
+    if (rpcConfig.isDiscordBotEnabled()) {
+      setupDiscordConnection();
+    }
   }
 
   private void setupRedisConnections() {
