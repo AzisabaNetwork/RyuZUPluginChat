@@ -86,11 +86,17 @@ public class RPCConfig {
   }
 
   public void setGlobalChatFormat(String format) {
-    // TODO implement
+    globalChatFormat = format;
+    FileConfiguration conf = plugin.getConfig();
+    conf.set("formats.global", format);
+    plugin.saveConfig();
   }
 
   public void setPrivateChatFormat(String format) {
-    // TODO implement
+    privateChatFormat = format;
+    FileConfiguration conf = plugin.getConfig();
+    conf.set("formats.private", format);
+    plugin.saveConfig();
   }
 
   public void reloadConfig() {
