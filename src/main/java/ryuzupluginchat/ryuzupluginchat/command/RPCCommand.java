@@ -41,6 +41,11 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       }
 
       if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r")) {
+        if (!sender.hasPermission("rpc.op")) {
+          sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
+          return true;
+        }
+        
         sender.sendMessage(ChatColor.YELLOW + "非同期でリロードを実行しています...");
         RyuZUPluginChat.newSharedChain("reload")
             .async(() -> {
