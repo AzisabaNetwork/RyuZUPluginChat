@@ -16,6 +16,8 @@ import discord4j.rest.entity.RestChannel;
 import discord4j.rest.util.MultipartRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -90,6 +92,7 @@ public class DiscordHandler {
         if (content.length() <= 0) {
           return;
         }
+        content = removeUrl(content);
 
         Member messageAuthor = message.getAuthorAsMember().block();
         if (messageAuthor == null) {
@@ -125,6 +128,7 @@ public class DiscordHandler {
         if (content.length() <= 0) {
           return;
         }
+        final String urlDeletedContent = removeUrl(content);
 
         Member messageAuthor = message.getAuthorAsMember().block();
         if (messageAuthor == null) {
@@ -146,7 +150,8 @@ public class DiscordHandler {
             }).asyncLast((list) -> {
               for (Channel ch : list) {
                 ChannelChatMessageData data = plugin.getMessageDataFactory()
-                    .createChannelChatMessageDataFromDiscord(senderName, ch.getName(), content);
+                    .createChannelChatMessageDataFromDiscord(senderName, ch.getName(),
+                        urlDeletedContent);
                 plugin.getPublisher().publishChannelChatMessage(data);
               }
             }).execute();
@@ -283,6 +288,18 @@ public class DiscordHandler {
     message = ChatColor.translateAlternateColorCodes('&', message);
     message = ChatColor.stripColor(message);
     return message;
+  }
+
+  private String removeUrl(String msg) {
+    String urlPattern = "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+    Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
+    Matcher m = p.matcher(msg);
+    int i = 0;
+    while (m.find()) {
+      msg = msg.replaceAll(m.group(i), "<URL>").trim();
+      i++;
+    }
+    return msg;
   }
 
   public void disconnect() {
