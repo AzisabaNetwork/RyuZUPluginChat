@@ -6,7 +6,7 @@
 
   <groupId>RyuZUPluginChat</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.5.14</version>
+  <version>1.5.16</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -53,7 +53,32 @@
               <relocations>
                 <relocation>
                   <pattern>io.netty</pattern>
-                  <shadedPattern>com.discord4j.shaded.io.netty</shadedPattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.discord4j.shaded.io.netty
+                  </shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>reactor</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.reactor</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>discord4j</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.discord4j</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>co.aikar.taskchain</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.taskchain</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>redis.clients.jedis</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.jedis</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
