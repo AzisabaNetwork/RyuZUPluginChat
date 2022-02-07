@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 
 @RequiredArgsConstructor
 public class TellCommand implements CommandExecutor, TabCompleter {
@@ -39,34 +38,42 @@ public class TellCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
-    UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
-
-    if (targetUUID == null) {
-
-      List<String> matchNames = plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-          .filter(name -> !name.equalsIgnoreCase(p.getName())
-              && name.toLowerCase().startsWith(args[0].toLowerCase()))
-          .collect(Collectors.toList());
-
-      if (matchNames.isEmpty()) {
-        p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + "というプレイヤーが見つかりませんでした");
-        return true;
-      } else if (matchNames.size() > 1) {
-        p.sendMessage(
-            ChatColor.RED + "複数プレイヤーが該当するため宛先が絞り込めません " + createColoredPlayerNameList(matchNames));
-        return true;
-      }
-
-      targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(matchNames.get(0));
-    }
-
-    String msg = String.join(" ", args).substring(args[0].length() + 1);
-    PrivateMessageData data = plugin.getMessageDataFactory()
-        .createPrivateMessageData(p, targetUUID, msg);
-
     RyuZUPluginChat.newChain()
-        .sync(() -> plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L))
-        .async(() -> plugin.getPublisher().publishPrivateMessage(data)).execute();
+        .asyncFirst(() -> {
+          UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
+
+          if (targetUUID != null) {
+            return targetUUID;
+          }
+
+          List<String> matchNames = plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+              .filter(name -> !name.equalsIgnoreCase(p.getName())
+                  && name.toLowerCase().startsWith(args[0].toLowerCase()))
+              .collect(Collectors.toList());
+
+          if (matchNames.isEmpty()) {
+            p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + "というプレイヤーが見つかりませんでした");
+            return null;
+          } else if (matchNames.size() > 1) {
+            p.sendMessage(
+                ChatColor.RED + "複数プレイヤーが該当するため宛先が絞り込めません " + createColoredPlayerNameList(
+                    matchNames));
+            return null;
+          }
+
+          return plugin.getPlayerUUIDMapContainer().getUUID(matchNames.get(0));
+        })
+        .abortIfNull()
+        .async((uuid) -> {
+          assert uuid != null;
+          String msg = String.join(" ", args).substring(args[0].length() + 1);
+          return plugin.getMessageDataFactory().createPrivateMessageData(p, uuid, msg);
+        }).sync((data) -> {
+          plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L);
+          return data;
+        })
+        .asyncLast((data) -> plugin.getPublisher().publishPrivateMessage(data))
+        .execute();
     return true;
   }
 
