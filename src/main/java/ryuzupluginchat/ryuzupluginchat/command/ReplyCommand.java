@@ -1,6 +1,5 @@
 package ryuzupluginchat.ryuzupluginchat.command;
 
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandExecutor;
@@ -8,7 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat;
-import ryuzupluginchat.ryuzupluginchat.message.data.PrivateMessageData;
 
 @RequiredArgsConstructor
 public class ReplyCommand implements CommandExecutor {
@@ -26,26 +24,30 @@ public class ReplyCommand implements CommandExecutor {
       return true;
     }
     Player p = (Player) sender;
-    UUID targetUUID = plugin.getReplyTargetFetcher().getReplyTarget(p);
-
-    if (targetUUID == null) {
-      sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
-      return true;
-    }
-
-    if (!plugin.getPlayerUUIDMapContainer().isOnline(targetUUID)) {
-      sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです");
-      return true;
-    }
-
-    String msg = String.join(" ", args);
-
-    PrivateMessageData data = plugin.getMessageDataFactory()
-        .createPrivateMessageData(p, targetUUID, msg);
 
     RyuZUPluginChat.newChain()
-        .sync(() -> plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L))
-        .async(() -> plugin.getPublisher().publishPrivateMessage(data)).execute();
+        .asyncFirst(() -> plugin.getReplyTargetFetcher().getReplyTarget(p))
+        .async((uuid) -> {
+          if (uuid == null) {
+            sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
+            return null;
+          }
+
+          if (!plugin.getPlayerUUIDMapContainer().isOnline(uuid)) {
+            sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです");
+            return null;
+          }
+
+          String msg = String.join(" ", args);
+          return plugin.getMessageDataFactory().createPrivateMessageData(p, uuid, msg);
+        })
+        .abortIfNull()
+        .sync((data) -> {
+          plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L);
+          return data;
+        })
+        .asyncLast((data) -> plugin.getPublisher().publishPrivateMessage(data))
+        .execute();
     return true;
   }
 }
