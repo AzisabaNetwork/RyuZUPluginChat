@@ -6,7 +6,7 @@
 
   <groupId>RyuZUPluginChat</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.5.16</version>
+  <version>1.5.17</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -57,16 +57,9 @@
                   </shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>com</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>reactor</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.reactor</shadedPattern>
+                  <pattern>com.discord4j</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com.discord4j
+                  </shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>discord4j</pattern>
