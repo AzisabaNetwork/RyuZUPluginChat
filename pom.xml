@@ -6,7 +6,7 @@
 
   <groupId>RyuZUPluginChat</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.5.17</version>
+  <version>1.5.18</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -57,9 +57,37 @@
                   </shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>com.discord4j</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com.discord4j
-                  </shadedPattern>
+                  <pattern>com</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com</shadedPattern>
+                  <includes>
+                    <include>com.fasterxml.*</include>
+                    <include>com.github.benmanes.*</include>
+                    <include>com.google.gson.*</include>
+                    <include>com.google.errorprone.*</include>
+                    <include>com.iwebpp.*</include>
+                    <include>com.austinv11.*</include>
+                    <include>com.discord4j.*</include>
+                  </includes>
+                </relocation>
+                <relocation>
+                  <pattern>reactor</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.reactor</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org</shadedPattern>
+                  <includes>
+                    <include>org.checkerframework.*</include>
+                    <include>org.apache.commons.pool2.*</include>
+                    <include>org.reactivestreams.*</include>
+                  </includes>
+                </relocation>
+                <relocation>
+                  <pattern>org.json</pattern>
+                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org.json</shadedPattern>
+                  <excludes>
+                    <exclude>org.json.simple.*</exclude>
+                  </excludes>
                 </relocation>
                 <relocation>
                   <pattern>discord4j</pattern>
