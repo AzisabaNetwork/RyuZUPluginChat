@@ -1,6 +1,6 @@
 name: ${project.name}
 version: ${project.version}
-main: ryuzupluginchat.ryuzupluginchat.RyuZUPluginChat
+main: net.azisaba.ryuzupluginchat.RyuZUPluginChat
 api-version: 1.13
 description: ${project.description}
 author: ${project.organization.name}
