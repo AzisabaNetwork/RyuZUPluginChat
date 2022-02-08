@@ -34,7 +34,9 @@
 
 ### 編集した内容をコミットする
 
-満足したタイミングで編集内容をコミットしましょう。コミットの際はコメントに`[Feat]`や`[Fix]`等のPrefixを付けて、編集した内容を簡潔にわかりやすくコメントします。
+満足したタイミングで編集内容をコミットしましょう。コミットの際は https://gitmoji.dev/ を参考にして、コメントの先頭に絵文字でPrefixを付けましょう。また、編集した内容を簡潔にわかりやすくコメントします。
+
+また、コミットメッセージは日本語が推奨されています。これは現状このプロジェクトに携わっているメンバーが全員日本人であり、英語で会話する利点が無いからです。
 
 変更が終了したら、変更内容を自分で見直すことを忘れないでください。PRのレビューを迅速に行えるようにするためです。
 
@@ -43,6 +45,7 @@
 コードの編集が完了したら、Pull Requestを作成しましょう。
 - 既存のIssueに基づいた編集の場合はIssueとPRの紐付け([link PR to issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue))を忘れずに行ってください。
 - PRを出す際に[allow maintainer edits](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork)にチェックを入れてください。
+- コミットメッセージと同様の理由で、PRのタイトルやコメントは日本語が推奨されています。
 - PRが提出されると、私たちは編集されたコードについて質問を行う場合があります。
 - 同様に、私たちは編集されたコードについて修正を依頼する場合があります。あなたはWebUIから変更を適用することもできますし、あなたのフォークの内容を変更しPushすることで反映することもできます。
 - もし何かしらマージについて問題を抱えている場合は、この[git tutorial](https://lab.github.com/githubtraining/managing-merge-conflicts)を参考にしてみてください。
