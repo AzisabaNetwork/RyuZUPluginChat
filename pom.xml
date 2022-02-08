@@ -4,9 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>RyuZUPluginChat</groupId>
+  <groupId>net.azisaba</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>1.5.18</version>
+  <version>1.6.0</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -53,12 +53,12 @@
               <relocations>
                 <relocation>
                   <pattern>io.netty</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.discord4j.shaded.io.netty
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.discord4j.shaded.io.netty
                   </shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>com</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.com</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.com</shadedPattern>
                   <includes>
                     <include>com.fasterxml.*</include>
                     <include>com.github.benmanes.*</include>
@@ -71,11 +71,11 @@
                 </relocation>
                 <relocation>
                   <pattern>reactor</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.reactor</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.reactor</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>org</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.org</shadedPattern>
                   <includes>
                     <include>org.checkerframework.*</include>
                     <include>org.apache.commons.pool2.*</include>
@@ -84,22 +84,22 @@
                 </relocation>
                 <relocation>
                   <pattern>org.json</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.org.json</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.org.json</shadedPattern>
                   <excludes>
                     <exclude>org.json.simple.*</exclude>
                   </excludes>
                 </relocation>
                 <relocation>
                   <pattern>discord4j</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.discord4j</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.discord4j</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>co.aikar.taskchain</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.taskchain</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.taskchain</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>redis.clients.jedis</pattern>
-                  <shadedPattern>ryuzupluginchat.ryuzupluginchat.depends.jedis</shadedPattern>
+                  <shadedPattern>net.azisaba.ryuzupluginchat.dependency.jedis</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
