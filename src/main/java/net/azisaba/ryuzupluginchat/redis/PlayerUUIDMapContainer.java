@@ -22,15 +22,15 @@ public class PlayerUUIDMapContainer {
 
   private final String groupName;
 
-  private Map<String, String> playerCache = new HashMap<>();
+  private final Map<String, String> playerCache = new HashMap<>();
   private Map<String, String> playerCacheCaseSensitive = new HashMap<>();
   private long lastCacheUpdated;
 
   private final ReentrantLock lock = new ReentrantLock(true);
 
   public void register(String name, UUID uuid) {
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.hset("rpc:" + groupName + ":uuid-map", name, uuid.toString()));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.hset("rpc:" + groupName + ":uuid-map", name, uuid.toString()));
 
     lock.lock();
     try {
@@ -46,8 +46,8 @@ public class PlayerUUIDMapContainer {
   }
 
   public void unregister(String name) {
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.hdel("rpc:" + groupName + ":uuid-map", name));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.hdel("rpc:" + groupName + ":uuid-map", name));
 
     lock.lock();
     try {
@@ -74,9 +74,7 @@ public class PlayerUUIDMapContainer {
       try {
         return UUID.fromString(uuidStr);
       } catch (IllegalArgumentException e) {
-        plugin.getLogger()
-            .warning(
-                "Received invalid UUID from Redis server ( " + uuidStr + " )");
+        plugin.getLogger().warning("Received invalid UUID from Redis server ( " + uuidStr + " )");
         return null;
       }
     } finally {
@@ -126,8 +124,9 @@ public class PlayerUUIDMapContainer {
     if (lastCacheUpdated + 5000L < System.currentTimeMillis()) {
       lock.lock();
       try {
-        playerCacheCaseSensitive = JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
-            (jedis) -> jedis.hgetAll("rpc:" + groupName + ":uuid-map"));
+        playerCacheCaseSensitive =
+            JedisUtils.executeUsingJedisPoolWithReturn(
+                jedisPool, (jedis) -> jedis.hgetAll("rpc:" + groupName + ":uuid-map"));
         playerCache.clear();
         for (String mcid : playerCacheCaseSensitive.keySet()) {
           playerCache.put(mcid.toLowerCase(), playerCacheCaseSensitive.get(mcid));

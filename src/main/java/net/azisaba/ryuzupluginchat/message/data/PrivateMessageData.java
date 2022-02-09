@@ -4,9 +4,9 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.azisaba.ryuzupluginchat.util.ColorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import net.azisaba.ryuzupluginchat.util.ColorUtils;
 
 @Data
 @AllArgsConstructor
@@ -41,16 +41,18 @@ public class PrivateMessageData {
           targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
     }
 
-    String formatted = defaultFormat
-        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
-        .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
-        .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
-        .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));
+    String formatted =
+        defaultFormat
+            .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+            .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
+            .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
+            .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));
 
     formatted = ColorUtils.setColor(formatted);
     if (japanized) {
-      formatted = formatted.replace("[PreReplaceMessage]",
-          "(" + convertEmptyIfNull(preReplaceMessage) + ")");
+      formatted =
+          formatted.replace(
+              "[PreReplaceMessage]", "(" + convertEmptyIfNull(preReplaceMessage) + ")");
     } else {
       formatted = formatted.replace("[PreReplaceMessage]", "");
     }
@@ -61,5 +63,4 @@ public class PrivateMessageData {
   private String convertEmptyIfNull(String value) {
     return value != null ? value : "";
   }
-
 }

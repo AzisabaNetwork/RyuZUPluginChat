@@ -90,13 +90,15 @@ public class HideInfoController {
     lock.lock();
     try {
       hideMap.clear();
-      Map<String, String> rawData = JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
-          (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
+      Map<String, String> rawData =
+          JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool, (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
       for (String key : rawData.keySet()) {
         UUID keyUUID = UUID.fromString(key);
-        Set<UUID> uuidList = Arrays.stream(rawData.get(key).split(","))
-            .map(UUID::fromString)
-            .collect(Collectors.toSet());
+        Set<UUID> uuidList =
+            Arrays.stream(rawData.get(key).split(","))
+                .map(UUID::fromString)
+                .collect(Collectors.toSet());
         hideMap.put(keyUUID, uuidList);
         keyLastUpdatedMilliSeconds = System.currentTimeMillis();
       }
@@ -106,13 +108,13 @@ public class HideInfoController {
   }
 
   private void updateRedisInfo(UUID uuid) {
-    Set<String> uuidSetStr = hideMap.get(uuid).stream()
-        .map(UUID::toString)
-        .collect(Collectors.toSet());
+    Set<String> uuidSetStr =
+        hideMap.get(uuid).stream().map(UUID::toString).collect(Collectors.toSet());
 
     String oneLine = String.join(",", uuidSetStr);
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
+    JedisUtils.executeUsingJedisPool(
+        jedisPool,
         (jedis) -> jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine));
   }
 }

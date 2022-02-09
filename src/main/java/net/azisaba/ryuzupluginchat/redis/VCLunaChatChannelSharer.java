@@ -1,8 +1,8 @@
 package net.azisaba.ryuzupluginchat.redis;
 
 import lombok.RequiredArgsConstructor;
-import redis.clients.jedis.JedisPool;
 import net.azisaba.ryuzupluginchat.util.JedisUtils;
+import redis.clients.jedis.JedisPool;
 
 @RequiredArgsConstructor
 public class VCLunaChatChannelSharer {
@@ -14,8 +14,8 @@ public class VCLunaChatChannelSharer {
   private long lastFetched = 0L;
 
   public void setLunaChatChannelName(String name) {
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.set("rpc:" + groupName + ":vc-lunachat-channel", name));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.set("rpc:" + groupName + ":vc-lunachat-channel", name));
 
     lastFetched = System.currentTimeMillis();
     lunaChatChannelNameCache = name;
@@ -23,8 +23,9 @@ public class VCLunaChatChannelSharer {
 
   public String getLunaChatChannelName() {
     if (lunaChatChannelNameCache == null || lastFetched + 10000L < System.currentTimeMillis()) {
-      lunaChatChannelNameCache = JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
-          (jedis) -> jedis.get("rpc:" + groupName + ":vc-lunachat-channel"));
+      lunaChatChannelNameCache =
+          JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool, (jedis) -> jedis.get("rpc:" + groupName + ":vc-lunachat-channel"));
       lastFetched = System.currentTimeMillis();
     }
 

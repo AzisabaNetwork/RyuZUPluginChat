@@ -21,8 +21,11 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
   private final RyuZUPluginChat plugin;
 
   @Override
-  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd,
-      @NotNull String label, @NotNull String[] args) {
+  public boolean onCommand(
+      @NotNull CommandSender sender,
+      @NotNull Command cmd,
+      @NotNull String label,
+      @NotNull String[] args) {
     if (!(sender instanceof Player)) {
       return true;
     }
@@ -44,8 +47,17 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
     }
 
     if (!plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
-      p.sendMessage(ChatColor.RED + "あなたはまだ" + args[0] + "のチャットを非表示にしていません" + "\n"
-          + ChatColor.YELLOW + "/hide " + args[0] + ChatColor.RED + " で非表示設定が可能です");
+      p.sendMessage(
+          ChatColor.RED
+              + "あなたはまだ"
+              + args[0]
+              + "のチャットを非表示にしていません"
+              + "\n"
+              + ChatColor.YELLOW
+              + "/hide "
+              + args[0]
+              + ChatColor.RED
+              + " で非表示設定が可能です");
       return true;
     }
 
@@ -55,8 +67,11 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
   }
 
   @Override
-  public @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
-      @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+  public @Nullable List<String> onTabComplete(
+      @NotNull CommandSender sender,
+      @NotNull Command command,
+      @NotNull String alias,
+      @NotNull String[] args) {
 
     if (!(sender instanceof Player)) {
       return null;

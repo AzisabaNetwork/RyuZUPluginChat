@@ -33,104 +33,119 @@ public class MessageSubscriber {
   private final List<Consumer<ChannelChatMessageData>> channelChatConsumers = new ArrayList<>();
   private final List<Consumer<SystemMessageData>> systemMessageConsumers = new ArrayList<>();
 
-  @Getter
-  @Setter
-  private ExecutorService executorService;
+  @Getter @Setter private ExecutorService executorService;
 
   public void subscribe() {
-    JedisPubSub subscriber = new JedisPubSub() {
-      @Override
-      public void onPMessage(String pattern, String channel, String message) {
-        if (channel.equals("rpc:" + groupName + ":global-chat")) {
-          GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
-          if (data != null) {
-            globalChannelConsumers.forEach(c -> {
-              RyuZUPluginChat.newChain().async(() -> {
-                try {
-                  c.accept(data);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              }).execute();
-            });
-          } else {
-            // TODO error log
-          }
+    JedisPubSub subscriber =
+        new JedisPubSub() {
+          @Override
+          public void onPMessage(String pattern, String channel, String message) {
+            if (channel.equals("rpc:" + groupName + ":global-chat")) {
+              GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
+              if (data != null) {
+                globalChannelConsumers.forEach(
+                    c -> {
+                      RyuZUPluginChat.newChain()
+                          .async(
+                              () -> {
+                                try {
+                                  c.accept(data);
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                              })
+                          .execute();
+                    });
+              } else {
+                // TODO error log
+              }
 
-        } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
-          PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
-          if (data != null) {
-            privateChatConsumers.forEach(c -> {
-              RyuZUPluginChat.newChain().async(() -> {
-                try {
-                  c.accept(data);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              }).execute();
-            });
-          } else {
-            // TODO error log
-          }
+            } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
+              PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
+              if (data != null) {
+                privateChatConsumers.forEach(
+                    c -> {
+                      RyuZUPluginChat.newChain()
+                          .async(
+                              () -> {
+                                try {
+                                  c.accept(data);
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                              })
+                          .execute();
+                    });
+              } else {
+                // TODO error log
+              }
 
-        } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
-          ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
-          if (data != null) {
-            channelChatConsumers.forEach(c -> {
-              RyuZUPluginChat.newChain().async(() -> {
-                try {
-                  c.accept(data);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              }).execute();
-            });
-          } else {
-            // TODO error log
-          }
+            } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
+              ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
+              if (data != null) {
+                channelChatConsumers.forEach(
+                    c -> {
+                      RyuZUPluginChat.newChain()
+                          .async(
+                              () -> {
+                                try {
+                                  c.accept(data);
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                              })
+                          .execute();
+                    });
+              } else {
+                // TODO error log
+              }
 
-        } else if (channel.equals("rpc:" + groupName + ":system-message")) {
-          SystemMessageData data = converter.convertIntoSystemMessageData(message);
-          if (data != null) {
-            systemMessageConsumers.forEach(c -> {
-              RyuZUPluginChat.newChain().async(() -> {
-                try {
-                  c.accept(data);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
-              }).execute();
-            });
-          } else {
-            // TODO error log
+            } else if (channel.equals("rpc:" + groupName + ":system-message")) {
+              SystemMessageData data = converter.convertIntoSystemMessageData(message);
+              if (data != null) {
+                systemMessageConsumers.forEach(
+                    c -> {
+                      RyuZUPluginChat.newChain()
+                          .async(
+                              () -> {
+                                try {
+                                  c.accept(data);
+                                } catch (Exception e) {
+                                  e.printStackTrace();
+                                }
+                              })
+                          .execute();
+                    });
+              } else {
+                // TODO error log
+              }
+            }
           }
-
-        }
-      }
-    };
+        };
 
     executorService = Executors.newFixedThreadPool(1);
     // 初回のみ待機処理無しでタスクを追加する
-    executorService.submit(() -> {
-      try (Jedis jedis = jedisPool.getResource()) {
-        jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
-      }
-    });
+    executorService.submit(
+        () -> {
+          try (Jedis jedis = jedisPool.getResource()) {
+            jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
+          }
+        });
 
     // 2回目以降は最初に3秒待機する
     for (int i = 0; i < 10000; i++) {
-      executorService.submit(() -> {
+      executorService.submit(
+          () -> {
+            try {
+              Thread.sleep(3000);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
 
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-
-        try (Jedis jedis = jedisPool.getResource()) {
-          jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
-        }
-      });
+            try (Jedis jedis = jedisPool.getResource()) {
+              jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
+            }
+          });
     }
   }
 

@@ -23,7 +23,6 @@ public class MessagePublisher {
 
   private final String groupName;
 
-
   public boolean publishGlobalMessage(GlobalMessageData data) {
     String jsonMessage;
     try {
@@ -33,8 +32,8 @@ public class MessagePublisher {
       return false;
     }
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.publish("rpc:" + groupName + ":global-chat", jsonMessage));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.publish("rpc:" + groupName + ":global-chat", jsonMessage));
     return true;
   }
 
@@ -47,8 +46,8 @@ public class MessagePublisher {
       return false;
     }
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.publish("rpc:" + groupName + ":private-chat", jsonMessage));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.publish("rpc:" + groupName + ":private-chat", jsonMessage));
     return true;
   }
 
@@ -61,8 +60,8 @@ public class MessagePublisher {
       return false;
     }
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.publish("rpc:" + groupName + ":channel-chat", jsonMessage));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.publish("rpc:" + groupName + ":channel-chat", jsonMessage));
     return true;
   }
 
@@ -75,8 +74,8 @@ public class MessagePublisher {
       return false;
     }
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.publish("rpc:" + groupName + ":system-message", jsonMessage));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.publish("rpc:" + groupName + ":system-message", jsonMessage));
     return true;
   }
 
@@ -96,7 +95,8 @@ public class MessagePublisher {
       return;
     }
 
-    JedisUtils.executeUsingJedisPool(jedisPool,
+    JedisUtils.executeUsingJedisPool(
+        jedisPool,
         (jedis) -> jedis.publish("rpc:" + groupName + ":private-chat-response", jsonMessage));
   }
 }

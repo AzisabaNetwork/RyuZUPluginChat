@@ -28,17 +28,41 @@ public class MessageDataFactory {
       fixedMessage = message.substring(1);
     }
 
-    return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null,
-        LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
-        plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
-        plugin.getPrefixSuffixContainer().getSuffix(p), null,
-        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), fixedMessage, false,
+    return new GlobalMessageData(
+        plugin.getRpcConfig().getGlobalChatFormat(),
+        null,
+        LuckPermsPrefixSuffixUtils.getPrefix(p),
+        plugin.getPrefixSuffixContainer().getPrefix(p),
+        plugin.getRpcConfig().getServerName(),
+        null,
+        p.getName(),
+        p.getDisplayName(),
+        plugin.getPrefixSuffixContainer().getSuffix(p),
+        null,
+        LuckPermsPrefixSuffixUtils.getSuffix(p),
+        canJapanize(message, p),
+        fixedMessage,
+        false,
         replaceMessage(message, p));
   }
 
   public GlobalMessageData createGlobalMessageDataFromDiscord(String userName, String message) {
-    return new GlobalMessageData(plugin.getRpcConfig().getGlobalChatFormat(), null, null, null,
-        "Discord", null, userName, userName, null, null, null, false, message, true, message);
+    return new GlobalMessageData(
+        plugin.getRpcConfig().getGlobalChatFormat(),
+        null,
+        null,
+        null,
+        "Discord",
+        null,
+        userName,
+        userName,
+        null,
+        null,
+        null,
+        false,
+        message,
+        true,
+        message);
   }
 
   public PrivateMessageData createPrivateMessageData(Player p, UUID targetUuid, String message) {
@@ -48,23 +72,28 @@ public class MessageDataFactory {
     }
 
     long id = plugin.getPrivateChatIDGetter().getNewId();
-    return new PrivateMessageData(id, plugin.getRpcConfig().getPrivateChatFormat(),
-        plugin.getRpcConfig().getServerName(), null, p.getName(), null,
-        targetUuid, canJapanize(message, p), fixedMessage,
+    return new PrivateMessageData(
+        id,
+        plugin.getRpcConfig().getPrivateChatFormat(),
+        plugin.getRpcConfig().getServerName(),
+        null,
+        p.getName(),
+        null,
+        targetUuid,
+        canJapanize(message, p),
+        fixedMessage,
         replaceMessage(message, p));
   }
 
-  /**
-   * @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead.
-   */
+  /** @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead. */
   @Deprecated
   public ChannelChatMessageData createChannelChatMessageData(Player p, String message) {
     Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
     return createChannelChatMessageData(p, ch.getName(), message);
   }
 
-  public ChannelChatMessageData createChannelChatMessageData(Player p, String lunaChatChannel,
-      String message) {
+  public ChannelChatMessageData createChannelChatMessageData(
+      Player p, String lunaChatChannel, String message) {
     Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
     String fixedMessage = message;
@@ -72,20 +101,48 @@ public class MessageDataFactory {
       fixedMessage = message.substring(1);
     }
 
-    return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null,
-        LuckPermsPrefixSuffixUtils.getPrefix(p), plugin.getPrefixSuffixContainer().getPrefix(p),
-        plugin.getRpcConfig().getServerName(), null, p.getName(), p.getDisplayName(),
-        plugin.getPrefixSuffixContainer().getSuffix(p), null,
-        LuckPermsPrefixSuffixUtils.getSuffix(p), canJapanize(message, p), fixedMessage, false,
+    return new ChannelChatMessageData(
+        ch.getName(),
+        ch.getColorCode(),
+        ch.getFormat(),
+        null,
+        LuckPermsPrefixSuffixUtils.getPrefix(p),
+        plugin.getPrefixSuffixContainer().getPrefix(p),
+        plugin.getRpcConfig().getServerName(),
+        null,
+        p.getName(),
+        p.getDisplayName(),
+        plugin.getPrefixSuffixContainer().getSuffix(p),
+        null,
+        LuckPermsPrefixSuffixUtils.getSuffix(p),
+        canJapanize(message, p),
+        fixedMessage,
+        false,
         replaceMessage(message, p));
   }
 
-  public ChannelChatMessageData createChannelChatMessageDataFromDiscord(String userName,
-      String lunaChatChannel, String message) {
+  public ChannelChatMessageData createChannelChatMessageDataFromDiscord(
+      String userName, String lunaChatChannel, String message) {
     Channel ch = LunaChat.getAPI().getChannel(lunaChatChannel);
 
-    return new ChannelChatMessageData(ch.getName(), ch.getColorCode(), ch.getFormat(), null, null,
-        null, "Discord", null, userName, userName, null, null, null, false, message, true, message);
+    return new ChannelChatMessageData(
+        ch.getName(),
+        ch.getColorCode(),
+        ch.getFormat(),
+        null,
+        null,
+        null,
+        "Discord",
+        null,
+        userName,
+        userName,
+        null,
+        null,
+        null,
+        false,
+        message,
+        true,
+        message);
   }
 
   public SystemMessageData createGeneralSystemChatMessageData(String msg) {
@@ -143,5 +200,4 @@ public class MessageDataFactory {
     }
     return message;
   }
-
 }

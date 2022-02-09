@@ -14,8 +14,7 @@ public class SystemMessageData {
   private final Map<String, Object> map;
 
   public String format(String msg) {
-    return msg
-        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+    return msg.replace("[SendServerName]", convertEmptyIfNull(sendServerName))
         .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName));
   }
 

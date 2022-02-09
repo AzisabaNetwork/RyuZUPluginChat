@@ -17,8 +17,8 @@ public class OutdatedCommandCaptureListener implements Listener {
   private final RyuZUPluginChat plugin;
 
   private final List<String> tellCommands = Arrays.asList("/tell", "/t", "/msg", "/message", "/m");
-  private final List<String> redirects = Arrays.asList("/tell", "/reply", "/t", "/r", "/msg",
-      "/message", "/m");
+  private final List<String> redirects =
+      Arrays.asList("/tell", "/reply", "/t", "/r", "/msg", "/message", "/m");
 
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
@@ -57,9 +57,7 @@ public class OutdatedCommandCaptureListener implements Listener {
 
     e.setCompletions(
         plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-            .filter(
-                l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(target.toLowerCase()))
-            .collect(Collectors.toList())
-    );
+            .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(target.toLowerCase()))
+            .collect(Collectors.toList()));
   }
 }

@@ -8,8 +8,8 @@ public class ChannelChatSyncData extends ChatSyncData {
 
   private final List<String> matches;
 
-  public ChannelChatSyncData(boolean enabled, boolean voiceChatMode, boolean discordInputEnabled,
-      List<String> matches) {
+  public ChannelChatSyncData(
+      boolean enabled, boolean voiceChatMode, boolean discordInputEnabled, List<String> matches) {
     super(enabled, voiceChatMode, discordInputEnabled);
     this.matches = matches;
   }

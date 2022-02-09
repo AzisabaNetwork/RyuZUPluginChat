@@ -8,15 +8,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
+import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
-import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
 
 @RequiredArgsConstructor
 public class VCCommand implements CommandExecutor {
@@ -27,11 +27,14 @@ public class VCCommand implements CommandExecutor {
   private List<String> channelMembersMCIDListCache;
   private long cacheLastUpdated = 0L;
 
-  private HashMap<UUID, Long> lastExecuted = new HashMap<>();
+  private final HashMap<UUID, Long> lastExecuted = new HashMap<>();
 
   @Override
-  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd,
-      @NotNull String label, @NotNull String[] args) {
+  public boolean onCommand(
+      @NotNull CommandSender sender,
+      @NotNull Command cmd,
+      @NotNull String label,
+      @NotNull String[] args) {
 
     if (!(sender instanceof Player)) {
       sender.sendMessage(ChatColor.RED + "このコマンドはプレイヤーのみ実行可能です");
@@ -65,20 +68,28 @@ public class VCCommand implements CommandExecutor {
     }
 
     if (cacheLastUpdated + 3000L < System.currentTimeMillis()) {
-      channelMembersMCIDListCache = ch.getMembers().stream()
-          .map(ChannelMember::getName)
-          .collect(Collectors.toList());
+      channelMembersMCIDListCache =
+          ch.getMembers().stream().map(ChannelMember::getName).collect(Collectors.toList());
       cacheLastUpdated = System.currentTimeMillis();
     }
 
     if (!channelMembersMCIDListCache.contains(p.getName())) {
-      p.sendMessage(ChatColor.RED + "あなたは " + ChatColor.YELLOW + ch.getName() + ChatColor.RED
-          + " チャンネルに参加していません！\n" + ChatColor.YELLOW + "/ch join " + ch.getName() + ChatColor.RED
-          + " を実行して参加してください！");
+      p.sendMessage(
+          ChatColor.RED
+              + "あなたは "
+              + ChatColor.YELLOW
+              + ch.getName()
+              + ChatColor.RED
+              + " チャンネルに参加していません！\n"
+              + ChatColor.YELLOW
+              + "/ch join "
+              + ch.getName()
+              + ChatColor.RED
+              + " を実行して参加してください！");
       return true;
     }
-    ChannelChatMessageData data = plugin.getMessageDataFactory()
-        .createChannelChatMessageData(p, vcChannelName, message);
+    ChannelChatMessageData data =
+        plugin.getMessageDataFactory().createChannelChatMessageData(p, vcChannelName, message);
     plugin.getPublisher().publishChannelChatMessage(data);
     return true;
   }

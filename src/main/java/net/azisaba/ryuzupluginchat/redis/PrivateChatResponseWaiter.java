@@ -24,21 +24,27 @@ public class PrivateChatResponseWaiter {
   }
 
   public void runTimeoutDetectTask(JavaPlugin plugin) {
-    Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-      for (long id : new HashSet<>(timeouts.keySet())) {
-        if (timeouts.get(id) < System.currentTimeMillis()) {
-          PrivateMessageData data = dataMap.remove(id);
-          timeouts.remove(id);
+    Bukkit.getScheduler()
+        .runTaskTimer(
+            plugin,
+            () -> {
+              for (long id : new HashSet<>(timeouts.keySet())) {
+                if (timeouts.get(id) < System.currentTimeMillis()) {
+                  PrivateMessageData data = dataMap.remove(id);
+                  timeouts.remove(id);
 
-          if (data != null) {
-            Player p = Bukkit.getPlayer(data.getSentPlayerName());
-            if (p != null) {
-              p.sendMessage(ChatColor.YELLOW + "[Error] " + ChatColor.RED + "個人チャットの送信に失敗しました");
-            }
-          }
-        }
-      }
-    }, 10L, 10L);
+                  if (data != null) {
+                    Player p = Bukkit.getPlayer(data.getSentPlayerName());
+                    if (p != null) {
+                      p.sendMessage(
+                          ChatColor.YELLOW + "[Error] " + ChatColor.RED + "個人チャットの送信に失敗しました");
+                    }
+                  }
+                }
+              }
+            },
+            10L,
+            10L);
   }
 
   protected void reached(long id, String server, String receivedPlayerName) {

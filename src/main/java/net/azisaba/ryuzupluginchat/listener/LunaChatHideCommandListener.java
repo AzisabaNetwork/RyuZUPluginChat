@@ -16,7 +16,9 @@ public class LunaChatHideCommandListener implements Listener {
 
   private final RyuZUPluginChat plugin;
 
-  private final List<String> chCommandList = Arrays.asList("/ch", "/lunachat:ch", "/lc", "/lunachat:lc",  "/lunachat", "/lunachat:lunachat");
+  private final List<String> chCommandList =
+      Arrays.asList(
+          "/ch", "/lunachat:ch", "/lc", "/lunachat:lc", "/lunachat", "/lunachat:lunachat");
 
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
@@ -31,9 +33,21 @@ public class LunaChatHideCommandListener implements Listener {
 
     Player p = e.getPlayer();
 
-    Bukkit.getScheduler().runTaskLater(plugin, () -> p.sendMessage(
-        ChatColor.RED + "注意: " + ChatColor.YELLOW + "現在LunaChatのプレイヤーhideは機能していません！\n"
-            + ChatColor.YELLOW + "かわりに " + ChatColor.RED + "/hide <プレイヤー> " + ChatColor.YELLOW
-            + "を使用してください！"), 1L);
+    Bukkit.getScheduler()
+        .runTaskLater(
+            plugin,
+            () ->
+                p.sendMessage(
+                    ChatColor.RED
+                        + "注意: "
+                        + ChatColor.YELLOW
+                        + "現在LunaChatのプレイヤーhideは機能していません！\n"
+                        + ChatColor.YELLOW
+                        + "かわりに "
+                        + ChatColor.RED
+                        + "/hide <プレイヤー> "
+                        + ChatColor.YELLOW
+                        + "を使用してください！"),
+            1L);
   }
 }

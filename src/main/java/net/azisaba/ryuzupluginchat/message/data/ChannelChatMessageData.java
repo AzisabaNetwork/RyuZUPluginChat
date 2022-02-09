@@ -36,13 +36,15 @@ public class ChannelChatMessageData {
     // DisplayName が存在する場合はそれを使用し、ない場合はPlayerName
     String formattedPlayerName = playerDisplayName != null ? playerDisplayName : playerName;
 
-    String msg = lunaChatChannelFormat.replace("%prefix", convertEmptyIfNull(getAllPrefixes()))
-        .replace("%suffix", convertEmptyIfNull(getAllSuffixes()))
-        .replace("%username", convertEmptyIfNull(formattedPlayerName))
-        .replace("%displayname", convertEmptyIfNull(formattedPlayerName))
-        .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
-        .replace("%color", convertEmptyIfNull(channelColorCode))
-        .replace("%servername", convertEmptyIfNull(sendServerName));
+    String msg =
+        lunaChatChannelFormat
+            .replace("%prefix", convertEmptyIfNull(getAllPrefixes()))
+            .replace("%suffix", convertEmptyIfNull(getAllSuffixes()))
+            .replace("%username", convertEmptyIfNull(formattedPlayerName))
+            .replace("%displayname", convertEmptyIfNull(formattedPlayerName))
+            .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
+            .replace("%color", convertEmptyIfNull(channelColorCode))
+            .replace("%servername", convertEmptyIfNull(sendServerName));
     msg = ColorUtils.setColor(msg);
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);
@@ -54,20 +56,26 @@ public class ChannelChatMessageData {
 
   private String getAllPrefixes() {
     if (fromDiscord) {
-      return ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]"
+      return ChatColor.WHITE
+          + "["
+          + ChatColor.BLUE
+          + "Discord"
+          + ChatColor.WHITE
+          + "]"
           + ChatColor.RESET;
     }
-    return convertEmptyIfNull(luckPermsPrefix) + convertEmptyIfNull(ryuzuMapPrefix)
+    return convertEmptyIfNull(luckPermsPrefix)
+        + convertEmptyIfNull(ryuzuMapPrefix)
         + convertEmptyIfNull(lunaChatPrefix);
   }
 
   private String getAllSuffixes() {
-    return convertEmptyIfNull(luckPermsSuffix) + convertEmptyIfNull(ryuzuMapSuffix)
+    return convertEmptyIfNull(luckPermsSuffix)
+        + convertEmptyIfNull(ryuzuMapSuffix)
         + convertEmptyIfNull(lunaChatSuffix);
   }
 
   private String convertEmptyIfNull(String value) {
     return value != null ? value : "";
   }
-
 }

@@ -9,8 +9,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 public class LuckPermsPrefixSuffixUtils {
 
   public static String getPrefix(Player player) {
-    RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager()
-        .getRegistration(LuckPerms.class);
+    RegisteredServiceProvider<LuckPerms> provider =
+        Bukkit.getServicesManager().getRegistration(LuckPerms.class);
     if (provider != null) {
       LuckPerms api = provider.getProvider();
       User user = api.getUserManager().getUser(player.getUniqueId());
@@ -22,8 +22,8 @@ public class LuckPermsPrefixSuffixUtils {
   }
 
   public static String getSuffix(Player player) {
-    RegisteredServiceProvider<LuckPerms> provider = Bukkit.getServicesManager()
-        .getRegistration(LuckPerms.class);
+    RegisteredServiceProvider<LuckPerms> provider =
+        Bukkit.getServicesManager().getRegistration(LuckPerms.class);
     if (provider != null) {
       LuckPerms api = provider.getProvider();
       User user = api.getUserManager().getUser(player.getUniqueId());
@@ -33,5 +33,4 @@ public class LuckPermsPrefixSuffixUtils {
     }
     return null;
   }
-
 }

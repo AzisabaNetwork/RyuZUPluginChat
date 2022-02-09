@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
@@ -15,7 +16,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class RPCCommand implements CommandExecutor, TabCompleter {
@@ -25,8 +25,11 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
   private final List<String> redirectArgs = Arrays.asList("tell", "reply", "hide", "unhide");
 
   @Override
-  public boolean onCommand(@NotNull CommandSender sender,
-      org.bukkit.command.@NotNull Command command, @NotNull String label, @NotNull String[] args) {
+  public boolean onCommand(
+      @NotNull CommandSender sender,
+      org.bukkit.command.@NotNull Command command,
+      @NotNull String label,
+      @NotNull String[] args) {
     if (command.getName().equalsIgnoreCase("rpc")) {
       if (args.length <= 0) {
         sender.sendMessage(ChatColor.GOLD + "------------------------使い方------------------------");
@@ -45,19 +48,26 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           sender.sendMessage(ChatColor.RED + "ぽまえけんげんないやろ");
           return true;
         }
-        
+
         sender.sendMessage(ChatColor.YELLOW + "非同期でリロードを実行しています...");
         RyuZUPluginChat.newSharedChain("reload")
-            .async(() -> {
-              long start = System.currentTimeMillis();
+            .async(
+                () -> {
+                  long start = System.currentTimeMillis();
 
-              plugin.getRpcConfig().reloadConfig();
-              plugin.executeFullReload();
+                  plugin.getRpcConfig().reloadConfig();
+                  plugin.executeFullReload();
 
-              long end = System.currentTimeMillis();
-              sender.sendMessage(ChatColor.GREEN
-                  + "非同期でシステムをリロードしました " + ChatColor.GRAY + "(" + (end - start) + "ms)");
-            }).execute();
+                  long end = System.currentTimeMillis();
+                  sender.sendMessage(
+                      ChatColor.GREEN
+                          + "非同期でシステムをリロードしました "
+                          + ChatColor.GRAY
+                          + "("
+                          + (end - start)
+                          + "ms)");
+                })
+            .execute();
         return true;
       }
 
@@ -86,12 +96,17 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
-          String prefix = String.join(" ", args)
-              .substring((args[0] + args[1] + args[2]).length() + 3);
+          String prefix =
+              String.join(" ", args).substring((args[0] + args[1] + args[2]).length() + 3);
           plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
           sender.sendMessage(
-              ChatColor.YELLOW + args[2] + ChatColor.GREEN + "のPrefixを " + ChatColor.RESET
-                  + ChatColor.translateAlternateColorCodes('&', prefix) + ChatColor.GREEN
+              ChatColor.YELLOW
+                  + args[2]
+                  + ChatColor.GREEN
+                  + "のPrefixを "
+                  + ChatColor.RESET
+                  + ChatColor.translateAlternateColorCodes('&', prefix)
+                  + ChatColor.GREEN
                   + " に変更しました");
         }
         return true;
@@ -116,13 +131,18 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.RED + "プレイヤーが見つかりませんでした");
             return true;
           }
-          String suffix = String.join(" ", args)
-              .substring((args[0] + args[1] + args[2]).length() + 3);
+          String suffix =
+              String.join(" ", args).substring((args[0] + args[1] + args[2]).length() + 3);
 
           plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
           sender.sendMessage(
-              ChatColor.YELLOW + args[2] + ChatColor.GREEN + "のSuffixを " + ChatColor.RESET
-                  + ChatColor.translateAlternateColorCodes('&', suffix) + ChatColor.GREEN
+              ChatColor.YELLOW
+                  + args[2]
+                  + ChatColor.GREEN
+                  + "のSuffixを "
+                  + ChatColor.RESET
+                  + ChatColor.translateAlternateColorCodes('&', suffix)
+                  + ChatColor.GREEN
                   + " に変更しました");
         }
         return true;
@@ -135,15 +155,18 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length <= 2) {
-          sender.sendMessage(ChatColor.BLUE + "/" + label
-              + " message [message/player/playermessage] [Message]:指定されたメッセージをGroupに送信します");
+          sender.sendMessage(
+              ChatColor.BLUE
+                  + "/"
+                  + label
+                  + " message [message/player/playermessage] [Message]:指定されたメッセージをGroupに送信します");
           return true;
         }
 
         String msg = String.join(" ", args).substring(args[0].length() + args[1].length() + 2);
         if (args[1].equalsIgnoreCase("message")) {
-          SystemMessageData data = plugin.getMessageDataFactory()
-              .createGeneralSystemChatMessageData(msg);
+          SystemMessageData data =
+              plugin.getMessageDataFactory().createGeneralSystemChatMessageData(msg);
           plugin.getPublisher().publishSystemMessage(data);
         } else if (args[1].equalsIgnoreCase("player")) {
           msg = msg.substring(args[2].length() + 1);
@@ -154,8 +177,8 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             return true;
           }
 
-          SystemMessageData data = plugin.getMessageDataFactory()
-              .createPrivateSystemChatMessageData(uuid, msg);
+          SystemMessageData data =
+              plugin.getMessageDataFactory().createPrivateSystemChatMessageData(uuid, msg);
           RyuZUPluginChat.newChain()
               .async(() -> plugin.getPublisher().publishSystemMessage(data))
               .execute();
@@ -168,8 +191,8 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             return true;
           }
 
-          SystemMessageData data = plugin.getMessageDataFactory()
-              .createImitationChatMessageData(uuid, msg);
+          SystemMessageData data =
+              plugin.getMessageDataFactory().createImitationChatMessageData(uuid, msg);
 
           RyuZUPluginChat.newChain()
               .async(() -> plugin.getPublisher().publishSystemMessage(data))
@@ -184,20 +207,27 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           return true;
         }
         if (args.length <= 1) {
-          sender.sendMessage(ChatColor.BLUE + "/" + label
-              + " config format set <global/private> [format]: formatを編集します");
+          sender.sendMessage(
+              ChatColor.BLUE
+                  + "/"
+                  + label
+                  + " config format set <global/private> [format]: formatを編集します");
           return true;
         }
 
         if (args[1].equalsIgnoreCase("format")) {
           if (args.length <= 4) {
-            sender.sendMessage(ChatColor.BLUE + "/" + label
-                + " config format set <global/private> [format]: formatを編集します");
+            sender.sendMessage(
+                ChatColor.BLUE
+                    + "/"
+                    + label
+                    + " config format set <global/private> [format]: formatを編集します");
             return true;
           }
           if (args[2].equalsIgnoreCase("set")) {
-            String format = String.join(" ", args)
-                .substring((args[0] + args[1] + args[2] + args[3]).length() + 4);
+            String format =
+                String.join(" ", args)
+                    .substring((args[0] + args[1] + args[2] + args[3]).length() + 4);
 
             switch (args[3].toLowerCase()) {
               case "global":
@@ -211,16 +241,22 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
                 plugin.getRpcConfig().setPrivateChatFormat(format);
                 break;
               default:
-                sender.sendMessage(ChatColor.BLUE + "/" + label
-                    + " config format set <global/private/channel> [format]: formatを編集します");
+                sender.sendMessage(
+                    ChatColor.BLUE
+                        + "/"
+                        + label
+                        + " config format set <global/private/channel> [format]: formatを編集します");
                 return true;
             }
             sender.sendMessage(ChatColor.GREEN + "Formatを編集しました");
             return true;
           }
         } else {
-          sender.sendMessage(ChatColor.BLUE + "/" + label
-              + " config format set <global/private/channel> [format]: formatを編集します");
+          sender.sendMessage(
+              ChatColor.BLUE
+                  + "/"
+                  + label
+                  + " config format set <global/private/channel> [format]: formatを編集します");
           return true;
         }
       }
@@ -229,8 +265,11 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
   }
 
   @Override
-  public @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
-      org.bukkit.command.@NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+  public @Nullable List<String> onTabComplete(
+      @NotNull CommandSender sender,
+      org.bukkit.command.@NotNull Command command,
+      @NotNull String alias,
+      @NotNull String[] args) {
     if (!(sender instanceof Player)) {
       return null;
     }
@@ -256,9 +295,10 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         }
       }
       if (Arrays.asList("tell", "hide", "unhide").contains(args[0])) {
-        list.addAll(plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-            .filter(name -> !name.equalsIgnoreCase(p.getName()))
-            .collect(Collectors.toList()));
+        list.addAll(
+            plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+                .filter(name -> !name.equalsIgnoreCase(p.getName()))
+                .collect(Collectors.toList()));
       }
     }
     if (args.length == 3) {

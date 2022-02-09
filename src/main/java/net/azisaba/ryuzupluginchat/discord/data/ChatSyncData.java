@@ -10,5 +10,4 @@ public abstract class ChatSyncData {
   private final boolean enabled;
   private final boolean voiceChatMode;
   private final boolean discordInputEnabled;
-
 }

@@ -38,25 +38,32 @@ public class GlobalMessageData {
 
     if (fromDiscord) {
       defaultFormat =
-          ChatColor.WHITE + "[" + ChatColor.BLUE + "Discord" + ChatColor.WHITE + "]"
+          ChatColor.WHITE
+              + "["
+              + ChatColor.BLUE
+              + "Discord"
+              + ChatColor.WHITE
+              + "]"
               + defaultFormat;
     }
 
-    String formatted = defaultFormat
-        .replace("[LuckPermsPrefix]", convertEmptyIfNull(luckPermsPrefix))
-        .replace("[LunaChatPrefix]", convertEmptyIfNull(lunaChatPrefix))
-        .replace("[RyuZUMapPrefix]", convertEmptyIfNull(ryuzuMapPrefix))
-        .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
-        .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
-        .replace("[PlayerName]", convertEmptyIfNull(formattedPlayerName))
-        .replace("[RyuZUMapSuffix]", convertEmptyIfNull(ryuzuMapSuffix))
-        .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
-        .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
+    String formatted =
+        defaultFormat
+            .replace("[LuckPermsPrefix]", convertEmptyIfNull(luckPermsPrefix))
+            .replace("[LunaChatPrefix]", convertEmptyIfNull(lunaChatPrefix))
+            .replace("[RyuZUMapPrefix]", convertEmptyIfNull(ryuzuMapPrefix))
+            .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
+            .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
+            .replace("[PlayerName]", convertEmptyIfNull(formattedPlayerName))
+            .replace("[RyuZUMapSuffix]", convertEmptyIfNull(ryuzuMapSuffix))
+            .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
+            .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
 
     formatted = ColorUtils.setColor(formatted);
     if (japanized) {
-      formatted = formatted.replace("[PreReplaceMessage]",
-          "(" + convertEmptyIfNull(preReplaceMessage) + ")");
+      formatted =
+          formatted.replace(
+              "[PreReplaceMessage]", "(" + convertEmptyIfNull(preReplaceMessage) + ")");
     } else {
       formatted = formatted.replace("[PreReplaceMessage]", "");
     }
@@ -67,5 +74,4 @@ public class GlobalMessageData {
   private String convertEmptyIfNull(String value) {
     return value != null ? value : "";
   }
-
 }

@@ -24,55 +24,56 @@ public class PrivateChatReachedSubscriber {
 
   private final ObjectMapper mapper = new ObjectMapper();
 
-  @Setter
-  @Getter
-  private ExecutorService executorService;
+  @Setter @Getter private ExecutorService executorService;
 
   public void subscribe() {
-    JedisPubSub subscriber = new JedisPubSub() {
-      @Override
-      public void onMessage(String channel, String message) {
-        try {
-          Map<String, String> map = mapper.readValue(message,
-              new TypeReference<Map<String, String>>() {
-              });
+    JedisPubSub subscriber =
+        new JedisPubSub() {
+          @Override
+          public void onMessage(String channel, String message) {
+            try {
+              Map<String, String> map =
+                  mapper.readValue(message, new TypeReference<Map<String, String>>() {});
 
-          long id = Long.parseLong(map.get("id"));
-          String targetName = map.get("target");
-          String serverName = map.get("server");
+              long id = Long.parseLong(map.get("id"));
+              String targetName = map.get("target");
+              String serverName = map.get("server");
 
-          plugin.getPrivateChatResponseWaiter().reached(id, serverName, targetName);
-        } catch (NumberFormatException e) {
-          plugin.getLogger()
-              .warning("Unknown id received. private chat response id must be a number.");
-        } catch (JsonProcessingException e) {
-          e.printStackTrace();
-        }
-      }
-    };
+              plugin.getPrivateChatResponseWaiter().reached(id, serverName, targetName);
+            } catch (NumberFormatException e) {
+              plugin
+                  .getLogger()
+                  .warning("Unknown id received. private chat response id must be a number.");
+            } catch (JsonProcessingException e) {
+              e.printStackTrace();
+            }
+          }
+        };
 
     executorService = Executors.newFixedThreadPool(1);
 
     // 初回のみ待機処理無しでタスクを追加する
-    executorService.submit(() -> {
-      try (Jedis jedis = jedisPool.getResource()) {
-        jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
-      }
-    });
+    executorService.submit(
+        () -> {
+          try (Jedis jedis = jedisPool.getResource()) {
+            jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+          }
+        });
 
     // 2回目以降は最初に3秒待機する
     for (int i = 0; i < 10000; i++) {
-      executorService.submit(() -> {
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
+      executorService.submit(
+          () -> {
+            try {
+              Thread.sleep(3000);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
 
-        try (Jedis jedis = jedisPool.getResource()) {
-          jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
-        }
-      });
+            try (Jedis jedis = jedisPool.getResource()) {
+              jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+            }
+          });
     }
   }
 }

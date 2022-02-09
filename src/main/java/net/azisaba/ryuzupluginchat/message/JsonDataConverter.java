@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
+import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 
 @RequiredArgsConstructor
 public class JsonDataConverter {
@@ -23,8 +23,8 @@ public class JsonDataConverter {
   }
 
   public PrivateMessageData convertIntoPrivateMessageData(String data) {
-    PrivateMessageData convertedData = (PrivateMessageData) convertInto(data,
-        PrivateMessageData.class);
+    PrivateMessageData convertedData =
+        (PrivateMessageData) convertInto(data, PrivateMessageData.class);
     if (convertedData != null) {
       convertedData.setReceiveServerName(plugin.getRpcConfig().getServerName());
     }
@@ -38,9 +38,11 @@ public class JsonDataConverter {
   @SuppressWarnings("unchecked")
   public SystemMessageData convertIntoSystemMessageData(String data) {
     try {
-      return new SystemMessageData(null, null,
-          (Map<String, Object>) mapper.readValue(data, new TypeReference<Map<String, Object>>() {
-          }).get("map"));
+      return new SystemMessageData(
+          null,
+          null,
+          (Map<String, Object>)
+              mapper.readValue(data, new TypeReference<Map<String, Object>>() {}).get("map"));
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }

@@ -98,8 +98,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     // 6 hours
     int randomTicks = 20 * 60 * 60 * 6;
-    Bukkit.getScheduler().runTaskLaterAsynchronously(this, this::executeUpdateAsync,
-        new Random().nextInt(randomTicks));
+    Bukkit.getScheduler()
+        .runTaskLaterAsynchronously(
+            this, this::executeUpdateAsync, new Random().nextInt(randomTicks));
 
     getLogger().info(getName() + " enabled.");
   }
@@ -117,9 +118,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   public void executeFullReload() {
-    /**
-     * Shutdown Processes
-     */
+    /** Shutdown Processes */
     // Redis Subscribers
     subscriber.getExecutorService().shutdownNow();
     subscriber.unregisterAll();
@@ -130,9 +129,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
       discordHandler.disconnect();
     }
 
-    /**
-     * Startup Processes
-     */
+    /** Startup Processes */
     // Redis
     setupRedisConnections();
 
@@ -143,24 +140,28 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupRedisConnections() {
-    jedisPool = new JedisPool(new JedisPoolConfig(), rpcConfig.getHostAndPort().getHost(),
-        rpcConfig.getHostAndPort().getPort(), 3000, rpcConfig.getRedisPassword());
+    jedisPool =
+        new JedisPool(
+            new JedisPoolConfig(),
+            rpcConfig.getHostAndPort().getHost(),
+            rpcConfig.getHostAndPort().getPort(),
+            3000,
+            rpcConfig.getRedisPassword());
 
     publisher = new MessagePublisher(this, jedisPool, jsonDataConverter, rpcConfig.getGroupName());
 
-    subscriber = new MessageSubscriber(this, jsonDataConverter, jedisPool,
-        rpcConfig.getGroupName());
+    subscriber =
+        new MessageSubscriber(this, jsonDataConverter, jedisPool, rpcConfig.getGroupName());
     subscriber.subscribe();
 
     // Same as above
-    privateChatReachedSubscriber = new PrivateChatReachedSubscriber(this, jedisPool,
-        rpcConfig.getGroupName());
+    privateChatReachedSubscriber =
+        new PrivateChatReachedSubscriber(this, jedisPool, rpcConfig.getGroupName());
     privateChatReachedSubscriber.subscribe();
 
     subscriber.registerFunctions();
 
-    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedisPool,
-        rpcConfig.getGroupName());
+    prefixSuffixContainer = new RyuZUPrefixSuffixContainer(jedisPool, rpcConfig.getGroupName());
     playerUUIDMapContainer = new PlayerUUIDMapContainer(this, jedisPool, rpcConfig.getGroupName());
     replyTargetFetcher = new ReplyTargetFetcher(jedisPool, rpcConfig.getGroupName());
     privateChatIDGetter = new PrivateChatIDGetter(jedisPool, rpcConfig.getGroupName());
@@ -208,28 +209,32 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private void executeUpdateAsync() {
     updater = new GitHubPluginUpdater(this, getDescription().getVersion());
     RyuZUPluginChat.newChain()
-        .asyncFirst(() -> {
-          updater.checkUpdate();
-          return updater.getStatus();
-        })
+        .asyncFirst(
+            () -> {
+              updater.checkUpdate();
+              return updater.getStatus();
+            })
         .abortIf((status) -> status != UpdateStatus.OUTDATED)
-        .async(() -> {
-          File file = new File(Bukkit.getUpdateFolderFile(), getName() + ".jar");
+        .async(
+            () -> {
+              File file = new File(Bukkit.getUpdateFolderFile(), getName() + ".jar");
 
-          if (!Bukkit.getUpdateFolderFile().exists()) {
-            if (!Bukkit.getUpdateFolderFile().mkdirs()) {
-              getLogger().warning("Failed to create dir " + Bukkit.getUpdateFolderFile().getPath());
-              return;
-            }
-          }
-          boolean success = updater.executeDownloadLatestJar(file);
+              if (!Bukkit.getUpdateFolderFile().exists()) {
+                if (!Bukkit.getUpdateFolderFile().mkdirs()) {
+                  getLogger()
+                      .warning("Failed to create dir " + Bukkit.getUpdateFolderFile().getPath());
+                  return;
+                }
+              }
+              boolean success = updater.executeDownloadLatestJar(file);
 
-          if (success) {
-            getLogger().info("Newer version installed. It will be applied after restart.");
-          } else {
-            getLogger().warning("Failed to install newer version.");
-          }
-        }).execute();
+              if (success) {
+                getLogger().info("Newer version installed. It will be applied after restart.");
+              } else {
+                getLogger().warning("Failed to install newer version.");
+              }
+            })
+        .execute();
   }
 
   public static <T> TaskChain<T> newChain() {

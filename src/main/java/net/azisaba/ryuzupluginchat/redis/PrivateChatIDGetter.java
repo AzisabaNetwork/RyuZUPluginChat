@@ -11,12 +11,12 @@ public class PrivateChatIDGetter {
   private final String groupName;
 
   public void setup() {
-    JedisUtils.executeUsingJedisPool(jedisPool,
-        (jedis) -> jedis.setnx("rpc:" + groupName + ":private-chat-id-counter", "0"));
+    JedisUtils.executeUsingJedisPool(
+        jedisPool, (jedis) -> jedis.setnx("rpc:" + groupName + ":private-chat-id-counter", "0"));
   }
 
   public long getNewId() {
-    return JedisUtils.executeUsingJedisPoolWithReturn(jedisPool,
-        (jedis) -> jedis.incr("rpc:" + groupName + ":private-chat-id-counter"));
+    return JedisUtils.executeUsingJedisPoolWithReturn(
+        jedisPool, (jedis) -> jedis.incr("rpc:" + groupName + ":private-chat-id-counter"));
   }
 }

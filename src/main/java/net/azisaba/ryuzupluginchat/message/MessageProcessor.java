@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
+import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 
 @RequiredArgsConstructor
 public class MessageProcessor {
@@ -49,19 +49,25 @@ public class MessageProcessor {
     Channel channel = api.getChannel(data.getLunaChatChannelName());
 
     if (channel == null) {
-      plugin.getLogger()
+      plugin
+          .getLogger()
           .warning("[Chat] The channel named " + data.getLunaChatChannelName() + " was not found.");
       return;
     }
 
-    plugin.getLogger()
+    plugin
+        .getLogger()
         .info("[Channel-Chat] (" + channel.getName() + ") " + ChatColor.stripColor(message));
 
     if (data.isFromDiscord()) {
       Bukkit.getOnlinePlayers().stream()
-          .filter(p -> channel.getMembers().stream()
-              .map(m -> ((ChannelMemberBukkit) m).getPlayer()).collect(Collectors.toList())
-              .contains(p) || p.hasPermission("rpc.op"))
+          .filter(
+              p ->
+                  channel.getMembers().stream()
+                          .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+                          .collect(Collectors.toList())
+                          .contains(p)
+                      || p.hasPermission("rpc.op"))
           .forEach(p -> p.sendMessage(message));
     } else {
 
@@ -74,19 +80,21 @@ public class MessageProcessor {
       }
 
       Bukkit.getOnlinePlayers().stream()
-          .filter(p ->
-              channel.getMembers().stream()
-                  .map(m -> ((ChannelMemberBukkit) m).getPlayer())
-                  .collect(Collectors.toList()).contains(p)
-                  || p.hasPermission("rpc.op"))
+          .filter(
+              p ->
+                  channel.getMembers().stream()
+                          .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+                          .collect(Collectors.toList())
+                          .contains(p)
+                      || p.hasPermission("rpc.op"))
           .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
           .forEach(p -> p.sendMessage(message));
     }
   }
 
   public void processPrivateMessage(PrivateMessageData data) {
-    String receiverName = plugin.getPlayerUUIDMapContainer()
-        .getNameFromUUID(data.getReceivedPlayerUUID());
+    String receiverName =
+        plugin.getPlayerUUIDMapContainer().getNameFromUUID(data.getReceivedPlayerUUID());
     if (receiverName != null) {
       data.setReceivedPlayerName(receiverName);
     }
@@ -95,8 +103,10 @@ public class MessageProcessor {
     if (receiverName != null) {
       Bukkit.getOnlinePlayers().stream()
           .filter(p -> p.hasPermission("rpc.op"))
-          .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-              && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
+          .filter(
+              p ->
+                  !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+                      && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
           .forEach(p -> p.sendMessage(message));
     }
 
@@ -112,17 +122,21 @@ public class MessageProcessor {
     plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
 
     RyuZUPluginChat.newChain()
-        .async(() -> {
-          if (senderUUID == null) {
-            return;
-          }
-          plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
-        })
-        .async(() -> {
-              plugin.getPublisher().notifyPrivateChatReached(data.getId(), plugin.getRpcConfig()
-                  .getServerName(), targetPlayer.getName());
-            }
-        ).execute();
+        .async(
+            () -> {
+              if (senderUUID == null) {
+                return;
+              }
+              plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
+            })
+        .async(
+            () -> {
+              plugin
+                  .getPublisher()
+                  .notifyPrivateChatReached(
+                      data.getId(), plugin.getRpcConfig().getServerName(), targetPlayer.getName());
+            })
+        .execute();
   }
 
   public void processSystemMessage(SystemMessageData data) {

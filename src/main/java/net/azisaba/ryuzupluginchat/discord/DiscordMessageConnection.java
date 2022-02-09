@@ -3,8 +3,8 @@ package net.azisaba.ryuzupluginchat.discord;
 import discord4j.common.util.Snowflake;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
+import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
 
 @Getter
@@ -18,5 +18,4 @@ public class DiscordMessageConnection {
   private final GlobalChatSyncData globalChatSyncData;
   private final ChannelChatSyncData channelChatSyncData;
   private final PrivateChatSyncData privateChatSyncData;
-
 }

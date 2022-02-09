@@ -6,14 +6,14 @@ import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import redis.clients.jedis.HostAndPort;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import redis.clients.jedis.HostAndPort;
 
 @Getter
 @RequiredArgsConstructor
@@ -59,8 +59,9 @@ public class RPCConfig {
     discordBotToken = conf.getString("discord.token", "Token here");
 
     if (discordBotToken.equals("Token here")) {
-      plugin.getLogger().warning("Discord Bot Token is not specified or invalid. "
-          + "Bot has been disabled.");
+      plugin
+          .getLogger()
+          .warning("Discord Bot Token is not specified or invalid. " + "Bot has been disabled.");
       discordBotEnabled = false;
     }
 
@@ -73,8 +74,8 @@ public class RPCConfig {
 
     messageConnections.clear();
     for (String id : section.getKeys(false)) {
-      DiscordMessageConnection connection = importConnectionDataFromConfig(conf,
-          "discord.connections." + id, id);
+      DiscordMessageConnection connection =
+          importConnectionDataFromConfig(conf, "discord.connections." + id, id);
 
       if (connection == null) {
         plugin.getLogger().warning("Failed to load 'discord.connections." + id + "' section.");
@@ -104,14 +105,15 @@ public class RPCConfig {
     load();
   }
 
-  private DiscordMessageConnection importConnectionDataFromConfig(FileConfiguration conf,
-      String section, String id) {
+  private DiscordMessageConnection importConnectionDataFromConfig(
+      FileConfiguration conf, String section, String id) {
     boolean discordInputDefault = conf.getBoolean(section + ".discord-input", false);
     boolean vcModeDefault = conf.getBoolean(section + ".vc-mode", false);
 
     long discordChIdLong = conf.getLong(section + ".discord-channel-id", -1L);
     if (discordChIdLong < 0) {
-      plugin.getLogger()
+      plugin
+          .getLogger()
           .warning("Invalid discord channel id ( " + section + ".discord-channel-id )");
       return null;
     }
@@ -124,8 +126,8 @@ public class RPCConfig {
     // global
     if (conf.getBoolean(section + ".global.enable", false)) {
       boolean vc = conf.getBoolean(section + ".global.vc-mode", vcModeDefault);
-      boolean discordInput = conf.getBoolean(section + ".global.discord-input",
-          discordInputDefault);
+      boolean discordInput =
+          conf.getBoolean(section + ".global.discord-input", discordInputDefault);
       globalData = new GlobalChatSyncData(true, vc, discordInput);
     } else {
       globalData = new GlobalChatSyncData(false, false, false);
@@ -134,8 +136,8 @@ public class RPCConfig {
     // channel
     if (conf.getBoolean(section + ".channel.enable", false)) {
       boolean vc = conf.getBoolean(section + ".channel.vc-mode", vcModeDefault);
-      boolean discordInput = conf.getBoolean(section + ".channel.discord-input",
-          discordInputDefault);
+      boolean discordInput =
+          conf.getBoolean(section + ".channel.discord-input", discordInputDefault);
       List<String> matches = null;
       if (conf.isSet(section + ".channel.matches")) {
         if (conf.isString(section + ".channel.matches")) {

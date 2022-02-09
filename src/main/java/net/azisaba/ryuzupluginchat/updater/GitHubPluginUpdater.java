@@ -27,7 +27,8 @@ public class GitHubPluginUpdater {
 
   private final RyuZUPluginChat plugin;
 
-  private final String updateCheckURL = "https://api.github.com/repos/AzisabaNetwork/RyuZUPluginChat/releases/latest";
+  private final String updateCheckURL =
+      "https://api.github.com/repos/AzisabaNetwork/RyuZUPluginChat/releases/latest";
   private final String currentVersion;
 
   private UpdateStatus status = UpdateStatus.UNKNOWN;
@@ -55,8 +56,7 @@ public class GitHubPluginUpdater {
     Map<String, Object> data;
     try {
       String response = readUrlAsString(url);
-      data = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
-      });
+      data = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
     } catch (IOException e) {
       e.printStackTrace();
       return false;
@@ -130,8 +130,9 @@ public class GitHubPluginUpdater {
       throw new IllegalStateException("Download URL is invalid.");
     }
 
-    try (InputStream in = url.openStream(); ReadableByteChannel rbc = Channels.newChannel(
-        in); FileOutputStream fos = new FileOutputStream(file)) {
+    try (InputStream in = url.openStream();
+        ReadableByteChannel rbc = Channels.newChannel(in);
+        FileOutputStream fos = new FileOutputStream(file)) {
       fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
       status = UpdateStatus.ALREADY_UPDATED;

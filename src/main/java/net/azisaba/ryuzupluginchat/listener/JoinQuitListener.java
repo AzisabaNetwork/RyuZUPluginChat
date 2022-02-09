@@ -18,11 +18,15 @@ public class JoinQuitListener implements Listener {
   public void onJoin(PlayerJoinEvent e) {
     Player p = e.getPlayer();
 
-    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-      if (p.isOnline()) {
-        plugin.getPlayerUUIDMapContainer().register(p);
-      }
-    }, 20L * 3L);
+    Bukkit.getScheduler()
+        .runTaskLaterAsynchronously(
+            plugin,
+            () -> {
+              if (p.isOnline()) {
+                plugin.getPlayerUUIDMapContainer().register(p);
+              }
+            },
+            20L * 3L);
   }
 
   @EventHandler
