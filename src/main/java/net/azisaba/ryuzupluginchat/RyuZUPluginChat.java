@@ -4,6 +4,7 @@ import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import java.io.File;
+import java.util.Random;
 import lombok.Getter;
 import net.azisaba.ryuzupluginchat.command.HideCommand;
 import net.azisaba.ryuzupluginchat.command.RPCCommand;
@@ -95,7 +96,10 @@ public final class RyuZUPluginChat extends JavaPlugin {
       setupDiscordConnection();
     }
 
-    executeUpdateAsync();
+    // 6 hours
+    int randomTicks = 20 * 60 * 60 * 6;
+    Bukkit.getScheduler().runTaskLaterAsynchronously(this, this::executeUpdateAsync,
+        new Random().nextInt(randomTicks));
 
     getLogger().info(getName() + " enabled.");
   }
