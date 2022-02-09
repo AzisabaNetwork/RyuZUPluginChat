@@ -6,7 +6,7 @@
 
   <groupId>net.azisaba</groupId>
   <artifactId>RyuZUPluginChat</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
   <packaging>jar</packaging>
 
   <name>${project.artifactId}</name>
@@ -67,6 +67,7 @@
                     <include>com.iwebpp.*</include>
                     <include>com.austinv11.*</include>
                     <include>com.discord4j.*</include>
+                    <include>com.vdurmont.semver4j.*</include>
                   </includes>
                 </relocation>
                 <relocation>
@@ -178,6 +179,11 @@
       <groupId>co.aikar</groupId>
       <artifactId>taskchain-bukkit</artifactId>
       <version>3.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vdurmont</groupId>
+      <artifactId>semver4j</artifactId>
+      <version>3.1.0</version>
     </dependency>
   </dependencies>
 </project>

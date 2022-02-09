@@ -3,21 +3,15 @@ package net.azisaba.ryuzupluginchat;
 import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
+import java.io.File;
 import lombok.Getter;
-import net.azisaba.ryuzupluginchat.command.ReplyCommand;
-import net.azisaba.ryuzupluginchat.command.TellCommand;
-import net.azisaba.ryuzupluginchat.command.VCCommand;
-import net.azisaba.ryuzupluginchat.config.RPCConfig;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.plugin.java.JavaPlugin;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 import net.azisaba.ryuzupluginchat.command.HideCommand;
 import net.azisaba.ryuzupluginchat.command.RPCCommand;
+import net.azisaba.ryuzupluginchat.command.ReplyCommand;
+import net.azisaba.ryuzupluginchat.command.TellCommand;
 import net.azisaba.ryuzupluginchat.command.UnHideCommand;
+import net.azisaba.ryuzupluginchat.command.VCCommand;
+import net.azisaba.ryuzupluginchat.config.RPCConfig;
 import net.azisaba.ryuzupluginchat.discord.DiscordHandler;
 import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
 import net.azisaba.ryuzupluginchat.listener.ChatListener;
@@ -37,6 +31,15 @@ import net.azisaba.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import net.azisaba.ryuzupluginchat.redis.ReplyTargetFetcher;
 import net.azisaba.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
+import net.azisaba.ryuzupluginchat.updater.GitHubPluginUpdater;
+import net.azisaba.ryuzupluginchat.updater.UpdateStatus;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
@@ -63,8 +66,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   private JedisPool jedisPool;
 
-  @Override
+  private GitHubPluginUpdater updater;
 
+  @Override
   public void onEnable() {
     taskChainFactory = BukkitTaskChainFactory.create(this);
 
@@ -90,6 +94,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     if (rpcConfig.isDiscordBotEnabled()) {
       setupDiscordConnection();
     }
+
+    executeUpdateAsync();
 
     getLogger().info(getName() + " enabled.");
   }
@@ -193,6 +199,33 @@ public final class RyuZUPluginChat extends JavaPlugin {
     if (executor instanceof TabCompleter) {
       cmd.setTabCompleter((TabCompleter) executor);
     }
+  }
+
+  private void executeUpdateAsync() {
+    updater = new GitHubPluginUpdater(this, getDescription().getVersion());
+    RyuZUPluginChat.newChain()
+        .asyncFirst(() -> {
+          updater.checkUpdate();
+          return updater.getStatus();
+        })
+        .abortIf((status) -> status != UpdateStatus.OUTDATED)
+        .async(() -> {
+          File file = new File(Bukkit.getUpdateFolderFile(), getName() + ".jar");
+
+          if (!Bukkit.getUpdateFolderFile().exists()) {
+            if (!Bukkit.getUpdateFolderFile().mkdirs()) {
+              getLogger().warning("Failed to create dir " + Bukkit.getUpdateFolderFile().getPath());
+              return;
+            }
+          }
+          boolean success = updater.executeDownloadLatestJar(file);
+
+          if (success) {
+            getLogger().info("Newer version installed. It will be applied after restart.");
+          } else {
+            getLogger().warning("Failed to install newer version.");
+          }
+        }).execute();
   }
 
   public static <T> TaskChain<T> newChain() {
