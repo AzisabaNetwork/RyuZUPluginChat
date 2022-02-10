@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
-import org.bukkit.ChatColor;
+import net.azisaba.ryuzupluginchat.util.ArgsConnectUtils;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,35 +36,34 @@ public class VCCommand implements CommandExecutor {
       @NotNull Command cmd,
       @NotNull String label,
       @NotNull String[] args) {
-
     if (!(sender instanceof Player)) {
-      sender.sendMessage(ChatColor.RED + "このコマンドはプレイヤーのみ実行可能です");
+      sender.sendMessage(Chat.f("&cこのコマンドはプレイヤーのみ実行可能です"));
       return true;
     }
 
     if (args.length <= 0) {
-      sender.sendMessage(ChatColor.RED + "使い方: /" + label + " <メッセージ>");
+      sender.sendMessage(Chat.f("&c使い方: /{0} <メッセージ>", label));
       return true;
     }
 
     Player p = (Player) sender;
-    String message = String.join(" ", args);
+    String message = ArgsConnectUtils.connect(args);
     String vcChannelName = vcChannelGetter.getLunaChatChannelName();
 
     if (lastExecuted.getOrDefault(p.getUniqueId(), 0L) + 1000L > System.currentTimeMillis()) {
-      p.sendMessage(ChatColor.RED + "クールタイム中です。1秒間待って実行してください。");
+      p.sendMessage(Chat.f("&cクールタイム中です。1秒間待って実行してください。"));
       return true;
     }
     lastExecuted.put(p.getUniqueId(), System.currentTimeMillis());
 
     if (vcChannelName == null) {
-      p.sendMessage(ChatColor.RED + "エラーが発生しました (Discordと連携するLunaChatチャンネルが不明です)");
+      p.sendMessage(Chat.f("&cエラーが発生しました (Discordと連携するLunaChatチャンネルが不明です)"));
       return true;
     }
 
     Channel ch = LunaChat.getAPI().getChannel(vcChannelName);
     if (ch == null) {
-      p.sendMessage(ChatColor.RED + "エラーが発生しました (LunaChatチャンネルが存在しません。運営に連絡してください。)");
+      p.sendMessage(Chat.f("&cエラーが発生しました (LunaChatチャンネルが存在しません。運営に連絡してください。)"));
       return true;
     }
 
@@ -75,19 +75,10 @@ public class VCCommand implements CommandExecutor {
 
     if (!channelMembersMCIDListCache.contains(p.getName())) {
       p.sendMessage(
-          ChatColor.RED
-              + "あなたは "
-              + ChatColor.YELLOW
-              + ch.getName()
-              + ChatColor.RED
-              + " チャンネルに参加していません！\n"
-              + ChatColor.YELLOW
-              + "/ch join "
-              + ch.getName()
-              + ChatColor.RED
-              + " を実行して参加してください！");
+          Chat.f("&cあなたは &e{0} &cチャンネルに参加していません！\n&e/ch join {0} &cを実行して参加してください！", ch.getName()));
       return true;
     }
+
     ChannelChatMessageData data =
         plugin.getMessageDataFactory().createChannelChatMessageData(p, vcChannelName, message);
     plugin.getPublisher().publishChannelChatMessage(data);

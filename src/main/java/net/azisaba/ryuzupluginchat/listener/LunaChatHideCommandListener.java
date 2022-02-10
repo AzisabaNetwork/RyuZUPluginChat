@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,16 +38,8 @@ public class LunaChatHideCommandListener implements Listener {
             plugin,
             () ->
                 p.sendMessage(
-                    ChatColor.RED
-                        + "注意: "
-                        + ChatColor.YELLOW
-                        + "現在LunaChatのプレイヤーhideは機能していません！\n"
-                        + ChatColor.YELLOW
-                        + "かわりに "
-                        + ChatColor.RED
-                        + "/hide <プレイヤー> "
-                        + ChatColor.YELLOW
-                        + "を使用してください！"),
+                    Chat.f(
+                        "&c注意: &e現在LunaChatのプレイヤーhideは機能していません！\n&eかわりに&c/hide <プレイヤー>&eを使用してください！")),
             1L);
   }
 }

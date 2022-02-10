@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import org.bukkit.ChatColor;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,37 +32,27 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
     Player p = (Player) sender;
 
     if (args.length <= 0) {
-      p.sendMessage(ChatColor.RED + "使い方: /" + label + " <プレイヤー>");
+      p.sendMessage(Chat.f("&c使い方: /{0} <プレイヤー>", label));
       return true;
     }
 
     UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
     if (uuid == null) {
-      p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + " という名前のプレイヤーが見つかりませんでした。");
+      p.sendMessage(Chat.f("&e{0} &cという名前のプレイヤーが見つかりませんでした。", args[0]));
       return true;
     }
     if (uuid.equals(p.getUniqueId())) {
-      p.sendMessage(ChatColor.RED + "自分自身のチャットの非表示設定を編集することはできません！");
+      p.sendMessage(Chat.f("&c自分自身のチャットの非表示設定を編集することはできません！"));
       return true;
     }
 
     if (!plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
-      p.sendMessage(
-          ChatColor.RED
-              + "あなたはまだ"
-              + args[0]
-              + "のチャットを非表示にしていません"
-              + "\n"
-              + ChatColor.YELLOW
-              + "/hide "
-              + args[0]
-              + ChatColor.RED
-              + " で非表示設定が可能です");
+      p.sendMessage(Chat.f("&cあなたはまだ{0}のチャットを非表示にしていません\n&e/hide {0} &cで非表示設定が可能です", args[0]));
       return true;
     }
 
     plugin.getHideInfoController().removeHide(p.getUniqueId(), uuid);
-    p.sendMessage(ChatColor.GREEN + args[0] + "のチャットの非表示を解除しました");
+    p.sendMessage(Chat.f("&a{0}のチャットの非表示を解除しました", args[0]));
     return true;
   }
 

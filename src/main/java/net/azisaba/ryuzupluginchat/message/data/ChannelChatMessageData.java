@@ -3,7 +3,7 @@ package net.azisaba.ryuzupluginchat.message.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.azisaba.ryuzupluginchat.util.ColorUtils;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.ChatColor;
 
 @Data
@@ -45,7 +45,7 @@ public class ChannelChatMessageData {
             .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
             .replace("%color", convertEmptyIfNull(channelColorCode))
             .replace("%servername", convertEmptyIfNull(sendServerName));
-    msg = ColorUtils.setColor(msg);
+    msg = ChatColor.translateAlternateColorCodes('&', msg);
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);
     } else {
@@ -56,13 +56,7 @@ public class ChannelChatMessageData {
 
   private String getAllPrefixes() {
     if (fromDiscord) {
-      return ChatColor.WHITE
-          + "["
-          + ChatColor.BLUE
-          + "Discord"
-          + ChatColor.WHITE
-          + "]"
-          + ChatColor.RESET;
+      return Chat.f("&r[&9Discord&r]");
     }
     return convertEmptyIfNull(luckPermsPrefix)
         + convertEmptyIfNull(ryuzuMapPrefix)

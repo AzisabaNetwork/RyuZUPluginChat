@@ -1,12 +1,12 @@
 package net.azisaba.ryuzupluginchat.command;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import org.bukkit.ChatColor;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,37 +32,27 @@ public class HideCommand implements CommandExecutor, TabCompleter {
     Player p = (Player) sender;
 
     if (args.length <= 0) {
-      p.sendMessage(ChatColor.RED + "使い方: /" + label + " <プレイヤー>");
+      p.sendMessage(Chat.f("&c使い方: /{0} <プレイヤー>", label));
       return true;
     }
 
     UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
     if (uuid == null) {
-      p.sendMessage(ChatColor.YELLOW + args[0] + ChatColor.RED + " という名前のプレイヤーが見つかりませんでした。");
+      p.sendMessage(Chat.f("&e{0} &cという名前のプレイヤーが見つかりませんでした。", args[0]));
       return true;
     }
     if (uuid.equals(p.getUniqueId())) {
-      p.sendMessage(ChatColor.RED + "自分自身のチャットの非表示設定を編集することはできません！");
+      p.sendMessage(Chat.f("&c自分自身のチャットの非表示設定を編集することはできません！"));
       return true;
     }
 
     if (plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
-      p.sendMessage(
-          ChatColor.RED
-              + "あなたは既に"
-              + args[0]
-              + "のチャットを非表示にしています"
-              + "\n"
-              + ChatColor.YELLOW
-              + "/unhide "
-              + args[0]
-              + ChatColor.RED
-              + " で解除が可能です");
+      p.sendMessage(Chat.f("&cあなたは既に{0}のチャットを非表示にしています\n&e/unhide {0} &cで解除が可能です", args[0]));
       return true;
     }
 
     plugin.getHideInfoController().setHide(p.getUniqueId(), uuid);
-    p.sendMessage(ChatColor.GREEN + args[0] + "のチャットを非表示に設定しました");
+    p.sendMessage(Chat.f("&a{0}のチャットを非表示に設定しました", args[0]));
     return true;
   }
 
@@ -77,15 +67,13 @@ public class HideCommand implements CommandExecutor, TabCompleter {
       return null;
     }
 
-    List<String> list = new ArrayList<>();
     Player p = (Player) sender;
     if (args.length == 1) {
-      list.addAll(
-          plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-              .filter(
-                  l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
-              .collect(Collectors.toList()));
+      return plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+          .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
+          .collect(Collectors.toList());
     }
-    return list;
+
+    return Collections.emptyList();
   }
 }

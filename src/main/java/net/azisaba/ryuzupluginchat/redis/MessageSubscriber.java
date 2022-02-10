@@ -40,86 +40,64 @@ public class MessageSubscriber {
         new JedisPubSub() {
           @Override
           public void onPMessage(String pattern, String channel, String message) {
-            if (channel.equals("rpc:" + groupName + ":global-chat")) {
-              GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
-              if (data != null) {
-                globalChannelConsumers.forEach(
-                    c -> {
-                      RyuZUPluginChat.newChain()
-                          .async(
-                              () -> {
-                                try {
-                                  c.accept(data);
-                                } catch (Exception e) {
-                                  e.printStackTrace();
-                                }
-                              })
-                          .execute();
-                    });
-              } else {
-                // TODO error log
-              }
+            RyuZUPluginChat.newChain()
+                .async(
+                    () -> {
+                      if (channel.equals("rpc:" + groupName + ":global-chat")) {
+                        GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
+                        if (data == null) {
+                          return;
+                        }
+                        for (Consumer<GlobalMessageData> c : globalChannelConsumers) {
+                          try {
+                            c.accept(data);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }
 
-            } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
-              PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
-              if (data != null) {
-                privateChatConsumers.forEach(
-                    c -> {
-                      RyuZUPluginChat.newChain()
-                          .async(
-                              () -> {
-                                try {
-                                  c.accept(data);
-                                } catch (Exception e) {
-                                  e.printStackTrace();
-                                }
-                              })
-                          .execute();
-                    });
-              } else {
-                // TODO error log
-              }
+                      } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
+                        PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
+                        if (data == null) {
+                          return;
+                        }
+                        for (Consumer<PrivateMessageData> c : privateChatConsumers) {
+                          try {
+                            c.accept(data);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }
 
-            } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
-              ChannelChatMessageData data = converter.convertIntoChannelChatMessageData(message);
-              if (data != null) {
-                channelChatConsumers.forEach(
-                    c -> {
-                      RyuZUPluginChat.newChain()
-                          .async(
-                              () -> {
-                                try {
-                                  c.accept(data);
-                                } catch (Exception e) {
-                                  e.printStackTrace();
-                                }
-                              })
-                          .execute();
-                    });
-              } else {
-                // TODO error log
-              }
+                      } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
+                        ChannelChatMessageData data =
+                            converter.convertIntoChannelChatMessageData(message);
+                        if (data == null) {
+                          return;
+                        }
+                        for (Consumer<ChannelChatMessageData> c : channelChatConsumers) {
+                          try {
+                            c.accept(data);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }
 
-            } else if (channel.equals("rpc:" + groupName + ":system-message")) {
-              SystemMessageData data = converter.convertIntoSystemMessageData(message);
-              if (data != null) {
-                systemMessageConsumers.forEach(
-                    c -> {
-                      RyuZUPluginChat.newChain()
-                          .async(
-                              () -> {
-                                try {
-                                  c.accept(data);
-                                } catch (Exception e) {
-                                  e.printStackTrace();
-                                }
-                              })
-                          .execute();
-                    });
-              } else {
-                // TODO error log
-              }
-            }
+                      } else if (channel.equals("rpc:" + groupName + ":system-message")) {
+                        SystemMessageData data = converter.convertIntoSystemMessageData(message);
+                        if (data == null) {
+                          return;
+                        }
+                        for (Consumer<SystemMessageData> c : systemMessageConsumers) {
+                          try {
+                            c.accept(data);
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }
+                      }
+                    })
+                .execute();
           }
         };
 

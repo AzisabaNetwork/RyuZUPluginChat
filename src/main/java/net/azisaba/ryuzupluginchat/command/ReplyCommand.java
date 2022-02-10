@@ -2,7 +2,8 @@ package net.azisaba.ryuzupluginchat.command;
 
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.md_5.bungee.api.ChatColor;
+import net.azisaba.ryuzupluginchat.util.Chat;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,14 +17,15 @@ public class ReplyCommand implements CommandExecutor {
   @Override
   public boolean onCommand(
       @NotNull CommandSender sender,
-      org.bukkit.command.@NotNull Command command,
+      @NotNull Command command,
       @NotNull String label,
       @NotNull String[] args) {
     if (!(sender instanceof Player)) {
       return true;
     }
+
     if (args.length <= 0) {
-      sender.sendMessage(ChatColor.RED + "/" + label + " [Message]");
+      sender.sendMessage(Chat.f("&c使い方: /{0} <メッセージ>", label));
       return true;
     }
     Player p = (Player) sender;
@@ -33,12 +35,12 @@ public class ReplyCommand implements CommandExecutor {
         .async(
             (uuid) -> {
               if (uuid == null) {
-                sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーがいません");
+                sender.sendMessage(Chat.f("過去にプライベートメッセージをやり取りしたプレイヤーがいません"));
                 return null;
               }
 
               if (!plugin.getPlayerUUIDMapContainer().isOnline(uuid)) {
-                sender.sendMessage(ChatColor.RED + "過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです");
+                sender.sendMessage(Chat.f("&c過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです"));
                 return null;
               }
 

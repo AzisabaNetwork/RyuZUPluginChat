@@ -17,9 +17,7 @@ import redis.clients.jedis.JedisPool;
 public class HideInfoController {
 
   private final JedisPool jedisPool;
-
   private final String groupName;
-
   private final ReentrantLock lock = new ReentrantLock(true);
 
   private final HashMap<UUID, Set<UUID>> hideMap = new HashMap<>();
@@ -112,7 +110,6 @@ public class HideInfoController {
         hideMap.get(uuid).stream().map(UUID::toString).collect(Collectors.toSet());
 
     String oneLine = String.join(",", uuidSetStr);
-
     JedisUtils.executeUsingJedisPool(
         jedisPool,
         (jedis) -> jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine));

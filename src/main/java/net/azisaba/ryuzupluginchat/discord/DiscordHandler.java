@@ -1,32 +1,20 @@
 package net.azisaba.ryuzupluginchat.discord;
 
-import com.github.ucchyocean.lc3.LunaChat;
-import com.github.ucchyocean.lc3.LunaChatAPI;
-import com.github.ucchyocean.lc3.channel.Channel;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
-import discord4j.discordjson.json.MessageData;
-import discord4j.discordjson.json.MessageEditRequest;
 import discord4j.rest.entity.RestChannel;
-import discord4j.rest.util.MultipartRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
-import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
-import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
+import net.azisaba.ryuzupluginchat.discord.deliverer.DiscordMessageDeliverer;
+import net.azisaba.ryuzupluginchat.discord.deliverer.ServerChatMessageDeliverer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 @RequiredArgsConstructor
 public class DiscordHandler {
@@ -37,7 +25,11 @@ public class DiscordHandler {
   private DiscordClient client;
   private GatewayDiscordClient gateway;
 
+  private DiscordMessageDeliverer discordMessageDeliverer;
+  private ServerChatMessageDeliverer serverChatMessageDeliverer;
+
   public boolean init() {
+
     client = DiscordClient.create(token);
     gateway = client.login().block();
 
@@ -45,6 +37,10 @@ public class DiscordHandler {
       return false;
     }
 
+    discordMessageDeliverer = new DiscordMessageDeliverer(plugin);
+    serverChatMessageDeliverer = new ServerChatMessageDeliverer(plugin, client);
+
+    // TODO これ要らなくない？
     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> gateway.onDisconnect().block());
     return true;
   }
@@ -91,33 +87,14 @@ public class DiscordHandler {
                   return;
                 }
 
-                String content = message.getContent();
-                if (content.length() <= 0) {
-                  return;
-                }
-                content = removeUrl(content);
-
-                Member messageAuthor = message.getAuthorAsMember().block();
-                if (messageAuthor == null) {
-                  return;
-                }
-
-                String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
-
-                GlobalMessageData data =
-                    plugin
-                        .getMessageDataFactory()
-                        .createGlobalMessageDataFromDiscord(senderName, content);
-
-                plugin.getPublisher().publishGlobalMessage(data);
+                discordMessageDeliverer.sendToGlobal(event);
               } catch (Exception e) {
                 e.printStackTrace();
               }
             });
   }
 
-  private void registerDiscordToChannels(
-      Snowflake discordChannelId, ChannelChatSyncData channelChatSyncData) {
+  private void registerDiscordToChannels(Snowflake discordChannelId, ChannelChatSyncData syncData) {
     gateway
         .on(MessageCreateEvent.class)
         .subscribe(
@@ -132,51 +109,15 @@ public class DiscordHandler {
                   return;
                 }
 
-                String content = message.getContent();
-                if (content.length() <= 0) {
-                  return;
-                }
-                final String urlDeletedContent = removeUrl(content);
-
-                Member messageAuthor = message.getAuthorAsMember().block();
-                if (messageAuthor == null) {
-                  return;
-                }
-
-                String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
-
-                RyuZUPluginChat.newChain()
-                    .asyncFirst(
-                        () -> {
-                          LunaChatAPI api = LunaChat.getAPI();
-                          List<Channel> channelList = new ArrayList<>();
-                          for (Channel channel : api.getChannels()) {
-                            if (channelChatSyncData.isMatch(channel.getName())) {
-                              channelList.add(channel);
-                            }
-                          }
-                          return channelList;
-                        })
-                    .asyncLast(
-                        (list) -> {
-                          for (Channel ch : list) {
-                            ChannelChatMessageData data =
-                                plugin
-                                    .getMessageDataFactory()
-                                    .createChannelChatMessageDataFromDiscord(
-                                        senderName, ch.getName(), urlDeletedContent);
-                            plugin.getPublisher().publishChannelChatMessage(data);
-                          }
-                        })
-                    .execute();
+                discordMessageDeliverer.sendToChannel(event, syncData);
               } catch (Exception e) {
                 e.printStackTrace();
               }
             });
   }
 
-  private void registerGlobalToDiscord(Snowflake discordChannelId, boolean vcMode) {
-    RestChannel targetChannel = client.getChannelById(discordChannelId);
+  private void registerGlobalToDiscord(Snowflake chId, boolean vcMode) {
+    RestChannel targetChannel = client.getChannelById(chId);
     plugin
         .getSubscriber()
         .registerPublicConsumer(
@@ -187,35 +128,7 @@ public class DiscordHandler {
 
               RyuZUPluginChat.newChain()
                   .async(
-                      () -> {
-                        String message;
-                        if (vcMode) {
-                          message = data.getMessage();
-                        } else {
-                          message = data.format();
-                        }
-                        message = sanitize(message);
-                        MessageData jsonMessageData = targetChannel.createMessage(message).block();
-
-                        if (vcMode) {
-                          if (jsonMessageData == null) {
-                            return;
-                          }
-
-                          long channelId = jsonMessageData.channelId().asLong();
-                          long messageId = jsonMessageData.id().asLong();
-
-                          String editedMessageContent = sanitize(data.format());
-
-                          MultipartRequest<MessageEditRequest> req =
-                              MultipartRequest.ofRequest(
-                                  MessageEditRequest.builder()
-                                      .contentOrNull(editedMessageContent)
-                                      .build());
-
-                          client.getChannelService().editMessage(channelId, messageId, req).block();
-                        }
-                      })
+                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode))
                   .execute();
             });
   }
@@ -236,35 +149,7 @@ public class DiscordHandler {
 
               RyuZUPluginChat.newChain()
                   .async(
-                      () -> {
-                        String message;
-                        if (vcMode) {
-                          message = data.getMessage();
-                        } else {
-                          message = data.format();
-                        }
-                        message = sanitize(message);
-                        MessageData jsonMessageData = targetChannel.createMessage(message).block();
-
-                        if (vcMode) {
-                          if (jsonMessageData == null) {
-                            return;
-                          }
-
-                          long channelId = jsonMessageData.channelId().asLong();
-                          long messageId = jsonMessageData.id().asLong();
-
-                          String editedMessageContent = sanitize(data.format());
-
-                          MultipartRequest<MessageEditRequest> req =
-                              MultipartRequest.ofRequest(
-                                  MessageEditRequest.builder()
-                                      .contentOrNull(editedMessageContent)
-                                      .build());
-
-                          client.getChannelService().editMessage(channelId, messageId, req).block();
-                        }
-                      })
+                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode))
                   .execute();
             });
   }
@@ -274,75 +159,11 @@ public class DiscordHandler {
     plugin
         .getSubscriber()
         .registerTellConsumer(
-            (data) -> {
-              RyuZUPluginChat.newChain()
-                  .async(
-                      () -> {
-                        String message;
-                        if (vcMode) {
-                          message = data.getMessage();
-                        } else {
-                          message = data.format();
-                        }
-                        message = sanitize(message);
-
-                        // 名前がnullだとUUIDが表示されてしまうのでmcidに変更する
-                        if (data.getReceivedPlayerName() == null) {
-                          String receivePlayerName =
-                              plugin
-                                  .getPlayerUUIDMapContainer()
-                                  .getNameFromUUID(data.getReceivedPlayerUUID());
-                          if (receivePlayerName != null) {
-                            message =
-                                message.replace(
-                                    data.getReceivedPlayerUUID().toString(),
-                                    receivePlayerName); // TODO もうすこしきれいな処理にできるはず
-                          }
-                        }
-
-                        MessageData jsonMessageData = targetChannel.createMessage(message).block();
-
-                        if (vcMode) {
-                          if (jsonMessageData == null) {
-                            return;
-                          }
-
-                          long channelId = jsonMessageData.channelId().asLong();
-                          long messageId = jsonMessageData.id().asLong();
-
-                          String editedMessageContent = sanitize(data.format());
-
-                          MultipartRequest<MessageEditRequest> req =
-                              MultipartRequest.ofRequest(
-                                  MessageEditRequest.builder()
-                                      .contentOrNull(editedMessageContent)
-                                      .build());
-
-                          client.getChannelService().editMessage(channelId, messageId, req).block();
-                        }
-                      })
-                  .execute();
-            });
-  }
-
-  private String sanitize(String message) {
-    message = message.replace("@", "\\@");
-    message = ChatColor.translateAlternateColorCodes('&', message);
-    message = ChatColor.stripColor(message);
-    return message;
-  }
-
-  private String removeUrl(String msg) {
-    String urlPattern =
-        "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
-    Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
-    Matcher m = p.matcher(msg);
-    int i = 0;
-    while (m.find()) {
-      msg = msg.replaceAll(m.group(i), "<URL>").trim();
-      i++;
-    }
-    return msg;
+            (data) ->
+                RyuZUPluginChat.newChain()
+                    .async(
+                        () -> serverChatMessageDeliverer.sendtoDiscord(data, targetChannel, vcMode))
+                    .execute());
   }
 
   public void disconnect() {

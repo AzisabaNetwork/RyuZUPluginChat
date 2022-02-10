@@ -145,7 +145,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
             new JedisPoolConfig(),
             rpcConfig.getHostAndPort().getHost(),
             rpcConfig.getHostAndPort().getPort(),
-            3000,
+            3000, // timeout
             rpcConfig.getRedisPassword());
 
     publisher = new MessagePublisher(this, jedisPool, jsonDataConverter, rpcConfig.getGroupName());

@@ -13,8 +13,8 @@ import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
-import net.azisaba.ryuzupluginchat.util.ColorUtils;
 import net.azisaba.ryuzupluginchat.util.LuckPermsPrefixSuffixUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
@@ -156,7 +156,7 @@ public class MessageDataFactory {
   public SystemMessageData createPrivateSystemChatMessageData(UUID target, String msg) {
     HashMap<String, Object> map = new HashMap<>();
     map.put("target", target.toString());
-    map.put("message", ColorUtils.setColor(msg));
+    map.put("message", ChatColor.translateAlternateColorCodes('&', msg));
 
     map.put("type", SystemMessageType.PRIVATE_SYSTEM_MESSAGE.name());
     return new SystemMessageData(plugin.getRpcConfig().getServerName(), null, map);
@@ -196,7 +196,7 @@ public class MessageDataFactory {
       message = message.substring(1);
     }
     if (p.hasPermission("lunachat.allowcc")) {
-      message = ColorUtils.setColor(message);
+      message = ChatColor.translateAlternateColorCodes('&', message);
     }
     return message;
   }

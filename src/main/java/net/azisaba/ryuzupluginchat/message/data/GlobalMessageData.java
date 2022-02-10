@@ -3,7 +3,7 @@ package net.azisaba.ryuzupluginchat.message.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.azisaba.ryuzupluginchat.util.ColorUtils;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.ChatColor;
 
 @Data
@@ -37,14 +37,7 @@ public class GlobalMessageData {
     String formattedPlayerName = playerDisplayName != null ? playerDisplayName : playerName;
 
     if (fromDiscord) {
-      defaultFormat =
-          ChatColor.WHITE
-              + "["
-              + ChatColor.BLUE
-              + "Discord"
-              + ChatColor.WHITE
-              + "]"
-              + defaultFormat;
+      defaultFormat = Chat.f("&r[&9Discord&r]{0}", defaultFormat);
     }
 
     String formatted =
@@ -59,7 +52,7 @@ public class GlobalMessageData {
             .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
             .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
 
-    formatted = ColorUtils.setColor(formatted);
+    formatted = ChatColor.translateAlternateColorCodes('&', formatted);
     if (japanized) {
       formatted =
           formatted.replace(

@@ -4,8 +4,8 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.azisaba.ryuzupluginchat.util.ColorUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @Data
@@ -48,7 +48,7 @@ public class PrivateMessageData {
             .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
             .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));
 
-    formatted = ColorUtils.setColor(formatted);
+    formatted = ChatColor.translateAlternateColorCodes('&', formatted);
     if (japanized) {
       formatted =
           formatted.replace(

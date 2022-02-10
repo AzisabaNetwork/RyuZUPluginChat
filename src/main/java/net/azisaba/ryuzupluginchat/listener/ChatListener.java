@@ -26,13 +26,9 @@ public class ChatListener implements Listener {
   public void onChat(AsyncPlayerChatEvent e) {
     Player p = e.getPlayer();
     boolean global = LunaChat.getAPI().getDefaultChannel(p.getName()) == null;
+
     if (global || e.getMessage().charAt(0) == '!' || e.getMessage().startsWith("#!")) {
-      String msg;
-      if (e.getMessage().length() >= 2) {
-        msg = e.getMessage().substring(0, 2).replace("!", "") + e.getMessage().substring(2);
-      } else {
-        msg = e.getMessage().replace("!", "");
-      }
+      String msg = cutPrefix(e.getMessage());
       GlobalMessageData data = plugin.getMessageDataFactory().createGlobalMessageData(p, msg);
 
       RyuZUPluginChat.newChain()
@@ -50,13 +46,24 @@ public class ChatListener implements Listener {
         lastDiscordChannelChatMap.put(p.getUniqueId(), System.currentTimeMillis());
       }
 
+      Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
       ChannelChatMessageData data =
-          plugin.getMessageDataFactory().createChannelChatMessageData(p, e.getMessage());
+          plugin
+              .getMessageDataFactory()
+              .createChannelChatMessageData(p, ch.getName(), e.getMessage());
       RyuZUPluginChat.newChain()
           .async(() -> plugin.getPublisher().publishChannelChatMessage(data))
           .execute();
     }
     e.setFormat("");
     e.setCancelled(true);
+  }
+
+  private String cutPrefix(String msg) {
+    if (msg.length() >= 2) {
+      return msg.substring(0, 2).replace("!", "") + msg.substring(2);
+    } else {
+      return msg.replace("!", "");
+    }
   }
 }
