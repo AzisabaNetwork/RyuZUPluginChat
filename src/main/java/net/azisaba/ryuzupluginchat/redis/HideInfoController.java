@@ -93,13 +93,15 @@ public class HideInfoController {
               jedisPool, (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
       for (String key : rawData.keySet()) {
         UUID keyUUID = UUID.fromString(key);
-        Set<UUID> uuidList =
-            Arrays.stream(rawData.get(key).split(","))
-                .map(UUID::fromString)
-                .collect(Collectors.toSet());
-        hideMap.put(keyUUID, uuidList);
-        keyLastUpdatedMilliSeconds = System.currentTimeMillis();
+        if (!rawData.get(key).equals("")) {
+          Set<UUID> uuidList =
+              Arrays.stream(rawData.get(key).split(","))
+                  .map(UUID::fromString)
+                  .collect(Collectors.toSet());
+          hideMap.put(keyUUID, uuidList);
+        }
       }
+      keyLastUpdatedMilliSeconds = System.currentTimeMillis();
     } finally {
       lock.unlock();
     }
