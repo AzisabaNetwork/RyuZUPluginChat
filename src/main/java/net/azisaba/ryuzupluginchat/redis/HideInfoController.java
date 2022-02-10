@@ -7,9 +7,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.util.JedisUtils;
 import redis.clients.jedis.JedisPool;
 
@@ -63,6 +65,10 @@ public class HideInfoController {
   }
 
   public Set<UUID> getPlayersWhoHide(UUID uuid) {
+    if (keyLastUpdatedMilliSeconds + (1000L * 10) < System.currentTimeMillis()) {
+      RyuZUPluginChat.newChain().delay(1, TimeUnit.MILLISECONDS).async(this::updateCache).execute();
+    }
+
     lock.lock();
     try {
       Set<UUID> uuidSet = hideMap.getOrDefault(uuid, null);
@@ -76,6 +82,10 @@ public class HideInfoController {
   }
 
   public boolean isHidingPlayer(UUID actor, UUID target) {
+    if (keyLastUpdatedMilliSeconds + (1000L * 10) < System.currentTimeMillis()) {
+      RyuZUPluginChat.newChain().delay(1, TimeUnit.MILLISECONDS).async(this::updateCache).execute();
+    }
+
     lock.lock();
     try {
       return hideMap.getOrDefault(target, Collections.emptySet()).contains(actor);
