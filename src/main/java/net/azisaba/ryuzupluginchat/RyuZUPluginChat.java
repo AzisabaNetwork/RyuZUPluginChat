@@ -1,6 +1,5 @@
 package net.azisaba.ryuzupluginchat;
 
-import co.aikar.taskchain.BukkitTaskChainFactory;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import java.io.File;
@@ -32,6 +31,7 @@ import net.azisaba.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import net.azisaba.ryuzupluginchat.redis.ReplyTargetFetcher;
 import net.azisaba.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
+import net.azisaba.ryuzupluginchat.taskchain.BukkitTaskChainFactory;
 import net.azisaba.ryuzupluginchat.updater.GitHubPluginUpdater;
 import net.azisaba.ryuzupluginchat.updater.UpdateStatus;
 import org.bukkit.Bukkit;
@@ -45,7 +45,7 @@ import redis.clients.jedis.JedisPoolConfig;
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
 
-  private static TaskChainFactory taskChainFactory;
+  @Getter private static TaskChainFactory taskChainFactory;
 
   private RPCConfig rpcConfig;
   private MessageDataFactory messageDataFactory;
