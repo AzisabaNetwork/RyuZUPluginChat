@@ -122,8 +122,14 @@ public class HideInfoController {
         hideMap.get(uuid).stream().map(UUID::toString).collect(Collectors.toSet());
 
     String oneLine = String.join(",", uuidSetStr);
-    JedisUtils.executeUsingJedisPool(
-        jedisPool,
-        (jedis) -> jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine));
+
+    if (oneLine.length() <= 0) {
+      JedisUtils.executeUsingJedisPool(
+          jedisPool, (jedis) -> jedis.hdel("rpc:" + groupName + ":hide-map", uuid.toString()));
+    } else {
+      JedisUtils.executeUsingJedisPool(
+          jedisPool,
+          (jedis) -> jedis.hset("rpc:" + groupName + ":hide-map", uuid.toString(), oneLine));
+    }
   }
 }
