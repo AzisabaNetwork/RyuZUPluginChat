@@ -45,7 +45,7 @@ import redis.clients.jedis.JedisPoolConfig;
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
 
-  @Getter private static TaskChainFactory taskChainFactory;
+  private static TaskChainFactory taskChainFactory;
 
   private RPCConfig rpcConfig;
   private MessageDataFactory messageDataFactory;
