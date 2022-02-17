@@ -15,6 +15,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -95,30 +96,37 @@ public class GitHubPluginUpdater {
       nextVersion = new Semver(nextTag);
     }
 
-    if (nextVersion.isGreaterThan(currentVersion)) {
-      List<Map<String, Object>> assets = digAsMapList(data, "assets");
-      if (assets == null || assets.isEmpty()) {
-        // リリースではないGitHubのreleaseを書き込んだ可能性があるので一応最新としておく
-        status = UpdateStatus.LATEST;
-        return true;
-      }
+    // Majorバージョンが変わっている場合は更新しない
+    if (!Objects.equals(currentVersion.getMajor(), nextVersion.getMajor())) {
+      status = UpdateStatus.MAJOR_VERSION_CHANGED;
+      return true;
+    }
 
-      for (Map<String, Object> map : assets) {
-        String fileName = getAsString(map, "name");
-        if (fileName == null || !fileName.equals("RyuZUPluginChat.jar")) {
-          continue;
-        }
-        latestFileDownloadUrl = getAsString(map, "browser_download_url");
-        break;
-      }
-
-      if (latestFileDownloadUrl != null) {
-        status = UpdateStatus.OUTDATED;
-      } else {
-        status = UpdateStatus.FAILED;
-      }
-    } else {
+    if (!nextVersion.isGreaterThan(currentVersion)) {
       status = UpdateStatus.LATEST;
+      return true;
+    }
+
+    List<Map<String, Object>> assets = digAsMapList(data, "assets");
+    if (assets == null || assets.isEmpty()) {
+      // リリースではないGitHubのreleaseを書き込んだ可能性があるので一応最新としておく
+      status = UpdateStatus.LATEST;
+      return true;
+    }
+
+    for (Map<String, Object> map : assets) {
+      String fileName = getAsString(map, "name");
+      if (fileName == null || !fileName.equals("RyuZUPluginChat.jar")) {
+        continue;
+      }
+      latestFileDownloadUrl = getAsString(map, "browser_download_url");
+      break;
+    }
+
+    if (latestFileDownloadUrl != null) {
+      status = UpdateStatus.OUTDATED;
+    } else {
+      status = UpdateStatus.FAILED;
     }
     return true;
   }

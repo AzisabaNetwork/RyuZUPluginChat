@@ -5,5 +5,6 @@ public enum UpdateStatus {
   FAILED,
   LATEST,
   OUTDATED,
+  MAJOR_VERSION_CHANGED,
   ALREADY_UPDATED
 }
