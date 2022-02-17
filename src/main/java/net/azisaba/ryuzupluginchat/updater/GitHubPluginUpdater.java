@@ -74,6 +74,12 @@ public class GitHubPluginUpdater {
       return true;
     }
 
+    // draft / pre-release の場合は更新しない
+    if (!isValidRelease(data)) {
+      status = UpdateStatus.LATEST;
+      return true;
+    }
+
     Semver currentVersion;
     Semver nextVersion;
 
@@ -141,6 +147,13 @@ public class GitHubPluginUpdater {
       e.printStackTrace();
       return false;
     }
+  }
+
+  private boolean isValidRelease(Map<String, Object> map) {
+    boolean preRelease = map.containsKey("prerelease") && (boolean) map.get("prerelease");
+    boolean draft = map.containsKey("draft") && (boolean) map.get("draft");
+
+    return !preRelease && !draft;
   }
 
   private String readUrlAsString(URL url) throws IOException {
