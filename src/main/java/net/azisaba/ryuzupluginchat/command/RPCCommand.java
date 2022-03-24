@@ -83,11 +83,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           case "on":
           case "yes":
           case "enable":
+          case "true":
             silent = true;
             break;
           case "off":
           case "no":
           case "disable":
+          case "false":
             silent = false;
             break;
           default:
