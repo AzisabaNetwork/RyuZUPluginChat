@@ -69,6 +69,43 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
+    if (args[0].equalsIgnoreCase("silent")) {
+      if (!sender.hasPermission("rpc.op")) {
+        sender.sendMessage(permissionDeniedMessage);
+        return true;
+      }
+
+      Player player = (Player) sender;
+      boolean silent = !plugin.getPrivateChatInspectHandler().isDisabled(player.getUniqueId());
+
+      if (args.length >= 2) {
+        switch (args[1].toLowerCase()) {
+          case "on":
+          case "yes":
+          case "enable":
+            silent = true;
+            break;
+          case "off":
+          case "no":
+          case "disable":
+            silent = false;
+            break;
+          default:
+            player.sendMessage(Chat.f("&e{0}&cは無効な引数です。", args[1]));
+            return true;
+        }
+      }
+
+      if (silent) {
+        plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), true);
+        player.sendMessage(Chat.f("&e他プレイヤー同士の個人チャットが&c見えない&eようになりました"));
+      } else {
+        plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), false);
+        player.sendMessage(Chat.f("&e他プレイヤー同士の個人チャットが&a見える&eように設定しました"));
+      }
+      return true;
+    }
+
     if (args[0].equalsIgnoreCase("prefix") || args[0].equalsIgnoreCase("p")) {
       if (!sender.hasPermission("rpc.op")) {
         sender.sendMessage(permissionDeniedMessage);
@@ -306,6 +343,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       sender.sendMessage(Chat.f("&9/{0} suffix :Suffixを編集します", label));
       sender.sendMessage(Chat.f("&9/{0} config :Configを編集します", label));
       sender.sendMessage(Chat.f("&9/{0} reload :config.ymlをリロードします", label));
+      sender.sendMessage(Chat.f("&9/{0} silent :他プレイヤーの個チャが見える機能を変更します", label));
     }
     sender.sendMessage(Chat.f("&9/{0} tell :プレイヤーにプライベートメッセージを送信します", label));
     sender.sendMessage(Chat.f("&9/{0} reply :直近のプライベートメッセージに返信します", label));
