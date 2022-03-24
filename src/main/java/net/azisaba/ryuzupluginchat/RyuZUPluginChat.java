@@ -21,6 +21,7 @@ import net.azisaba.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
 import net.azisaba.ryuzupluginchat.message.MessageDataFactory;
 import net.azisaba.ryuzupluginchat.message.MessageProcessor;
+import net.azisaba.ryuzupluginchat.message.PrivateChatInspectHandler;
 import net.azisaba.ryuzupluginchat.redis.HideInfoController;
 import net.azisaba.ryuzupluginchat.redis.MessagePublisher;
 import net.azisaba.ryuzupluginchat.redis.MessageSubscriber;
@@ -58,6 +59,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private VCLunaChatChannelSharer vcLunaChatChannelSharer;
   private PrivateChatResponseWaiter privateChatResponseWaiter;
   private HideInfoController hideInfoController;
+  private final PrivateChatInspectHandler privateChatInspectHandler =
+      new PrivateChatInspectHandler();
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;

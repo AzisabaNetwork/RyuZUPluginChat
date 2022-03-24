@@ -115,6 +115,7 @@ public class MessageProcessor {
               p ->
                   !p.getUniqueId().equals(data.getReceivedPlayerUUID())
                       && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
+          .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
           .forEach(p -> p.sendMessage(message));
     }
 
