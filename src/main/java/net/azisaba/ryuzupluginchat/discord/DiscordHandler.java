@@ -126,12 +126,6 @@ public class DiscordHandler {
                 return;
               }
 
-              try {
-                Thread.sleep(2000);
-              } catch (InterruptedException e) {
-                e.printStackTrace();
-              }
-
               Bukkit.getScheduler()
                   .runTaskAsynchronously(
                       plugin,
