@@ -15,6 +15,7 @@ import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
+import org.bukkit.Bukkit;
 
 @RequiredArgsConstructor
 public class DiscordMessageDeliverer {
@@ -57,8 +58,9 @@ public class DiscordMessageDeliverer {
 
     String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
 
-    RyuZUPluginChat.newChain()
-        .async(
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(
+            plugin,
             () -> {
               LunaChatAPI api = LunaChat.getAPI();
               List<Channel> channelList = new ArrayList<>();
@@ -77,8 +79,7 @@ public class DiscordMessageDeliverer {
 
                 plugin.getPublisher().publishChannelChatMessage(data);
               }
-            })
-        .execute();
+            });
   }
 
   private String removeUrl(String msg) {

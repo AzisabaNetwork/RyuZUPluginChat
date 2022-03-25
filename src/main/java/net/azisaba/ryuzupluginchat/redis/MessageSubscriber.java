@@ -14,6 +14,7 @@ import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
+import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -40,64 +41,74 @@ public class MessageSubscriber {
         new JedisPubSub() {
           @Override
           public void onPMessage(String pattern, String channel, String message) {
-            RyuZUPluginChat.newChain()
-                .async(
-                    () -> {
-                      if (channel.equals("rpc:" + groupName + ":global-chat")) {
-                        GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
-                        if (data == null) {
-                          return;
-                        }
-                        for (Consumer<GlobalMessageData> c : globalChannelConsumers) {
-                          try {
-                            c.accept(data);
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                        }
+            async(
+                () -> {
+                  if (channel.equals("rpc:" + groupName + ":global-chat")) {
+                    GlobalMessageData data = converter.convertIntoGlobalMessageData(message);
+                    if (data == null) {
+                      return;
+                    }
+                    for (Consumer<GlobalMessageData> c : globalChannelConsumers) {
+                      async(
+                          () -> {
+                            try {
+                              c.accept(data);
+                            } catch (Exception e) {
+                              e.printStackTrace();
+                            }
+                          });
+                    }
 
-                      } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
-                        PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
-                        if (data == null) {
-                          return;
-                        }
-                        for (Consumer<PrivateMessageData> c : privateChatConsumers) {
-                          try {
-                            c.accept(data);
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                        }
+                  } else if (channel.equals("rpc:" + groupName + ":private-chat")) {
+                    PrivateMessageData data = converter.convertIntoPrivateMessageData(message);
+                    if (data == null) {
+                      return;
+                    }
+                    for (Consumer<PrivateMessageData> c : privateChatConsumers) {
+                      async(
+                          () -> {
+                            try {
+                              c.accept(data);
+                            } catch (Exception e) {
+                              e.printStackTrace();
+                            }
+                          });
+                    }
 
-                      } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
-                        ChannelChatMessageData data =
-                            converter.convertIntoChannelChatMessageData(message);
-                        if (data == null) {
-                          return;
-                        }
-                        for (Consumer<ChannelChatMessageData> c : channelChatConsumers) {
-                          try {
-                            c.accept(data);
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                        }
+                  } else if (channel.equals("rpc:" + groupName + ":channel-chat")) {
+                    ChannelChatMessageData data =
+                        converter.convertIntoChannelChatMessageData(message);
+                    if (data == null) {
+                      return;
+                    }
+                    for (Consumer<ChannelChatMessageData> c : channelChatConsumers) {
+                      async(
+                          () -> {
+                            try {
+                              c.accept(data);
+                            } catch (Exception e) {
+                              e.printStackTrace();
+                            }
+                          });
+                    }
 
-                      } else if (channel.equals("rpc:" + groupName + ":system-message")) {
-                        SystemMessageData data = converter.convertIntoSystemMessageData(message);
-                        if (data == null) {
-                          return;
-                        }
-                        for (Consumer<SystemMessageData> c : systemMessageConsumers) {
-                          try {
-                            c.accept(data);
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                        }
-                      }
-                    })
-                .execute();
+                  } else if (channel.equals("rpc:" + groupName + ":system-message")) {
+                    SystemMessageData data = converter.convertIntoSystemMessageData(message);
+                    if (data == null) {
+                      return;
+                    }
+                    for (Consumer<SystemMessageData> c : systemMessageConsumers) {
+                      async(
+                          () -> {
+                            try {
+                              c.accept(data);
+                            } catch (Exception e) {
+                              e.printStackTrace();
+                            }
+                          });
+                    }
+                  }
+                });
           }
         };
 
@@ -156,5 +167,9 @@ public class MessageSubscriber {
     privateChatConsumers.clear();
     channelChatConsumers.clear();
     systemMessageConsumers.clear();
+  }
+
+  private void async(Runnable runnable) {
+    Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable);
   }
 }
