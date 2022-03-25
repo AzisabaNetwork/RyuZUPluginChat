@@ -126,10 +126,16 @@ public class DiscordHandler {
                 return;
               }
 
-              RyuZUPluginChat.newChain()
-                  .async(
-                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode))
-                  .execute();
+              try {
+                Thread.sleep(2000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+
+              Bukkit.getScheduler()
+                  .runTaskAsynchronously(
+                      plugin,
+                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
             });
   }
 
@@ -147,10 +153,10 @@ public class DiscordHandler {
                 return;
               }
 
-              RyuZUPluginChat.newChain()
-                  .async(
-                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode))
-                  .execute();
+              Bukkit.getScheduler()
+                  .runTaskAsynchronously(
+                      plugin,
+                      () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
             });
   }
 
@@ -160,10 +166,11 @@ public class DiscordHandler {
         .getSubscriber()
         .registerTellConsumer(
             (data) ->
-                RyuZUPluginChat.newChain()
-                    .async(
-                        () -> serverChatMessageDeliverer.sendtoDiscord(data, targetChannel, vcMode))
-                    .execute());
+                Bukkit.getScheduler()
+                    .runTaskAsynchronously(
+                        plugin,
+                        () ->
+                            serverChatMessageDeliverer.sendtoDiscord(data, targetChannel, vcMode)));
   }
 
   public void disconnect() {

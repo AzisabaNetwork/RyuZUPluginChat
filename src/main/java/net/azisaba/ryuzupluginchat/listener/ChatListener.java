@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,9 +32,8 @@ public class ChatListener implements Listener {
       String msg = cutPrefix(e.getMessage());
       GlobalMessageData data = plugin.getMessageDataFactory().createGlobalMessageData(p, msg);
 
-      RyuZUPluginChat.newChain()
-          .async(() -> plugin.getPublisher().publishGlobalMessage(data))
-          .execute();
+      Bukkit.getScheduler()
+          .runTaskAsynchronously(plugin, () -> plugin.getPublisher().publishGlobalMessage(data));
     } else {
       Channel channel = LunaChat.getAPI().getDefaultChannel(p.getName());
       if (channel.getName().equals(plugin.getVcLunaChatChannelSharer().getLunaChatChannelName())) {
@@ -51,9 +51,10 @@ public class ChatListener implements Listener {
           plugin
               .getMessageDataFactory()
               .createChannelChatMessageData(p, ch.getName(), e.getMessage());
-      RyuZUPluginChat.newChain()
-          .async(() -> plugin.getPublisher().publishChannelChatMessage(data))
-          .execute();
+
+      Bukkit.getScheduler()
+          .runTaskAsynchronously(
+              plugin, () -> plugin.getPublisher().publishChannelChatMessage(data));
     }
     e.setFormat("");
     e.setCancelled(true);

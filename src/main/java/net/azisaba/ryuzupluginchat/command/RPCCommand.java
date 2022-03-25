@@ -204,9 +204,9 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
         SystemMessageData data =
             plugin.getMessageDataFactory().createPrivateSystemChatMessageData(uuid, msg);
-        RyuZUPluginChat.newChain()
-            .async(() -> plugin.getPublisher().publishSystemMessage(data))
-            .execute();
+
+        Bukkit.getScheduler()
+            .runTaskAsynchronously(plugin, () -> plugin.getPublisher().publishSystemMessage(data));
 
       } else if (args[1].equalsIgnoreCase("playermessage")) {
         msg = msg.substring(args[2].length() + 1);
@@ -220,9 +220,8 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         SystemMessageData data =
             plugin.getMessageDataFactory().createImitationChatMessageData(uuid, msg);
 
-        RyuZUPluginChat.newChain()
-            .async(() -> plugin.getPublisher().publishSystemMessage(data))
-            .execute();
+        Bukkit.getScheduler()
+            .runTaskAsynchronously(plugin, () -> plugin.getPublisher().publishSystemMessage(data));
       }
       return true;
     }
