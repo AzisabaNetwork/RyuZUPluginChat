@@ -1,5 +1,6 @@
 package net.azisaba.ryuzupluginchat.redis;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +19,7 @@ import org.bukkit.Bukkit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 @RequiredArgsConstructor
 public class MessageSubscriber {
@@ -34,10 +36,13 @@ public class MessageSubscriber {
   private final List<Consumer<ChannelChatMessageData>> channelChatConsumers = new ArrayList<>();
   private final List<Consumer<SystemMessageData>> systemMessageConsumers = new ArrayList<>();
 
+  @Getter private JedisPubSub subscriber;
   @Getter @Setter private ExecutorService executorService;
 
+  private final ArrayDeque<Consumer<String>> pingPongQueue = new ArrayDeque<>();
+
   public void subscribe() {
-    JedisPubSub subscriber =
+    subscriber =
         new JedisPubSub() {
           @Override
           public void onPMessage(String pattern, String channel, String message) {
@@ -110,6 +115,18 @@ public class MessageSubscriber {
                   }
                 });
           }
+
+          @Override
+          public void onPong(String pattern) {
+            Consumer<String> consumer = pingPongQueue.poll();
+            if (consumer != null) {
+              try {
+                consumer.accept(pattern);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }
+          }
         };
 
     executorService = Executors.newFixedThreadPool(1);
@@ -118,6 +135,8 @@ public class MessageSubscriber {
         () -> {
           try (Jedis jedis = jedisPool.getResource()) {
             jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
+          } catch (JedisConnectionException e) {
+            e.printStackTrace();
           }
         });
 
@@ -136,6 +155,36 @@ public class MessageSubscriber {
             }
           });
     }
+  }
+
+  public long ping() {
+    if (subscriber == null || !subscriber.isSubscribed()) {
+      return -2;
+    }
+
+    Thread thread =
+        new Thread(
+            () -> {
+              try {
+                Thread.sleep(5000);
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            });
+    long start = System.currentTimeMillis();
+
+    pingPongQueue.add(arg -> thread.interrupt());
+    try {
+      subscriber.ping();
+    } catch (JedisConnectionException e) {
+      return -1;
+    }
+
+    try {
+      thread.join(3000);
+    } catch (InterruptedException ignored) {
+    }
+    return System.currentTimeMillis() - start;
   }
 
   public void registerFunctions() {
