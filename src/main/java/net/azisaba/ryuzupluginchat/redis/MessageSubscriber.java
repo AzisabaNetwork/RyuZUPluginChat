@@ -182,7 +182,8 @@ public class MessageSubscriber {
 
     try {
       thread.join(3000);
-    } catch (InterruptedException ignored) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
     return System.currentTimeMillis() - start;
   }
