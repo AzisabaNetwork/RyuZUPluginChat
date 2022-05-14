@@ -32,6 +32,7 @@ import net.azisaba.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import net.azisaba.ryuzupluginchat.redis.ReplyTargetFetcher;
 import net.azisaba.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
+import net.azisaba.ryuzupluginchat.task.SubscriberPingTask;
 import net.azisaba.ryuzupluginchat.taskchain.BukkitTaskChainFactory;
 import net.azisaba.ryuzupluginchat.updater.GitHubPluginUpdater;
 import net.azisaba.ryuzupluginchat.updater.UpdateStatus;
@@ -98,6 +99,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     if (rpcConfig.isDiscordBotEnabled()) {
       setupDiscordConnection();
     }
+
+    new SubscriberPingTask(this, subscriber, privateChatReachedSubscriber).run();
 
     // 6 hours
     int randomTicks = 20 * 60 * 60 * 6;

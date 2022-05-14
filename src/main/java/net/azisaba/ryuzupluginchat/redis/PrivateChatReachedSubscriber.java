@@ -3,9 +3,11 @@ package net.azisaba.ryuzupluginchat.redis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,6 +15,7 @@ import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 @RequiredArgsConstructor
 public class PrivateChatReachedSubscriber {
@@ -24,10 +27,13 @@ public class PrivateChatReachedSubscriber {
 
   private final ObjectMapper mapper = new ObjectMapper();
 
+  @Getter private JedisPubSub subscriber;
   @Setter @Getter private ExecutorService executorService;
 
+  private final ArrayDeque<Consumer<String>> pingPongQueue = new ArrayDeque<>();
+
   public void subscribe() {
-    JedisPubSub subscriber =
+    subscriber =
         new JedisPubSub() {
           @Override
           public void onMessage(String channel, String message) {
@@ -46,6 +52,18 @@ public class PrivateChatReachedSubscriber {
                   .warning("Unknown id received. private chat response id must be a number.");
             } catch (JsonProcessingException e) {
               e.printStackTrace();
+            }
+          }
+
+          @Override
+          public void onPong(String pattern) {
+            Consumer<String> consumer = pingPongQueue.poll();
+            if (consumer != null) {
+              try {
+                consumer.accept(pattern);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
             }
           }
         };
@@ -75,5 +93,36 @@ public class PrivateChatReachedSubscriber {
             }
           });
     }
+  }
+
+  public long ping() {
+    if (subscriber == null || !subscriber.isSubscribed()) {
+      return -2;
+    }
+
+    Thread thread =
+        new Thread(
+            () -> {
+              try {
+                Thread.sleep(5000);
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            });
+    long start = System.currentTimeMillis();
+
+    pingPongQueue.add(arg -> thread.interrupt());
+    try {
+      subscriber.ping();
+    } catch (JedisConnectionException e) {
+      return -1;
+    }
+
+    try {
+      thread.join(3000);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    return System.currentTimeMillis() - start;
   }
 }
