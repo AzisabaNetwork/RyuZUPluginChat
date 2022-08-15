@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.Random;
 import lombok.Getter;
 import net.azisaba.ryuzupluginchat.command.HideCommand;
+import net.azisaba.ryuzupluginchat.command.HideListCommand;
 import net.azisaba.ryuzupluginchat.command.RPCCommand;
 import net.azisaba.ryuzupluginchat.command.ReplyCommand;
 import net.azisaba.ryuzupluginchat.command.TellCommand;
@@ -173,6 +174,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
     privateChatIDGetter = new PrivateChatIDGetter(jedisPool, rpcConfig.getGroupName());
     vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedisPool, rpcConfig.getGroupName());
     hideInfoController = new HideInfoController(jedisPool, rpcConfig.getGroupName());
+
+    // Populate (reverse)hideMap
+    hideInfoController.updateCache();
   }
 
   private void setupDiscordConnection() {
@@ -197,6 +201,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     registerCommand("vc", new VCCommand(this, vcLunaChatChannelSharer));
     registerCommand("hide", new HideCommand(this));
     registerCommand("unhide", new UnHideCommand(this));
+    registerCommand("hidelist", new HideListCommand(this));
   }
 
   private void registerCommand(String commandName, CommandExecutor executor) {

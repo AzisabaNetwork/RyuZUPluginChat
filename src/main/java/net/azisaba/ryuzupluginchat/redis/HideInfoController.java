@@ -22,7 +22,11 @@ public class HideInfoController {
   private final String groupName;
   private final ReentrantLock lock = new ReentrantLock(true);
 
+  // Player : Set of players who hide the <Player>
   private final HashMap<UUID, Set<UUID>> hideMap = new HashMap<>();
+
+  // Player : Set of players who are hidden by <Player>
+  private final Map<UUID, Set<UUID>> reverseHideMap = new HashMap<>();
   private long keyLastUpdatedMilliSeconds = -1L;
 
   public void setHide(UUID actor, UUID target) {
@@ -64,6 +68,11 @@ public class HideInfoController {
     updateRedisInfo(target);
   }
 
+  /**
+   * Returns the set of players who hides the target player.
+   * @param uuid The target player
+   * @return set of UUIDs
+   */
   public Set<UUID> getPlayersWhoHide(UUID uuid) {
     if (keyLastUpdatedMilliSeconds + (1000L * 10) < System.currentTimeMillis()) {
       RyuZUPluginChat.newChain().delay(1, TimeUnit.MILLISECONDS).async(this::updateCache).execute();
@@ -76,6 +85,24 @@ public class HideInfoController {
         uuidSet = new HashSet<>();
       }
       return uuidSet;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * Returns the set of players who are hidden by the target player.
+   * @param uuid the target player
+   * @return set of UUIDs
+   */
+  public Set<UUID> getHiddenPlayersBy(UUID uuid) {
+    if (keyLastUpdatedMilliSeconds + (1000L * 10) < System.currentTimeMillis()) {
+      RyuZUPluginChat.newChain().delay(1, TimeUnit.MILLISECONDS).async(this::updateCache).execute();
+    }
+
+    lock.lock();
+    try {
+      return reverseHideMap.getOrDefault(uuid, Collections.emptySet());
     } finally {
       lock.unlock();
     }
@@ -98,6 +125,8 @@ public class HideInfoController {
     lock.lock();
     try {
       hideMap.clear();
+      reverseHideMap.clear();
+      // Player : List of players who hide the <Player>
       Map<String, String> rawData =
           JedisUtils.executeUsingJedisPoolWithReturn(
               jedisPool, (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
@@ -109,6 +138,9 @@ public class HideInfoController {
                   .map(UUID::fromString)
                   .collect(Collectors.toSet());
           hideMap.put(keyUUID, uuidList);
+          for (UUID uuid : uuidList) {
+            reverseHideMap.computeIfAbsent(uuid, k -> new HashSet<>()).add(keyUUID);
+          }
         }
       }
       keyLastUpdatedMilliSeconds = System.currentTimeMillis();
