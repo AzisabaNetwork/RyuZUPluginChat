@@ -28,7 +28,10 @@ public class MessageProcessor {
   public void processGlobalMessage(GlobalMessageData data) {
     String message = data.format();
 
-    UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+    UUID senderUUID = data.getPlayerUuid();
+    if (senderUUID == null) {
+      senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+    }
     final Set<UUID> deafenPlayers;
     if (senderUUID != null) {
       deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
@@ -79,7 +82,10 @@ public class MessageProcessor {
           .forEach(p -> p.sendMessage(message));
 
     } else {
-      UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+      UUID senderUUID = data.getPlayerUuid();
+      if (senderUUID == null) {
+        senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+      }
       final Set<UUID> deafenPlayers;
       if (senderUUID != null) {
         deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
