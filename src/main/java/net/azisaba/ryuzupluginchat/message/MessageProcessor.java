@@ -30,7 +30,7 @@ public class MessageProcessor {
 
     UUID senderUUID = data.getPlayerUuid();
     if (senderUUID == null) {
-      plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
+      senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
     }
     final Set<UUID> deafenPlayers;
     if (senderUUID != null) {
