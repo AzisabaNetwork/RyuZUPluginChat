@@ -1,5 +1,6 @@
 package net.azisaba.ryuzupluginchat.message.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PrivateMessageData {
 
   private long id;
@@ -19,6 +21,7 @@ public class PrivateMessageData {
   private String sendServerName;
   private String receiveServerName;
   private String sentPlayerName;
+  private UUID sentPlayerUuid;
   private String receivedPlayerName;
   private UUID receivedPlayerUUID;
 

@@ -1,5 +1,7 @@
 package net.azisaba.ryuzupluginchat.message.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,7 @@ import org.bukkit.ChatColor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChannelChatMessageData {
 
   private String lunaChatChannelName;
@@ -19,6 +22,7 @@ public class ChannelChatMessageData {
   private String ryuzuMapPrefix;
   private String sendServerName;
   private String receiveServerName;
+  private UUID playerUuid;
   private String playerName;
   private String playerDisplayName;
   private String ryuzuMapSuffix;
