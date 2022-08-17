@@ -35,6 +35,7 @@ public class MessageDataFactory {
         plugin.getPrefixSuffixContainer().getPrefix(p),
         plugin.getRpcConfig().getServerName(),
         null,
+        p.getUniqueId(),
         p.getName(),
         p.getDisplayName(),
         plugin.getPrefixSuffixContainer().getSuffix(p),
@@ -53,6 +54,7 @@ public class MessageDataFactory {
         null,
         null,
         "Discord",
+        null,
         null,
         userName,
         userName,
@@ -78,6 +80,7 @@ public class MessageDataFactory {
         plugin.getRpcConfig().getServerName(),
         null,
         p.getName(),
+        p.getUniqueId(),
         null,
         targetUuid,
         canJapanize(message, p),
@@ -85,7 +88,9 @@ public class MessageDataFactory {
         replaceMessage(message, p));
   }
 
-  /** @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead. */
+  /**
+   * @deprecated Use {@link #createChannelChatMessageData(Player, String, String)} instead.
+   */
   @Deprecated
   public ChannelChatMessageData createChannelChatMessageData(Player p, String message) {
     Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
@@ -110,6 +115,7 @@ public class MessageDataFactory {
         plugin.getPrefixSuffixContainer().getPrefix(p),
         plugin.getRpcConfig().getServerName(),
         null,
+        p.getUniqueId(),
         p.getName(),
         p.getDisplayName(),
         plugin.getPrefixSuffixContainer().getSuffix(p),
@@ -133,6 +139,7 @@ public class MessageDataFactory {
         null,
         null,
         "Discord",
+        null,
         null,
         userName,
         userName,
