@@ -33,6 +33,9 @@ public class MessageProcessor {
     if (senderUUID != null) {
       deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
     } else {
+      if (!data.isFromDiscord()) {
+        plugin.getLogger().warning("Could not get UUID for player " + data.getPlayerName());
+      }
       deafenPlayers = Collections.emptySet();
     }
 
