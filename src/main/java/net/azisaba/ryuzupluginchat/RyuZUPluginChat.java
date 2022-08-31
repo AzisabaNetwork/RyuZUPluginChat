@@ -16,6 +16,7 @@ import net.azisaba.ryuzupluginchat.command.VCCommand;
 import net.azisaba.ryuzupluginchat.config.RPCConfig;
 import net.azisaba.ryuzupluginchat.discord.DiscordHandler;
 import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
+import net.azisaba.ryuzupluginchat.listener.ChannelMsgFromCommandListener;
 import net.azisaba.ryuzupluginchat.listener.ChatListener;
 import net.azisaba.ryuzupluginchat.listener.HideAllListener;
 import net.azisaba.ryuzupluginchat.listener.JoinQuitListener;
@@ -98,6 +99,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new JoinQuitListener(this), this);
     getServer().getPluginManager().registerEvents(new OutdatedCommandCaptureListener(this), this);
     getServer().getPluginManager().registerEvents(new LunaChatHideCommandListener(this), this);
+    getServer().getPluginManager().registerEvents(new ChannelMsgFromCommandListener(this), this);
     getServer().getPluginManager().registerEvents(new HideAllListener(this), this);
 
     registerCommands();
