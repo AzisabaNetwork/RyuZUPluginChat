@@ -20,6 +20,7 @@ import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.Chat;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -140,6 +141,14 @@ public class MessageProcessor {
     if (receiverName != null) {
       data.setReceivedPlayerName(receiverName);
     }
+
+    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
+    if (targetPlayer != null) {
+      data.setReceivedPlayerDisplayName(
+          LegacyComponentSerializer.legacy(ChatColor.COLOR_CHAR)
+              .serialize(targetPlayer.displayName()));
+    }
+
     String message = data.format();
 
     Set<Player> recipients;
@@ -156,7 +165,6 @@ public class MessageProcessor {
       recipients = new HashSet<>();
     }
 
-    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer != null) {
       recipients.add(targetPlayer);
 
