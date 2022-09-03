@@ -5,6 +5,7 @@ import co.aikar.taskchain.TaskChainFactory;
 import java.io.File;
 import java.util.Random;
 import lombok.Getter;
+import net.azisaba.ryuzupluginchat.command.HideAllCommand;
 import net.azisaba.ryuzupluginchat.command.HideCommand;
 import net.azisaba.ryuzupluginchat.command.HideListCommand;
 import net.azisaba.ryuzupluginchat.command.RPCCommand;
@@ -23,6 +24,7 @@ import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
 import net.azisaba.ryuzupluginchat.message.MessageDataFactory;
 import net.azisaba.ryuzupluginchat.message.MessageProcessor;
 import net.azisaba.ryuzupluginchat.message.PrivateChatInspectHandler;
+import net.azisaba.ryuzupluginchat.redis.HideAllInfoController;
 import net.azisaba.ryuzupluginchat.redis.HideInfoController;
 import net.azisaba.ryuzupluginchat.redis.MessagePublisher;
 import net.azisaba.ryuzupluginchat.redis.MessageSubscriber;
@@ -61,6 +63,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private VCLunaChatChannelSharer vcLunaChatChannelSharer;
   private PrivateChatResponseWaiter privateChatResponseWaiter;
   private HideInfoController hideInfoController;
+  private HideAllInfoController hideAllInfoController;
   private final PrivateChatInspectHandler privateChatInspectHandler =
       new PrivateChatInspectHandler();
 
@@ -174,6 +177,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     privateChatIDGetter = new PrivateChatIDGetter(jedisPool, rpcConfig.getGroupName());
     vcLunaChatChannelSharer = new VCLunaChatChannelSharer(jedisPool, rpcConfig.getGroupName());
     hideInfoController = new HideInfoController(jedisPool, rpcConfig.getGroupName());
+    hideAllInfoController = new HideAllInfoController(this, jedisPool);
+    hideAllInfoController.refreshAllAsync();
 
     // Populate (reverse)hideMap
     hideInfoController.updateCache();
@@ -202,6 +207,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     registerCommand("hide", new HideCommand(this));
     registerCommand("unhide", new UnHideCommand(this));
     registerCommand("hidelist", new HideListCommand(this));
+    registerCommand("hideall", new HideAllCommand(this));
   }
 
   private void registerCommand(String commandName, CommandExecutor executor) {

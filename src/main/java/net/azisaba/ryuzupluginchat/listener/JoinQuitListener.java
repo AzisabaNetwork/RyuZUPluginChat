@@ -27,6 +27,8 @@ public class JoinQuitListener implements Listener {
               }
             },
             20L * 3L);
+
+    plugin.getHideAllInfoController().refreshHideAllInfoAsync(p.getUniqueId());
   }
 
   @EventHandler
@@ -35,5 +37,7 @@ public class JoinQuitListener implements Listener {
 
     Bukkit.getScheduler()
         .runTaskAsynchronously(plugin, () -> plugin.getPlayerUUIDMapContainer().unregister(p));
+
+    plugin.getHideAllInfoController().discardHideAllInfo(p.getUniqueId());
   }
 }
