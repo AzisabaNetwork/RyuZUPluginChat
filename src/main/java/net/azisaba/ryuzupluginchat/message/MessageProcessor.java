@@ -5,12 +5,16 @@ import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.event.AsyncChannelMessageEvent;
+import net.azisaba.ryuzupluginchat.event.AsyncGlobalMessageEvent;
+import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
@@ -42,9 +46,19 @@ public class MessageProcessor {
       deafenPlayers = Collections.emptySet();
     }
 
-    Bukkit.getOnlinePlayers().stream()
+    Set<Player> recipients = Bukkit.getOnlinePlayers().stream()
         .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
-        .forEach((p) -> p.sendMessage(message));
+        .collect(Collectors.toCollection(HashSet::new));
+
+    AsyncGlobalMessageEvent event = new AsyncGlobalMessageEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      return;
+    }
+
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
+    }
 
     plugin.getLogger().info("[Global-Chat] " + ChatColor.stripColor(message));
   }
@@ -67,8 +81,9 @@ public class MessageProcessor {
         .getLogger()
         .info(Chat.f("[Channel-Chat] ({0}) {1}", channel.getName(), ChatColor.stripColor(message)));
 
+    Set<Player> recipients;
     if (data.isFromDiscord()) {
-      Bukkit.getOnlinePlayers().stream()
+      recipients = Bukkit.getOnlinePlayers().stream()
           .filter(
               p -> {
                 if (channel.getMembers().stream()
@@ -79,7 +94,7 @@ public class MessageProcessor {
                 }
                 return p.hasPermission("rpc.op");
               })
-          .forEach(p -> p.sendMessage(message));
+          .collect(Collectors.toCollection(HashSet::new));
 
     } else {
       UUID senderUUID = data.getPlayerUuid();
@@ -93,7 +108,7 @@ public class MessageProcessor {
         deafenPlayers = Collections.emptySet();
       }
 
-      Bukkit.getOnlinePlayers().stream()
+      recipients = Bukkit.getOnlinePlayers().stream()
           .filter(
               p -> {
                 if (channel.getMembers().stream()
@@ -105,7 +120,17 @@ public class MessageProcessor {
                 return p.hasPermission("rpc.op");
               })
           .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
-          .forEach(p -> p.sendMessage(message));
+          .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    AsyncChannelMessageEvent event = new AsyncChannelMessageEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      return;
+    }
+
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
     }
   }
 
@@ -117,45 +142,58 @@ public class MessageProcessor {
     }
     String message = data.format();
 
+    Set<Player> recipients;
     if (receiverName != null) {
-      Bukkit.getOnlinePlayers().stream()
+      recipients = Bukkit.getOnlinePlayers().stream()
           .filter(p -> p.hasPermission("rpc.op"))
           .filter(
               p ->
                   !p.getUniqueId().equals(data.getReceivedPlayerUUID())
                       && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
           .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
-          .forEach(p -> p.sendMessage(message));
+          .collect(Collectors.toCollection(HashSet::new));
+    } else {
+      recipients = new HashSet<>();
     }
 
     Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
-    if (targetPlayer == null) {
+    if (targetPlayer != null) {
+      recipients.add(targetPlayer);
+
+      UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
+      if (!plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
+        recipients.add(targetPlayer);
+      }
+      plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
+
+      RyuZUPluginChat.newChain()
+          .async(
+              () -> {
+                if (senderUUID == null) {
+                  return;
+                }
+                plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
+              })
+          .async(
+              () ->
+                  plugin
+                      .getPublisher()
+                      .notifyPrivateChatReached(
+                          data.getId(),
+                          plugin.getRpcConfig().getServerName(),
+                          targetPlayer.getName()))
+          .execute();
+    }
+
+    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
       return;
     }
 
-    UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
-    if (!plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
-      targetPlayer.sendMessage(message);
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
     }
-    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
-
-    RyuZUPluginChat.newChain()
-        .async(
-            () -> {
-              if (senderUUID == null) {
-                return;
-              }
-              plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
-            })
-        .async(
-            () ->
-                plugin
-                    .getPublisher()
-                    .notifyPrivateChatReached(
-                        data.getId(),
-                        plugin.getRpcConfig().getServerName(),
-                        targetPlayer.getName()))
-        .execute();
   }
 
   public void processSystemMessage(SystemMessageData data) {

@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PrivateMessageData {
+public class PrivateMessageData implements MessageData {
 
   private long id;
 

@@ -12,7 +12,7 @@ import org.bukkit.ChatColor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GlobalMessageData {
+public class GlobalMessageData implements MessageData {
 
   private String format;
   private String lunaChatPrefix; // TODO: remove (存在しない)
