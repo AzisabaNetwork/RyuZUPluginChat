@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class SystemMessageData {
+public class SystemMessageData implements MessageData {
 
   private final String sendServerName;
   private final String receiveServerName;

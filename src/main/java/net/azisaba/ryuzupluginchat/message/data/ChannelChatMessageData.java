@@ -12,7 +12,7 @@ import org.bukkit.ChatColor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChannelChatMessageData {
+public class ChannelChatMessageData implements MessageData {
 
   private String lunaChatChannelName;
   private String channelColorCode;
