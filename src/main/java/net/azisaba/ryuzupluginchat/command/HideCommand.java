@@ -31,7 +31,7 @@ public class HideCommand implements CommandExecutor, TabCompleter {
     }
     Player p = (Player) sender;
 
-    if (args.length <= 0) {
+    if (args.length == 0) {
       p.sendMessage(Chat.f("&c使い方: /{0} <プレイヤー>", label));
       return true;
     }

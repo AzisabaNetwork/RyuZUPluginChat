@@ -23,7 +23,7 @@ public class OutdatedCommandCaptureListener implements Listener {
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
     String[] labelAndArgs = e.getMessage().split(" ");
-    if (labelAndArgs.length <= 0) {
+    if (labelAndArgs.length == 0) {
       return;
     }
     String label = labelAndArgs[0];

@@ -4,6 +4,8 @@ import discord4j.common.util.Snowflake;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
@@ -56,7 +58,7 @@ public class RPCConfig {
       return;
     }
 
-    discordBotToken = conf.getString("discord.token", "Token here");
+    discordBotToken = Objects.requireNonNull(conf.getString("discord.token", "Token here"));
 
     if (discordBotToken.equals("Token here")) {
       plugin

@@ -25,7 +25,7 @@ public class DiscordMessageDeliverer {
   public void sendToGlobal(MessageCreateEvent event) {
     Message message = event.getMessage();
     String content = message.getContent();
-    if (content.length() <= 0) {
+    if (content.length() == 0) {
       return;
     }
     content = removeUrl(content);
@@ -46,7 +46,7 @@ public class DiscordMessageDeliverer {
   public void sendToChannel(MessageCreateEvent event, ChannelChatSyncData syncData) {
     Message message = event.getMessage();
     String content = message.getContent();
-    if (content.length() <= 0) {
+    if (content.length() == 0) {
       return;
     }
     final String urlDeletedContent = removeUrl(content);
@@ -84,7 +84,7 @@ public class DiscordMessageDeliverer {
 
   private String removeUrl(String msg) {
     String urlPattern =
-        "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+        "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w:#@%/;$()~_?+-=\\\\.&]*)";
     Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(msg);
     int i = 0;

@@ -29,7 +29,6 @@ public class HideListCommand implements CommandExecutor, TabCompleter {
 
   private final RyuZUPluginChat plugin;
 
-  @SuppressWarnings("deprecation") // Unfortunately, Adventure API is not implemented in Paper 1.15.2.
   @Override
   public boolean onCommand(
       @NotNull CommandSender sender,
