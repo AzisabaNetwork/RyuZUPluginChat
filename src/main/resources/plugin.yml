@@ -37,6 +37,11 @@ commands:
     usage: /hidelist
     description: 非表示にしているプレイヤーの一覧を表示します
     permission: rpc.player
+  hideall:
+    usage: /hideall <duration>
+    description: 全体チャットを指定した期間非表示にします
+    permission: rpc.player
+    aliases: [ "hideglobal" ]
 
 permissions:
   rpc.player:
