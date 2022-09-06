@@ -14,6 +14,7 @@ public class HideAllListener implements Listener {
   @EventHandler
   public void onGlobalMessage(AsyncGlobalMessageEvent e) {
     e.getRecipients()
-        .removeIf(p -> plugin.getHideAllInfoController().isHideAllPlayer(p.getUniqueId()));
+        .removeIf(p -> !e.getMessage().getPlayerUuid().equals(p.getUniqueId())
+            && plugin.getHideAllInfoController().isHideAllPlayer(p.getUniqueId()));
   }
 }
