@@ -134,7 +134,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   public void executeFullReload() {
-    /** Shutdown Processes */
+    /* Shutdown Processes */
     // Redis Subscribers
     subscriber.getExecutorService().shutdownNow();
     subscriber.unregisterAll();
@@ -145,7 +145,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
       discordHandler.disconnect();
     }
 
-    /** Startup Processes */
+    /* Startup Processes */
     // Redis
     setupRedisConnections();
 

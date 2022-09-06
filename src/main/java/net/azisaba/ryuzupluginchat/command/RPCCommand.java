@@ -36,7 +36,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       @NotNull String label,
       @NotNull String[] args) {
 
-    if (args.length <= 0) {
+    if (args.length == 0) {
       sendUsage(sender, label);
       return true;
     }
@@ -113,7 +113,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(permissionDeniedMessage);
         return true;
       }
-      if (args.length <= 1) {
+      if (args.length == 1) {
         sender.sendMessage(Chat.f("/{0} prefix set [MCID] [Prefix]", label));
         return true;
       }
@@ -146,7 +146,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(permissionDeniedMessage);
         return true;
       }
-      if (args.length <= 1) {
+      if (args.length == 1) {
         sender.sendMessage(Chat.f("&c/{0} suffix set [MCID] [Suffix]", label));
         return true;
       }
@@ -231,7 +231,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(permissionDeniedMessage);
         return true;
       }
-      if (args.length <= 1) {
+      if (args.length == 1) {
         sender.sendMessage(
             Chat.f("&9/{0} config format set <global/private> [format]: formatを編集します", label));
         return true;

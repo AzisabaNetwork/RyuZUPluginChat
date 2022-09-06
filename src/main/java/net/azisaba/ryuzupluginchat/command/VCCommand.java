@@ -41,7 +41,7 @@ public class VCCommand implements CommandExecutor {
       return true;
     }
 
-    if (args.length <= 0) {
+    if (args.length == 0) {
       sender.sendMessage(Chat.f("&c使い方: /{0} <メッセージ>", label));
       return true;
     }
