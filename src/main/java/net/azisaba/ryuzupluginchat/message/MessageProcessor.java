@@ -20,6 +20,7 @@ import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.util.TaskSchedulingUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -83,18 +84,21 @@ public class MessageProcessor {
 
     Set<Player> recipients;
     if (data.isFromDiscord()) {
-      recipients = Bukkit.getOnlinePlayers().stream()
-          .filter(
-              p -> {
-                if (channel.getMembers().stream()
-                    .map(m -> ((ChannelMemberBukkit) m).getPlayer())
-                    .collect(Collectors.toList())
-                    .contains(p)) {
-                  return true;
-                }
-                return p.hasPermission("rpc.op");
-              })
-          .collect(Collectors.toCollection(HashSet::new));
+      recipients = TaskSchedulingUtils.getSynchronously(
+          () ->
+              Bukkit.getOnlinePlayers().stream()
+                  .filter(
+                      p -> {
+                        if (channel.getMembers().stream()
+                            .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+                            .collect(Collectors.toList())
+                            .contains(p)) {
+                          return true;
+                        }
+                        return p.hasPermission("rpc.op");
+                      })
+                  .collect(Collectors.toCollection(HashSet<Player>::new))
+      ).join();
 
     } else {
       UUID senderUUID = data.getPlayerUuid();
@@ -108,19 +112,22 @@ public class MessageProcessor {
         deafenPlayers = Collections.emptySet();
       }
 
-      recipients = Bukkit.getOnlinePlayers().stream()
-          .filter(
-              p -> {
-                if (channel.getMembers().stream()
-                    .map(m -> ((ChannelMemberBukkit) m).getPlayer())
-                    .collect(Collectors.toList())
-                    .contains(p)) {
-                  return true;
-                }
-                return p.hasPermission("rpc.op");
-              })
-          .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
-          .collect(Collectors.toCollection(HashSet::new));
+      recipients = TaskSchedulingUtils.getSynchronously(
+          () ->
+              Bukkit.getOnlinePlayers().stream()
+                  .filter(
+                      p -> {
+                        if (channel.getMembers().stream()
+                            .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+                            .collect(Collectors.toList())
+                            .contains(p)) {
+                          return true;
+                        }
+                        return p.hasPermission("rpc.op");
+                      })
+                  .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
+                  .collect(Collectors.toCollection(HashSet<Player>::new))
+      ).join();
     }
 
     AsyncChannelMessageEvent event = new AsyncChannelMessageEvent(data, recipients);
@@ -141,7 +148,6 @@ public class MessageProcessor {
       data.setReceivedPlayerName(receiverName);
     }
 
-    // -----
     Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer != null) {
       data.setReceivedPlayerDisplayName(targetPlayer.getDisplayName());
@@ -151,14 +157,16 @@ public class MessageProcessor {
 
     Set<Player> recipients;
     if (receiverName != null) {
-      recipients = Bukkit.getOnlinePlayers().stream()
-          .filter(p -> p.hasPermission("rpc.op"))
-          .filter(
-              p ->
-                  !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-                      && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
-          .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
-          .collect(Collectors.toCollection(HashSet::new));
+      recipients = TaskSchedulingUtils.getSynchronously(
+          () -> Bukkit.getOnlinePlayers().stream()
+              .filter(p -> p.hasPermission("rpc.op"))
+              .filter(
+                  p ->
+                      !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+                          && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
+              .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
+              .collect(Collectors.toCollection(HashSet<Player>::new))
+      ).join();
     } else {
       recipients = new HashSet<>();
     }

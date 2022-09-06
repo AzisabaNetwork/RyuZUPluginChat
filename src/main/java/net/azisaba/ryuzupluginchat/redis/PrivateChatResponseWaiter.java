@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
+import net.azisaba.ryuzupluginchat.util.TaskSchedulingUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -79,14 +80,17 @@ public class PrivateChatResponseWaiter {
 
     Set<Player> recipients;
     if (receiverName != null) {
-      recipients = Bukkit.getOnlinePlayers().stream()
-          .filter(p -> p.hasPermission("rpc.op"))
-          .filter(
-              p ->
-                  !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-                      && !p.getUniqueId().equals(sentPlayer.getUniqueId()))
-          .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
-          .collect(Collectors.toCollection(HashSet::new));
+      recipients = TaskSchedulingUtils.getSynchronously(
+          () ->
+              Bukkit.getOnlinePlayers().stream()
+                  .filter(p -> p.hasPermission("rpc.op"))
+                  .filter(
+                      p ->
+                          !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+                              && !p.getUniqueId().equals(sentPlayer.getUniqueId()))
+                  .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
+                  .collect(Collectors.toCollection(HashSet<Player>::new))
+      ).join();
     } else {
       recipients = new HashSet<>();
     }
