@@ -22,6 +22,7 @@ import net.azisaba.ryuzupluginchat.listener.HideAllListener;
 import net.azisaba.ryuzupluginchat.listener.JoinQuitListener;
 import net.azisaba.ryuzupluginchat.listener.LunaChatHideCommandListener;
 import net.azisaba.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
+import net.azisaba.ryuzupluginchat.listener.PrivateChatDebugListener;
 import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
 import net.azisaba.ryuzupluginchat.message.MessageDataFactory;
 import net.azisaba.ryuzupluginchat.message.MessageProcessor;
@@ -101,6 +102,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new LunaChatHideCommandListener(this), this);
     getServer().getPluginManager().registerEvents(new ChannelMsgFromCommandListener(this), this);
     getServer().getPluginManager().registerEvents(new HideAllListener(this), this);
+    getServer().getPluginManager().registerEvents(new PrivateChatDebugListener(this), this);
 
     registerCommands();
 
