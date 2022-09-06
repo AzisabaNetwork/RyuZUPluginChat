@@ -140,6 +140,13 @@ public class MessageProcessor {
     if (receiverName != null) {
       data.setReceivedPlayerName(receiverName);
     }
+
+    // -----
+    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
+    if (targetPlayer != null) {
+      data.setReceivedPlayerDisplayName(targetPlayer.getDisplayName());
+    }
+
     String message = data.format();
 
     Set<Player> recipients;
@@ -156,7 +163,6 @@ public class MessageProcessor {
       recipients = new HashSet<>();
     }
 
-    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer != null) {
       recipients.add(targetPlayer);
 
@@ -181,18 +187,19 @@ public class MessageProcessor {
                       .notifyPrivateChatReached(
                           data.getId(),
                           plugin.getRpcConfig().getServerName(),
-                          targetPlayer.getName()))
+                          targetPlayer.getName(),
+                          targetPlayer.getDisplayName()))
           .execute();
-    }
 
-    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
-    Bukkit.getPluginManager().callEvent(event);
-    if (event.isCancelled()) {
-      return;
-    }
+      AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
+      Bukkit.getPluginManager().callEvent(event);
+      if (event.isCancelled()) {
+        return;
+      }
 
-    for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      for (Player player : event.getRecipients()) {
+        player.sendMessage(message);
+      }
     }
   }
 

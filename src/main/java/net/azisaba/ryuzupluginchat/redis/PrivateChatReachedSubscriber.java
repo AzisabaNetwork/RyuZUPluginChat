@@ -43,9 +43,10 @@ public class PrivateChatReachedSubscriber {
 
               long id = Long.parseLong(map.get("id"));
               String targetName = map.get("target");
+              String targetDisplayName = map.get("targetDisplayName");
               String serverName = map.get("server");
 
-              plugin.getPrivateChatResponseWaiter().reached(id, serverName, targetName);
+              plugin.getPrivateChatResponseWaiter().reached(id, serverName, targetName, targetDisplayName);
             } catch (NumberFormatException e) {
               plugin
                   .getLogger()

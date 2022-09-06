@@ -21,8 +21,10 @@ public class PrivateMessageData implements MessageData {
   private String sendServerName;
   private String receiveServerName;
   private String sentPlayerName;
+  private String sentPlayerDisplayName;
   private UUID sentPlayerUuid;
   private String receivedPlayerName;
+  private String receivedPlayerDisplayName;
   private UUID receivedPlayerUUID;
 
   private boolean japanized;
@@ -35,21 +37,28 @@ public class PrivateMessageData implements MessageData {
     String defaultFormat = format != null ? format : "";
 
     // receivedPlayerNameが存在する場合はそれにし、targetPlayerが存在する場合は名前を取得し、ない場合はUUIDで置き換え
-    String receivedPlayerName;
+    String formattedReceivedPlayerName;
     if (this.receivedPlayerName != null) {
-      receivedPlayerName = this.receivedPlayerName;
+      formattedReceivedPlayerName = this.receivedPlayerName;
     } else {
       Player targetPlayer = Bukkit.getPlayer(receivedPlayerUUID);
-      receivedPlayerName =
+      formattedReceivedPlayerName =
           targetPlayer != null ? targetPlayer.getName() : receivedPlayerUUID.toString();
     }
+
+    // DisplayNameが存在する場合はそれを、存在しない場合はPlayerNameを使用する
+    String receivedDisplayName =
+        receivedPlayerDisplayName != null ? receivedPlayerDisplayName : formattedReceivedPlayerName;
+    String sentDisplayName = sentPlayerDisplayName != null ? sentPlayerDisplayName : sentPlayerName;
 
     String formatted =
         defaultFormat
             .replace("[SendServerName]", convertEmptyIfNull(sendServerName))
             .replace("[ReceiveServerName]", convertEmptyIfNull(receiveServerName))
             .replace("[PlayerName]", convertEmptyIfNull(sentPlayerName))
-            .replace("[ReceivePlayerName]", convertEmptyIfNull(receivedPlayerName));
+            .replace("[ReceivePlayerName]", convertEmptyIfNull(formattedReceivedPlayerName))
+            .replace("[PlayerDisplayName]", convertEmptyIfNull(sentDisplayName))
+            .replace("[ReceivePlayerDisplayName]", convertEmptyIfNull(receivedDisplayName));
 
     formatted = ChatColor.translateAlternateColorCodes('&', formatted);
     if (japanized) {
