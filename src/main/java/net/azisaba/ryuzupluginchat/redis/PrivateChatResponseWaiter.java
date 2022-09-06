@@ -2,8 +2,11 @@ package net.azisaba.ryuzupluginchat.redis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,22 +50,60 @@ public class PrivateChatResponseWaiter {
             10L);
   }
 
+  /**
+   * @deprecated {@link #reached(long, String, String, String)}
+   */
+  @Deprecated
   protected void reached(long id, String server, String receivedPlayerName) {
+    reached(id, server, receivedPlayerName, null);
+  }
+
+  protected void reached(long id, String server, String receivedPlayerName, String receivedPlayerDisplayName) {
     PrivateMessageData data = dataMap.getOrDefault(id, null);
     if (data == null) {
       return;
     }
     data.setReceiveServerName(server);
     data.setReceivedPlayerName(receivedPlayerName);
-    String message = data.format();
+    data.setReceivedPlayerDisplayName(receivedPlayerDisplayName);
+
+    String receiverName =
+        plugin.getPlayerUUIDMapContainer().getNameFromUUID(data.getReceivedPlayerUUID());
 
     Player sentPlayer = Bukkit.getPlayer(data.getSentPlayerName());
     if (sentPlayer == null) {
       return;
     }
 
-    sentPlayer.sendMessage(message);
+    String message = data.format();
+
+    Set<Player> recipients;
+    if (receiverName != null) {
+      recipients = Bukkit.getOnlinePlayers().stream()
+          .filter(p -> p.hasPermission("rpc.op"))
+          .filter(
+              p ->
+                  !p.getUniqueId().equals(data.getReceivedPlayerUUID())
+                      && !p.getUniqueId().equals(sentPlayer.getUniqueId()))
+          .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
+          .collect(Collectors.toCollection(HashSet::new));
+    } else {
+      recipients = new HashSet<>();
+    }
+
+    recipients.add(sentPlayer);
+
     plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
+
+    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      return;
+    }
+
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
+    }
 
     dataMap.remove(id);
     timeouts.remove(id);

@@ -14,7 +14,6 @@ import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.LuckPermsPrefixSuffixUtils;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -81,7 +80,7 @@ public class MessageDataFactory {
         plugin.getRpcConfig().getServerName(),
         null,
         p.getName(),
-        LegacyComponentSerializer.legacy(ChatColor.COLOR_CHAR).serialize(p.displayName()),
+        p.getDisplayName(),
         p.getUniqueId(),
         null,
         null,

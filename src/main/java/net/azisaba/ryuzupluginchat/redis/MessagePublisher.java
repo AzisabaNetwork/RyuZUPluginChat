@@ -79,13 +79,22 @@ public class MessagePublisher {
     return true;
   }
 
+  /**
+   * @deprecated {@link #notifyPrivateChatReached(long, String, String, String)}
+   */
+  @Deprecated
   public void notifyPrivateChatReached(long id, String serverName, String receivedPlayerName) {
+    notifyPrivateChatReached(id, serverName, receivedPlayerName, null);
+  }
+
+  public void notifyPrivateChatReached(long id, String serverName, String receivedPlayerName, String receivedPlayerDisplayName) {
     ObjectMapper mapper = new ObjectMapper();
     HashMap<String, Object> map = new HashMap<>();
 
     map.put("id", id);
     map.put("server", serverName);
     map.put("target", receivedPlayerName);
+    map.put("targetDisplayName", receivedPlayerDisplayName);
 
     String jsonMessage;
     try {

@@ -20,7 +20,6 @@ import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.Chat;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -142,11 +141,10 @@ public class MessageProcessor {
       data.setReceivedPlayerName(receiverName);
     }
 
+    // -----
     Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
     if (targetPlayer != null) {
-      data.setReceivedPlayerDisplayName(
-          LegacyComponentSerializer.legacy(ChatColor.COLOR_CHAR)
-              .serialize(targetPlayer.displayName()));
+      data.setReceivedPlayerDisplayName(targetPlayer.getDisplayName());
     }
 
     String message = data.format();
@@ -189,18 +187,19 @@ public class MessageProcessor {
                       .notifyPrivateChatReached(
                           data.getId(),
                           plugin.getRpcConfig().getServerName(),
-                          targetPlayer.getName()))
+                          targetPlayer.getName(),
+                          targetPlayer.getDisplayName()))
           .execute();
-    }
 
-    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
-    Bukkit.getPluginManager().callEvent(event);
-    if (event.isCancelled()) {
-      return;
-    }
+      AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
+      Bukkit.getPluginManager().callEvent(event);
+      if (event.isCancelled()) {
+        return;
+      }
 
-    for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      for (Player player : event.getRecipients()) {
+        player.sendMessage(message);
+      }
     }
   }
 
