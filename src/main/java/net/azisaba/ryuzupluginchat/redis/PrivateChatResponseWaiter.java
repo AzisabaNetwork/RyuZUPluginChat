@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
