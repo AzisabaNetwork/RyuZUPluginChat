@@ -112,7 +112,20 @@ public final class RyuZUPluginChat extends JavaPlugin {
       setupDiscordConnection();
     }
 
-    new SubscriberPingTask(this, subscriber, privateChatReachedSubscriber).run();
+    boolean canPing = true;
+    try (Jedis jedis = jedisPool.getResource()) {
+      jedis.ping();
+    } catch (JedisAccessControlException e) {
+      canPing = false;
+    }
+
+    if (canPing) {
+      new SubscriberPingTask(this, subscriber, privateChatReachedSubscriber).run();
+    } else {
+      getLogger()
+          .warning(
+              "The permission for the redis PING command is missing. The auto-reconnect feature will be disabled.");
+    }
 
     // 6 hours
     int randomTicks = 20 * 60 * 60 * 6;
