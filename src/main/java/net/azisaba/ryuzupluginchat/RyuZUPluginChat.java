@@ -47,8 +47,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisAccessControlException;
 
 @Getter
 public final class RyuZUPluginChat extends JavaPlugin {
@@ -157,11 +159,10 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   private void setupRedisConnections() {
     jedisPool =
-        new JedisPool(
-            new JedisPoolConfig(),
+        createJedisPool(
             rpcConfig.getHostAndPort().getHost(),
             rpcConfig.getHostAndPort().getPort(),
-            3000, // timeout
+            rpcConfig.getRedisUserName(),
             rpcConfig.getRedisPassword());
 
     publisher = new MessagePublisher(this, jedisPool, jsonDataConverter, rpcConfig.getGroupName());
@@ -258,6 +259,19 @@ public final class RyuZUPluginChat extends JavaPlugin {
               }
             })
         .execute();
+  }
+
+  private JedisPool createJedisPool(String hostName, int port, String username, String password) {
+    if (username != null && password != null) {
+      return new JedisPool(hostName, port, username, password);
+    } else if (password != null) {
+      return new JedisPool(new JedisPoolConfig(), hostName, port, 3000, password);
+    } else if (username != null) {
+      throw new IllegalArgumentException(
+          "Redis password cannot be null if redis username is not null");
+    } else {
+      return new JedisPool(new JedisPoolConfig(), hostName, port);
+    }
   }
 
   public static <T> TaskChain<T> newChain() {
