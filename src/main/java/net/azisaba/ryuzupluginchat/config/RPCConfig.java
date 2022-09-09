@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
@@ -47,6 +46,13 @@ public class RPCConfig {
     hostAndPort = new HostAndPort(conf.getString("redis.hostname"), conf.getInt("redis.port"));
     redisUserName = conf.getString("redis.user");
     redisPassword = conf.getString("redis.password");
+
+    if (redisUserName != null && redisUserName.equals("")) {
+      redisUserName = null;
+    }
+    if (redisPassword != null && redisPassword.equals("")) {
+      redisPassword = null;
+    }
 
     globalChatFormat = conf.getString("formats.global");
     privateChatFormat = conf.getString("formats.private");
