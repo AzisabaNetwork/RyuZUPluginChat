@@ -157,58 +157,64 @@ public class MessageProcessor {
 
     Set<Player> recipients;
     if (receiverName != null) {
-      recipients = TaskSchedulingUtils.getSynchronously(
-          () -> Bukkit.getOnlinePlayers().stream()
-              .filter(p -> p.hasPermission("rpc.op"))
-              .filter(
-                  p ->
-                      !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-                          && !p.getName().equalsIgnoreCase(data.getSentPlayerName()))
-              .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
-              .collect(Collectors.toCollection(HashSet<Player>::new))
-      ).join();
+      recipients =
+          TaskSchedulingUtils.getSynchronously(
+                  () ->
+                      Bukkit.getOnlinePlayers().stream()
+                          .filter(p -> p.hasPermission("rpc.op"))
+                          .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID()))
+                          .filter(
+                              p ->
+                                  !plugin
+                                      .getPrivateChatInspectHandler()
+                                      .isDisabled(p.getUniqueId()))
+                          .collect(Collectors.toCollection(HashSet<Player>::new)))
+              .join();
     } else {
       recipients = new HashSet<>();
     }
 
-    if (targetPlayer != null) {
-      recipients.add(targetPlayer);
-
-      UUID senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getSentPlayerName());
-      if (!plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
+    UUID senderUUID = data.getSentPlayerUuid();
+    if (targetPlayer != null
+        && !plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
         recipients.add(targetPlayer);
-      }
-      plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
-
-      RyuZUPluginChat.newChain()
-          .async(
-              () -> {
-                if (senderUUID == null) {
-                  return;
-                }
-                plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
-              })
-          .async(
-              () ->
-                  plugin
-                      .getPublisher()
-                      .notifyPrivateChatReached(
-                          data.getId(),
-                          plugin.getRpcConfig().getServerName(),
-                          targetPlayer.getName(),
-                          targetPlayer.getDisplayName()))
-          .execute();
-
-      AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
-      Bukkit.getPluginManager().callEvent(event);
-      if (event.isCancelled()) {
-        return;
-      }
-
-      for (Player player : event.getRecipients()) {
-        player.sendMessage(message);
-      }
     }
+
+    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
+
+    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      return;
+    }
+
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
+    }
+
+    if (targetPlayer == null) {
+      return;
+    }
+
+    RyuZUPluginChat.newChain()
+        .async(
+            () -> {
+              if (senderUUID == null) {
+                return;
+              }
+              plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
+            })
+        .async(
+            () -> {
+              plugin
+                  .getPublisher()
+                  .notifyPrivateChatReached(
+                      data.getId(),
+                      plugin.getRpcConfig().getServerName(),
+                      targetPlayer.getName(),
+                      targetPlayer.getDisplayName());
+            })
+        .execute();
   }
 
   public void processSystemMessage(SystemMessageData data) {
