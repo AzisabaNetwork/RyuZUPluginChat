@@ -62,7 +62,7 @@ public class ChannelMsgFromCommandListener implements Listener {
     }
 
     String chatMessage =
-        e.getMessage().substring(labelAndArgs[0].length() + labelAndArgs[1].length() + 1);
+        e.getMessage().substring(labelAndArgs[0].length() + labelAndArgs[1].length() + 1).trim();
 
     ChannelChatMessageData data =
         plugin
