@@ -2,13 +2,10 @@ package net.azisaba.ryuzupluginchat.redis;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
-import net.azisaba.ryuzupluginchat.util.TaskSchedulingUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -22,9 +19,24 @@ public class PrivateChatResponseWaiter {
   private final HashMap<Long, PrivateMessageData> dataMap = new HashMap<>();
   private final HashMap<Long, Long> timeouts = new HashMap<>();
 
+  private final Map<Long, ReachedPrivateChatData> alreadyReachedIdMap = new HashMap<>();
+
   public void register(long id, PrivateMessageData data, long timeout) {
     dataMap.put(id, data);
     timeouts.put(id, System.currentTimeMillis() + timeout);
+
+    if (alreadyReachedIdMap.containsKey(id)) {
+      ReachedPrivateChatData reachedData = alreadyReachedIdMap.remove(id);
+      reached(
+          reachedData.getId(),
+          reachedData.getServer(),
+          reachedData.getReceivedPlayerName(),
+          reachedData.getReceivedPlayerDisplayName());
+    }
+  }
+
+  public boolean isRegistered(long id) {
+    return dataMap.containsKey(id);
   }
 
   public void runTimeoutDetectTask(JavaPlugin plugin) {
@@ -61,53 +73,26 @@ public class PrivateChatResponseWaiter {
 
   protected void reached(long id, String server, String receivedPlayerName, String receivedPlayerDisplayName) {
     PrivateMessageData data = dataMap.getOrDefault(id, null);
-    if (data == null) {
+
+    if (data != null && server.equals(plugin.getRpcConfig().getServerName())) {
+      // It must be already processed so ignorable.
+      dataMap.remove(id);
+      timeouts.remove(id);
       return;
     }
+
+    if (data == null) {
+      ReachedPrivateChatData reachedData =
+          new ReachedPrivateChatData(id, server, receivedPlayerName, receivedPlayerDisplayName);
+      alreadyReachedIdMap.put(id, reachedData);
+      return;
+    }
+
     data.setReceiveServerName(server);
     data.setReceivedPlayerName(receivedPlayerName);
     data.setReceivedPlayerDisplayName(receivedPlayerDisplayName);
 
-    String receiverName =
-        plugin.getPlayerUUIDMapContainer().getNameFromUUID(data.getReceivedPlayerUUID());
-
-    Player sentPlayer = Bukkit.getPlayer(data.getSentPlayerName());
-    if (sentPlayer == null) {
-      return;
-    }
-
-    String message = data.format();
-
-    Set<Player> recipients;
-    if (receiverName != null) {
-      recipients = TaskSchedulingUtils.getSynchronously(
-          () ->
-              Bukkit.getOnlinePlayers().stream()
-                  .filter(p -> p.hasPermission("rpc.op"))
-                  .filter(
-                      p ->
-                          !p.getUniqueId().equals(data.getReceivedPlayerUUID())
-                              && !p.getUniqueId().equals(sentPlayer.getUniqueId()))
-                  .filter(p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
-                  .collect(Collectors.toCollection(HashSet<Player>::new))
-      ).join();
-    } else {
-      recipients = new HashSet<>();
-    }
-
-    recipients.add(sentPlayer);
-
-    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
-
-    AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
-    Bukkit.getPluginManager().callEvent(event);
-    if (event.isCancelled()) {
-      return;
-    }
-
-    for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
-    }
+    plugin.getMessageProcessor().processPrivateMessage(data);
 
     dataMap.remove(id);
     timeouts.remove(id);
