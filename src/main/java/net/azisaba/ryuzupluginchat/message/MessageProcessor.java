@@ -15,6 +15,7 @@ import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.event.AsyncChannelMessageEvent;
 import net.azisaba.ryuzupluginchat.event.AsyncGlobalMessageEvent;
 import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
+import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageNotifyEvent;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
@@ -141,43 +142,32 @@ public class MessageProcessor {
     }
   }
 
+  @Deprecated
   public void processPrivateMessage(PrivateMessageData data) {
-    String receiverName =
-        plugin.getPlayerUUIDMapContainer().getNameFromUUID(data.getReceivedPlayerUUID());
-    if (receiverName != null) {
-      data.setReceivedPlayerName(receiverName);
+    if (!data.isDelivered()) {
+      processUndeliveredPrivateMessage(data);
+    } else {
+      notifyDeliveredPrivateMessage(data);
+    }
+  }
+
+  public void processUndeliveredPrivateMessage(PrivateMessageData data) {
+    assert !data.isDelivered();
+    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
+    if (targetPlayer == null) {
+      return;
     }
 
-    Player targetPlayer = Bukkit.getPlayer(data.getReceivedPlayerUUID());
-    if (targetPlayer != null) {
-      data.setReceivedPlayerDisplayName(targetPlayer.getDisplayName());
-    }
+    data.setReceivedPlayerName(targetPlayer.getName());
+    data.setReceivedPlayerDisplayName(targetPlayer.getDisplayName());
+    data.setReceiveServerName(plugin.getRpcConfig().getServerName());
 
     String message = data.format();
-
-    Set<Player> recipients;
-    if (receiverName != null) {
-      recipients =
-          TaskSchedulingUtils.getSynchronously(
-                  () ->
-                      Bukkit.getOnlinePlayers().stream()
-                          .filter(p -> p.hasPermission("rpc.op"))
-                          .filter(p -> !p.getUniqueId().equals(data.getReceivedPlayerUUID()))
-                          .filter(
-                              p ->
-                                  !plugin
-                                      .getPrivateChatInspectHandler()
-                                      .isDisabled(p.getUniqueId()))
-                          .collect(Collectors.toCollection(HashSet<Player>::new)))
-              .join();
-    } else {
-      recipients = new HashSet<>();
-    }
+    Set<Player> recipients = new HashSet<>();
 
     UUID senderUUID = data.getSentPlayerUuid();
-    if (targetPlayer != null
-        && !plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
-        recipients.add(targetPlayer);
+    if (!plugin.getHideInfoController().isHidingPlayer(targetPlayer.getUniqueId(), senderUUID)) {
+      recipients.add(targetPlayer);
     }
 
     plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
@@ -192,10 +182,6 @@ public class MessageProcessor {
       player.sendMessage(message);
     }
 
-    if (targetPlayer == null) {
-      return;
-    }
-
     RyuZUPluginChat.newChain()
         .async(
             () -> {
@@ -204,17 +190,40 @@ public class MessageProcessor {
               }
               plugin.getReplyTargetFetcher().setReplyTarget(targetPlayer, senderUUID);
             })
-        .async(
-            () -> {
-              plugin
-                  .getPublisher()
-                  .notifyPrivateChatReached(
-                      data.getId(),
-                      plugin.getRpcConfig().getServerName(),
-                      targetPlayer.getName(),
-                      targetPlayer.getDisplayName());
-            })
+        .async(() -> plugin.getPublisher().notifyPrivateChatReached(data))
         .execute();
+  }
+
+  public void notifyDeliveredPrivateMessage(PrivateMessageData data) {
+    assert data.isDelivered();
+
+    Set<Player> recipients =
+        TaskSchedulingUtils.getSynchronously(
+                () ->
+                    Bukkit.getOnlinePlayers().stream()
+                        .filter(p -> p.hasPermission("rpc.op"))
+                        .filter(p -> !data.getReceivedPlayerUUID().equals(p.getUniqueId()))
+                        .filter(
+                            p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
+                        .collect(Collectors.toCollection(HashSet<Player>::new)))
+            .join();
+
+    Player sentPlayer = Bukkit.getPlayer(data.getSentPlayerUuid());
+    if (sentPlayer != null) {
+      recipients.add(sentPlayer);
+    }
+
+    AsyncPrivateMessageNotifyEvent event = new AsyncPrivateMessageNotifyEvent(data, recipients);
+    Bukkit.getPluginManager().callEvent(event);
+    if (event.isCancelled()) {
+      return;
+    }
+
+    String message = data.format();
+
+    for (Player player : event.getRecipients()) {
+      player.sendMessage(message);
+    }
   }
 
   public void processSystemMessage(SystemMessageData data) {
