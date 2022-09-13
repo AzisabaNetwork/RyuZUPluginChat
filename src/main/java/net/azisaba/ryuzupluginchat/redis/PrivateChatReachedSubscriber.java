@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayDeque;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -12,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -38,19 +38,10 @@ public class PrivateChatReachedSubscriber {
           @Override
           public void onMessage(String channel, String message) {
             try {
-              Map<String, String> map =
-                  mapper.readValue(message, new TypeReference<Map<String, String>>() {});
+              PrivateMessageData data =
+                  mapper.readValue(message, new TypeReference<PrivateMessageData>() {});
 
-              long id = Long.parseLong(map.get("id"));
-              String targetName = map.get("target");
-              String targetDisplayName = map.get("targetDisplayName");
-              String serverName = map.get("server");
-
-              plugin.getPrivateChatResponseWaiter().reached(id, serverName, targetName, targetDisplayName);
-            } catch (NumberFormatException e) {
-              plugin
-                  .getLogger()
-                  .warning("Unknown id received. private chat response id must be a number.");
+              plugin.getPrivateChatResponseWaiter().reached(data);
             } catch (JsonProcessingException e) {
               e.printStackTrace();
             }
@@ -75,7 +66,7 @@ public class PrivateChatReachedSubscriber {
     executorService.submit(
         () -> {
           try (Jedis jedis = jedisPool.getResource()) {
-            jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+            jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-notify");
           }
         });
 
@@ -90,7 +81,7 @@ public class PrivateChatReachedSubscriber {
             }
 
             try (Jedis jedis = jedisPool.getResource()) {
-              jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-response");
+              jedis.subscribe(subscriber, "rpc:" + groupName + ":private-chat-notify");
             }
           });
     }

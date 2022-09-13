@@ -193,15 +193,8 @@ public class MessageSubscriber {
     channelChatConsumers.add(
         (data) -> plugin.getMessageProcessor().processChannelChatMessage(data));
     systemMessageConsumers.add((data) -> plugin.getMessageProcessor().processSystemMessage(data));
-
     privateChatConsumers.add(
-        (data) -> {
-          if (Bukkit.getPlayer(data.getReceivedPlayerUUID()) != null) {
-            plugin.getMessageProcessor().processPrivateMessage(data);
-          } else if (!plugin.getPrivateChatResponseWaiter().isRegistered(data.getId())) {
-            plugin.getPrivateChatResponseWaiter().register(data.getId(), data, 5000L);
-          }
-        });
+        (data) -> plugin.getMessageProcessor().processUndeliveredPrivateMessage(data));
   }
 
   public void registerPublicConsumer(Consumer<GlobalMessageData> consumer) {

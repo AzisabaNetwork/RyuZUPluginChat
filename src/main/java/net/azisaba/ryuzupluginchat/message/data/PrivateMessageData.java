@@ -32,6 +32,8 @@ public class PrivateMessageData implements MessageData {
 
   private String message;
 
+  private boolean delivered = false;
+
   public String format() {
     // format が存在する場合はそれを使用し、ない場合は空白
     String defaultFormat = format != null ? format : "";

@@ -2,7 +2,6 @@ package net.azisaba.ryuzupluginchat.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
@@ -79,26 +78,11 @@ public class MessagePublisher {
     return true;
   }
 
-  /**
-   * @deprecated {@link #notifyPrivateChatReached(long, String, String, String)}
-   */
-  @Deprecated
-  public void notifyPrivateChatReached(long id, String serverName, String receivedPlayerName) {
-    notifyPrivateChatReached(id, serverName, receivedPlayerName, null);
-  }
-
-  public void notifyPrivateChatReached(long id, String serverName, String receivedPlayerName, String receivedPlayerDisplayName) {
+  public void notifyPrivateChatReached(PrivateMessageData data) {
     ObjectMapper mapper = new ObjectMapper();
-    HashMap<String, Object> map = new HashMap<>();
-
-    map.put("id", id);
-    map.put("server", serverName);
-    map.put("target", receivedPlayerName);
-    map.put("targetDisplayName", receivedPlayerDisplayName);
-
     String jsonMessage;
     try {
-      jsonMessage = mapper.writeValueAsString(map);
+      jsonMessage = mapper.writeValueAsString(data);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
       return;
@@ -106,6 +90,6 @@ public class MessagePublisher {
 
     JedisUtils.executeUsingJedisPool(
         jedisPool,
-        (jedis) -> jedis.publish("rpc:" + groupName + ":private-chat-response", jsonMessage));
+        (jedis) -> jedis.publish("rpc:" + groupName + ":private-chat-notify", jsonMessage));
   }
 }
