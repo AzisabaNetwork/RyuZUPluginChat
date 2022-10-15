@@ -8,7 +8,9 @@ import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -46,6 +48,7 @@ public class ChannelMsgFromCommandListener implements Listener {
 
   @EventHandler
   public void onCommand(PlayerCommandPreprocessEvent e) {
+    Player p = e.getPlayer();
     String message = e.getMessage();
     String[] labelAndArgs = message.split(" ");
     if (labelAndArgs.length <= 2 || !chCommandList.contains(labelAndArgs[0].toLowerCase())) {
@@ -58,6 +61,17 @@ public class ChannelMsgFromCommandListener implements Listener {
 
     Channel ch = LunaChat.getAPI().getChannel(labelAndArgs[1]);
     if (ch == null) {
+      return;
+    }
+
+    if (ch.getMembers().stream()
+        .noneMatch(member -> member.getName().equalsIgnoreCase(e.getPlayer().getName()))) {
+      p.sendMessage(Chat.f("&cあなたはチャンネルに参加していないためメッセージを送信することはできません！"));
+      return;
+    }
+
+    if (!p.hasPermission("lunachat.speak." + ch.getName())) {
+      p.sendMessage(Chat.f("&cこのチャンネルでメッセージを送信する権限がありません！"));
       return;
     }
 
