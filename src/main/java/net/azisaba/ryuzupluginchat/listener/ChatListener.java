@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
-import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -50,7 +50,7 @@ public class ChatListener implements Listener {
       Channel ch = LunaChat.getAPI().getDefaultChannel(p.getName());
 
       if (!p.hasPermission("lunachat.speak." + ch.getName())) {
-        p.sendMessage(Chat.f("&cこのチャンネルでメッセージを送信する権限がありません！"));
+        Messages.sendFormatted(p, "chat.error.no_speak_permission");
         return;
       }
 

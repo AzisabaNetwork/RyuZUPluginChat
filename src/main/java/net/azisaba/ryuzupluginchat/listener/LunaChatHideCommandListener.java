@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,12 +34,6 @@ public class LunaChatHideCommandListener implements Listener {
     Player p = e.getPlayer();
 
     Bukkit.getScheduler()
-        .runTaskLater(
-            plugin,
-            () ->
-                p.sendMessage(
-                    Chat.f(
-                        "&c注意: &e現在LunaChatのプレイヤーhideは機能していません！\n&eかわりに&c/hide <プレイヤー>&eを使用してください！")),
-            1L);
+        .runTaskLater(plugin, () -> Messages.sendFormatted(p, "chat.error.broken_lunachat_hide"), 1L);
   }
 }

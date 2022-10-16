@@ -1,17 +1,8 @@
 package net.azisaba.ryuzupluginchat.command;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -20,6 +11,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class HideAllCommand implements TabExecutor {
@@ -35,7 +35,7 @@ public class HideAllCommand implements TabExecutor {
       @NotNull String[] args) {
 
     if (!(sender instanceof Player)) {
-      sender.sendMessage(Chat.f("&cこのコマンドはプレイヤーのみ有効です"));
+      Messages.sendFormatted(sender, "command.error.sender_not_player");
       return true;
     }
     Player p = (Player) sender;
@@ -48,7 +48,7 @@ public class HideAllCommand implements TabExecutor {
       try {
         duration = convertStringToDuration(args[0]);
       } catch (IllegalArgumentException ex) {
-        p.sendMessage(Chat.f("&e{0}&cは不正な値です", args[0]));
+        Messages.sendFormatted(p, "command.error.invalid_single_argument", args[0]);
         return true;
       }
     } else { // No args
@@ -73,17 +73,17 @@ public class HideAllCommand implements TabExecutor {
                   jedis.del(key);
                 }
                 plugin.getHideAllInfoController().discardHideAllInfo(p.getUniqueId());
-                p.sendMessage(Chat.f("&a全体チャットの非表示を解除しました"));
+                Messages.sendFormatted(p, "command.hideall.disabled");
               })
           .execute();
       return true;
     }
 
     if (duration.isNegative()) {
-      p.sendMessage(Chat.f("&cマイナスの値は指定できません"));
+      Messages.sendFormatted(p, "command.hideall.error.negative");
       return true;
     } else if (duration.getSeconds() > 30 * 24 * 60 * 60) {
-      p.sendMessage(Chat.f("&c30日より大きい値を指定することはできません"));
+      Messages.sendFormatted(p, "command.hideall.error.too_long");
       return true;
     }
 
@@ -106,10 +106,9 @@ public class HideAllCommand implements TabExecutor {
         .asyncLast(
             success -> {
               if (success) {
-                p.sendMessage(
-                    Chat.f("&a{0}の間全体チャットを&c非表示&aに設定しました", convertDurationToString(duration)));
+                Messages.sendFormatted(p, "command.hideall.enabled", convertDurationToString(p, duration));
               } else {
-                p.sendMessage(Chat.f("&c全体チャットの非表示に失敗しました"));
+                Messages.sendFormatted(p, "generic.error");
               }
             })
         .execute();
@@ -163,25 +162,42 @@ public class HideAllCommand implements TabExecutor {
     return duration;
   }
 
-  private String convertDurationToString(Duration duration) {
+  private String convertDurationToString(CommandSender sender, Duration duration) {
     String str = "";
     if (duration.toDays() > 0) {
-      str += duration.toDays() + "日";
+      if (duration.toDays() > 1) {
+        str += Messages.getFormattedPlainText(sender, "datetime.days", duration.toDays());
+      } else {
+        str += Messages.getFormattedPlainText(sender, "datetime.day", duration.toDays());
+      }
       duration = duration.minusDays(duration.toDays());
     }
     if (duration.toHours() > 0) {
-      str += duration.toHours() + "時間";
+      if (duration.toHours() > 1) {
+        str += Messages.getFormattedPlainText(sender, "datetime.hours", duration.toHours());
+      } else {
+        str += Messages.getFormattedPlainText(sender, "datetime.hour", duration.toHours());
+      }
       duration = duration.minusHours(duration.toHours());
     }
     if (duration.toMinutes() > 0) {
-      str += duration.toMinutes() + "分";
+      if (duration.toMinutes() > 1) {
+        str += Messages.getFormattedPlainText(sender, "datetime.minutes", duration.toMinutes());
+      } else {
+        str += Messages.getFormattedPlainText(sender, "datetime.minute", duration.toMinutes());
+      }
       duration = duration.minusMinutes(duration.toMinutes());
     }
     if (duration.getSeconds() > 0) {
-      str += duration.getSeconds() + "秒";
+      if (duration.getSeconds() > 1) {
+        str += Messages.getFormattedPlainText(sender, "datetime.seconds", duration.getSeconds());
+      } else {
+        str += Messages.getFormattedPlainText(sender, "datetime.second", duration.getSeconds());
+      }
       //duration = duration.minusSeconds(duration.getSeconds());
     }
-    return str;
+
+    return str.trim();
   }
 
   @Override

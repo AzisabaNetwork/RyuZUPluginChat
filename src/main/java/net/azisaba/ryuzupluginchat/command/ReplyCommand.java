@@ -2,7 +2,7 @@ package net.azisaba.ryuzupluginchat.command;
 
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,11 +21,12 @@ public class ReplyCommand implements CommandExecutor {
       @NotNull String label,
       @NotNull String[] args) {
     if (!(sender instanceof Player)) {
+      Messages.sendFormatted(sender, "command.error.sender_not_player");
       return true;
     }
 
-    if (args.length <= 0) {
-      sender.sendMessage(Chat.f("&c使い方: /{0} <メッセージ>", label));
+    if (args.length == 0) {
+      Messages.sendFormatted(sender, "command.reply.usage", label);
       return true;
     }
     Player p = (Player) sender;
@@ -35,12 +36,12 @@ public class ReplyCommand implements CommandExecutor {
         .async(
             (uuid) -> {
               if (uuid == null) {
-                sender.sendMessage(Chat.f("過去にプライベートメッセージをやり取りしたプレイヤーがいません"));
+                Messages.sendFormatted(sender, "command.reply.error.no_recent_messages");
                 return null;
               }
 
               if (!plugin.getPlayerUUIDMapContainer().isOnline(uuid)) {
-                sender.sendMessage(Chat.f("&c過去にプライベートメッセージをやり取りしたプレイヤーはオフラインです"));
+                Messages.sendFormatted(sender, "command.reply.error.target_offline");
                 return null;
               }
 
