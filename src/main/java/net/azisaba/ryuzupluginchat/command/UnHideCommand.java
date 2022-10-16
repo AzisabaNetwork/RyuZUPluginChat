@@ -1,12 +1,13 @@
 package net.azisaba.ryuzupluginchat.command;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,32 +28,34 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
       @NotNull String label,
       @NotNull String[] args) {
     if (!(sender instanceof Player)) {
+      Messages.sendFormatted(sender, "command.error.sender_not_player");
       return true;
     }
     Player p = (Player) sender;
 
     if (args.length == 0) {
-      p.sendMessage(Chat.f("&c使い方: /{0} <プレイヤー>", label));
+      Messages.sendFormatted(p, "command.unhide.usage", label);
       return true;
     }
 
     UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
     if (uuid == null) {
-      p.sendMessage(Chat.f("&e{0} &cという名前のプレイヤーが見つかりませんでした。", args[0]));
+      Messages.sendFormatted(sender, "command.error.player_not_found", args[0]);
       return true;
     }
     if (uuid.equals(p.getUniqueId())) {
-      p.sendMessage(Chat.f("&c自分自身のチャットの非表示設定を編集することはできません！"));
+      // intentionally using hide, because it's impossible to unhide when they can't hide themselves
+      Messages.sendFormatted(p, "command.hide.error.cannot_hide_self");
       return true;
     }
 
     if (!plugin.getHideInfoController().isHidingPlayer(p.getUniqueId(), uuid)) {
-      p.sendMessage(Chat.f("&cあなたはまだ{0}のチャットを非表示にしていません\n&e/hide {0} &cで非表示設定が可能です", args[0]));
+      Messages.sendFormatted(p, "command.unhide.error.not_hidden", args[0]);
       return true;
     }
 
     plugin.getHideInfoController().removeHide(p.getUniqueId(), uuid);
-    p.sendMessage(Chat.f("&a{0}のチャットの非表示を解除しました", args[0]));
+    Messages.sendFormatted(p, "command.unhide.success", args[0]);
     return true;
   }
 
@@ -64,7 +67,7 @@ public class UnHideCommand implements CommandExecutor, TabCompleter {
       @NotNull String[] args) {
 
     if (!(sender instanceof Player)) {
-      return null;
+      return Collections.emptyList();
     }
 
     List<String> list = new ArrayList<>();

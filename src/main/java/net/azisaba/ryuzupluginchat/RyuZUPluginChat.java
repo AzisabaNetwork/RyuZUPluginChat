@@ -3,6 +3,7 @@ package net.azisaba.ryuzupluginchat;
 import co.aikar.taskchain.TaskChain;
 import co.aikar.taskchain.TaskChainFactory;
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 import lombok.Getter;
 import net.azisaba.ryuzupluginchat.command.HideAllCommand;
@@ -23,6 +24,7 @@ import net.azisaba.ryuzupluginchat.listener.JoinQuitListener;
 import net.azisaba.ryuzupluginchat.listener.LunaChatHideCommandListener;
 import net.azisaba.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import net.azisaba.ryuzupluginchat.listener.PrivateChatDebugListener;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
 import net.azisaba.ryuzupluginchat.message.MessageDataFactory;
 import net.azisaba.ryuzupluginchat.message.MessageProcessor;
@@ -88,6 +90,12 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
     rpcConfig = new RPCConfig(this);
     rpcConfig.load();
+
+    try {
+      Messages.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load localization files", e);
+    }
 
     messageDataFactory = new MessageDataFactory(this);
     messageProcessor = new MessageProcessor(this);

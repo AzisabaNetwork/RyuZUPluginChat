@@ -2,7 +2,7 @@ package net.azisaba.ryuzupluginchat.command;
 
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -36,6 +36,7 @@ public class HideListCommand implements CommandExecutor, TabCompleter {
       @NotNull String label,
       @NotNull String[] args) {
     if (!(sender instanceof Player)) {
+      Messages.sendFormatted(sender, "command.error.sender_not_player");
       return true;
     }
     Player p = (Player) sender;
@@ -47,7 +48,7 @@ public class HideListCommand implements CommandExecutor, TabCompleter {
         map.put(uuid, plugin.getPlayerUUIDMapContainer().getNameFromUUID(uuid));
       }
       Bukkit.getScheduler().runTask(plugin, () -> {
-        p.sendMessage(Chat.f("&eHideしているプレイヤー一覧:"));
+        Messages.sendFormatted(p, "command.hidelist.header");
         hiddenPlayers.forEach(uuid -> {
           String name = map.get(uuid);
           if (name == null) {
@@ -56,7 +57,13 @@ public class HideListCommand implements CommandExecutor, TabCompleter {
           TextComponent text = new TextComponent("- ");
           TextComponent textName = new TextComponent(name);
           textName.setColor(ChatColor.GOLD);
-          textName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{ new TextComponent("クリックで" + name + "の非表示設定を解除") }));
+          textName.setHoverEvent(
+              new HoverEvent(
+                  HoverEvent.Action.SHOW_TEXT,
+                  new BaseComponent[] {
+                      new TextComponent(Messages.getFormattedPlainText(p, "command.hidelist.tooltip", name))
+                  })
+          );
           textName.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/unhide " + name));
           text.addExtra(textName);
           p.spigot().sendMessage(text);

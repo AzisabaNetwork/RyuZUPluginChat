@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
-import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -66,12 +66,12 @@ public class ChannelMsgFromCommandListener implements Listener {
 
     if (ch.getMembers().stream()
         .noneMatch(member -> member.getName().equalsIgnoreCase(e.getPlayer().getName()))) {
-      p.sendMessage(Chat.f("&cあなたはチャンネルに参加していないためメッセージを送信することはできません！"));
+      Messages.sendFormatted(p, "chat.error.not_in_channel");
       return;
     }
 
     if (!p.hasPermission("lunachat.speak." + ch.getName())) {
-      p.sendMessage(Chat.f("&cこのチャンネルでメッセージを送信する権限がありません！"));
+      Messages.sendFormatted(p, "chat.error.no_speak_permission");
       return;
     }
 

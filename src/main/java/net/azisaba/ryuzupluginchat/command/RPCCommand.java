@@ -7,9 +7,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.ArgsConnectUtils;
-import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -27,8 +27,6 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
   private final List<String> redirectArgs = Arrays.asList("tell", "reply", "hide", "unhide");
 
-  private final String permissionDeniedMessage = Chat.f("&cぽまえけんげんないやろ");
-
   @Override
   public boolean onCommand(
       @NotNull CommandSender sender,
@@ -43,11 +41,11 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
     if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("r")) {
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
 
-      sender.sendMessage(Chat.f("&e非同期でリロードを実行しています..."));
+      Messages.sendFormatted(sender, "command.rpc.reload.start");
       RyuZUPluginChat.newSharedChain("reload")
           .async(
               () -> {
@@ -57,7 +55,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
                 plugin.executeFullReload();
 
                 long end = System.currentTimeMillis();
-                sender.sendMessage(Chat.f("&a非同期でシステムをリロードしました &7({0}ms)", end - start));
+                Messages.sendFormatted(sender, "command.rpc.reload.done", (end - start));
               })
           .execute();
       return true;
@@ -70,8 +68,12 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
     }
 
     if (args[0].equalsIgnoreCase("silent")) {
+      if (!(sender instanceof Player)) {
+        Messages.sendFormatted(sender, "command.error.sender_not_player");
+        return true;
+      }
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
 
@@ -93,99 +95,98 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             silent = false;
             break;
           default:
-            player.sendMessage(Chat.f("&e{0}&cは無効な引数です。", args[1]));
+            Messages.sendFormatted(player, "command.error.invalid_single_argument", args[1]);
             return true;
         }
       }
 
       if (silent) {
         plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), true);
-        player.sendMessage(Chat.f("&e他プレイヤー同士の個人チャットが&c見えない&eようになりました"));
+        Messages.sendFormatted(player, "command.rpc.silent.enabled");
       } else {
         plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), false);
-        player.sendMessage(Chat.f("&e他プレイヤー同士の個人チャットが&a見える&eように設定しました"));
+        Messages.sendFormatted(player, "command.rpc.silent.disabled");
       }
       return true;
     }
 
     if (args[0].equalsIgnoreCase("prefix") || args[0].equalsIgnoreCase("p")) {
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
       if (args.length == 1) {
-        sender.sendMessage(Chat.f("/{0} prefix set [MCID] [Prefix]", label));
+        Messages.sendFormatted(sender, "command.rpc.prefix.set.usage", label);
         return true;
       }
 
       if (args[1].equalsIgnoreCase("set")) {
         if (args.length <= 3) {
-          sender.sendMessage(Chat.f("&c/{0} prefix set [MCID] [Prefix]"));
+          Messages.sendFormatted(sender, "command.rpc.prefix.set.usage", label);
           return true;
         }
         UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
         if (uuid == null) {
-          sender.sendMessage(Chat.f("&cプレイヤーが見つかりませんでした"));
+          Messages.sendFormatted(sender, "command.error.player_not_found", args[2]);
           return true;
         }
         String prefix = ArgsConnectUtils.connect(args, 3);
         plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
-        sender.sendMessage(
-            Chat.f(
-                "&e{0}&aのPrefixを &r{1} &aに変更しました",
-                args[2], ChatColor.translateAlternateColorCodes('&', prefix)));
+        Messages.sendFormatted(
+            sender,
+            "command.rpc.prefix.set.success",
+            args[2],
+            ChatColor.translateAlternateColorCodes('&', prefix));
         return true;
       }
 
-      sender.sendMessage(Chat.f("/{0} prefix set [MCID] [Prefix]", label));
+      Messages.sendFormatted(sender, "command.rpc.prefix.set.usage", label);
       return true;
     }
 
     if (args[0].equalsIgnoreCase("suffix") || args[0].equalsIgnoreCase("s")) {
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
       if (args.length == 1) {
-        sender.sendMessage(Chat.f("&c/{0} suffix set [MCID] [Suffix]", label));
+        Messages.sendFormatted(sender, "command.rpc.suffix.set.usage", label);
         return true;
       }
       if (args[1].equalsIgnoreCase("set")) {
         if (args.length <= 3) {
-          sender.sendMessage(Chat.f("&c/{0} suffix set [MCID] [Suffix]", label));
+          Messages.sendFormatted(sender, "command.rpc.suffix.set.usage", label);
           return true;
         }
 
         UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
         if (uuid == null) {
-          sender.sendMessage(Chat.f("&cプレイヤーが見つかりませんでした"));
+          Messages.sendFormatted(sender, "command.error.player_not_found", args[2]);
           return true;
         }
 
         String suffix = ArgsConnectUtils.connect(args, 3);
         plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
-        sender.sendMessage(
-            Chat.f(
-                "&e{0}&aのSuffixを &r{1} &aに変更しました",
-                args[2], ChatColor.translateAlternateColorCodes('&', suffix)));
+        Messages.sendFormatted(
+            sender,
+            "command.rpc.suffix.set.success",
+            args[2],
+            ChatColor.translateAlternateColorCodes('&', suffix));
         return true;
       }
 
-      sender.sendMessage(Chat.f("&c/{0} suffix set [MCID] [Suffix]", label));
+      Messages.sendFormatted(sender, "command.rpc.suffix.set.usage", label);
       return true;
     }
 
     if (args[0].equalsIgnoreCase("message") || args[0].equalsIgnoreCase("msg")) {
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
 
       if (args.length <= 2) {
-        sender.sendMessage(
-            Chat.f(
-                "&9/{0} message [message/player/playermessage] [Message]:指定されたメッセージをGroupに送信します",
-                label));
+        Messages.sendFormatted(sender, "command.rpc.message.usage", label);
         return true;
       }
 
@@ -198,7 +199,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         msg = msg.substring(args[2].length() + 1);
         UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
         if (uuid == null) {
-          sender.sendMessage(Chat.f("&e{0}&cという名前のプレイヤーが見つかりませんでした", args[2]));
+          Messages.sendFormatted(sender, "command.error.player_not_found", args[2]);
           return true;
         }
 
@@ -213,7 +214,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         UUID uuid = plugin.getPlayerUUIDMapContainer().getUUID(args[2]);
 
         if (uuid == null) {
-          sender.sendMessage(Chat.f("&e{0}&cという名前のプレイヤーが見つかりませんでした", args[2]));
+          Messages.sendFormatted(sender, "command.error.player_not_found", args[2]);
           return true;
         }
 
@@ -228,19 +229,17 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
     if (args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("c")) {
       if (!sender.hasPermission("rpc.op")) {
-        sender.sendMessage(permissionDeniedMessage);
+        Messages.sendFormatted(sender, "command.error.no_permission");
         return true;
       }
       if (args.length == 1) {
-        sender.sendMessage(
-            Chat.f("&9/{0} config format set <global/private> [format]: formatを編集します", label));
+        Messages.sendFormatted(sender, "command.rpc.config.format.set.usage", label);
         return true;
       }
 
       if (args[1].equalsIgnoreCase("format")) {
         if (args.length <= 4) {
-          sender.sendMessage(
-              Chat.f("&9/{0} config format set <global/private> [format]: formatを編集します", label));
+          Messages.sendFormatted(sender, "command.rpc.config.format.set.usage", label);
           return true;
         }
 
@@ -259,20 +258,15 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
               plugin.getRpcConfig().setPrivateChatFormat(format);
               break;
             default:
-              sender.sendMessage(
-                  Chat.f(
-                      "&9/{0} config format set <global/private/channel> [format]: formatを編集します",
-                      label));
+              Messages.sendFormatted(sender, "command.rpc.config.format.set.usage", label);
               return true;
           }
-          sender.sendMessage(Chat.f("&aFormatを編集しました"));
+          Messages.sendFormatted(sender, "command.rpc.config.format.set.success");
           return true;
         }
         return true;
       }
-      sender.sendMessage(
-          Chat.f(
-              "&9/{0} config format set <global/private/channel> [format]: formatを編集します", label));
+      Messages.sendFormatted(sender, "command.rpc.config.format.set.usage", label);
       return true;
     }
 
@@ -286,12 +280,8 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       @NotNull Command command,
       @NotNull String alias,
       @NotNull String[] args) {
-    if (!(sender instanceof Player)) {
-      return null;
-    }
 
     List<String> list = new ArrayList<>();
-    Player p = (Player) sender;
 
     if (args.length == 1) {
       if (sender.hasPermission("rpc.op")) {
@@ -312,10 +302,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         }
       }
       if (Arrays.asList("tell", "hide", "unhide").contains(args[0])) {
-        list.addAll(
-            plugin.getPlayerUUIDMapContainer().getAllNames().stream()
-                .filter(name -> !name.equalsIgnoreCase(p.getName()))
-                .collect(Collectors.toList()));
+        if (sender instanceof Player) {
+          Player p = (Player) sender;
+          list.addAll(
+              plugin.getPlayerUUIDMapContainer().getAllNames().stream()
+                  .filter(name -> !name.equalsIgnoreCase(p.getName()))
+                  .collect(Collectors.toList()));
+        }
       }
     }
     if (args.length == 3) {
@@ -338,15 +331,9 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
   }
 
   private void sendUsage(CommandSender sender, String label) {
-    sender.sendMessage(Chat.f("&6------------------------使い方------------------------"));
+    Messages.sendFormatted(sender, "command.rpc.usage", label);
     if (sender.hasPermission("rpc.op")) {
-      sender.sendMessage(Chat.f("&9/{0} prefix :Prefixを編集します", label));
-      sender.sendMessage(Chat.f("&9/{0} suffix :Suffixを編集します", label));
-      sender.sendMessage(Chat.f("&9/{0} config :Configを編集します", label));
-      sender.sendMessage(Chat.f("&9/{0} reload :config.ymlをリロードします", label));
-      sender.sendMessage(Chat.f("&9/{0} silent :他プレイヤーの個チャが見える機能を変更します", label));
+      Messages.sendFormatted(sender, "command.rpc.usage.op", label);
     }
-    sender.sendMessage(Chat.f("&9/{0} tell :プレイヤーにプライベートメッセージを送信します", label));
-    sender.sendMessage(Chat.f("&9/{0} reply :直近のプライベートメッセージに返信します", label));
   }
 }

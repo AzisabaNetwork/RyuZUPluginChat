@@ -2,12 +2,14 @@ package net.azisaba.ryuzupluginchat.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.util.ArgsConnectUtils;
 import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.command.Command;
@@ -30,17 +32,17 @@ public class TellCommand implements CommandExecutor, TabCompleter {
       @NotNull String label,
       @NotNull String[] args) {
     if (!(sender instanceof Player)) {
-      sender.sendMessage(Chat.f("&cこのコマンドはプレイヤーのみ実行可能です！"));
+      Messages.sendFormatted(sender, "command.error.sender_not_player");
       return true;
     }
 
     Player p = (Player) sender;
     if (args.length <= 1) {
-      p.sendMessage(Chat.f("&c/{0} [MCID] [Message]", label));
+      Messages.sendFormatted(p, "command.tell.usage", label);
       return true;
     }
     if (args[0].equalsIgnoreCase(p.getName())) {
-      p.sendMessage(Chat.f("&c自分にプライベートメッセージを送ることはできません"));
+      Messages.sendFormatted(p, "command.tell.error.cannot_message_self");
       return true;
     }
 
@@ -55,12 +57,10 @@ public class TellCommand implements CommandExecutor, TabCompleter {
               List<String> matchNames = getPlayerNamesStartsWith(args[0], p.getName());
 
               if (matchNames.isEmpty()) {
-                p.sendMessage(Chat.f("&e{0}&cというプレイヤーが見つかりませんでした", args[0]));
+                Messages.sendFormatted(sender, "command.error.player_not_found", args[0]);
                 return null;
               } else if (matchNames.size() > 1) {
-                p.sendMessage(
-                    Chat.f(
-                        "&c複数プレイヤーが該当するため宛先が絞り込めません {0}", createColoredPlayerNameList(matchNames)));
+                Messages.sendFormatted(p, "command.tell.error.ambiguous", createColoredPlayerNameList(matchNames));
                 return null;
               }
 
@@ -91,7 +91,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
       @NotNull String[] args) {
 
     if (!(sender instanceof Player)) {
-      return null;
+      return Collections.emptyList();
     }
 
     List<String> list = new ArrayList<>();
