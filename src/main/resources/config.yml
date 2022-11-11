@@ -34,3 +34,4 @@ discord:
         enable: true
       private:
         enable: true
+default-disable-private-chat-inspect: false

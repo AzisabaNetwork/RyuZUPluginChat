@@ -36,6 +36,8 @@ public class RPCConfig {
   private String discordBotToken;
   private String vcCommandLunaChatChannel;
 
+  private boolean defaultDisablePrivateChatInspect;
+
   private final List<DiscordMessageConnection> messageConnections = new ArrayList<>();
 
   public void load() {
@@ -74,6 +76,8 @@ public class RPCConfig {
     }
 
     vcCommandLunaChatChannel = conf.getString("discord.vc-command-lunachat-channel", null);
+
+    defaultDisablePrivateChatInspect = conf.getBoolean("default-disable-private-chat-inspect", false);
 
     ConfigurationSection section = conf.getConfigurationSection("discord.connections");
     if (section == null) {
