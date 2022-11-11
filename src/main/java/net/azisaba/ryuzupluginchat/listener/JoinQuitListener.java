@@ -29,6 +29,10 @@ public class JoinQuitListener implements Listener {
             20L * 3L);
 
     plugin.getHideAllInfoController().refreshHideAllInfoAsync(p.getUniqueId());
+
+    if (plugin.getRpcConfig().isDefaultDisablePrivateChatInspect()) {
+      plugin.getPrivateChatInspectHandler().setDisable(p.getUniqueId(), true);
+    }
   }
 
   @EventHandler
