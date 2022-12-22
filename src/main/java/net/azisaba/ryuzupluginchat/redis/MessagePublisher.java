@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
+import net.azisaba.ryuzupluginchat.event.AsyncPublishChannelMessageEvent;
+import net.azisaba.ryuzupluginchat.event.AsyncPublishGlobalMessageEvent;
+import net.azisaba.ryuzupluginchat.event.AsyncPublishPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
@@ -23,6 +26,9 @@ public class MessagePublisher {
   private final String groupName;
 
   public boolean publishGlobalMessage(GlobalMessageData data) {
+    if (!new AsyncPublishGlobalMessageEvent(data).callEvent()) {
+      return false;
+    }
     String jsonMessage;
     try {
       jsonMessage = converter.convertIntoString(data);
@@ -37,6 +43,9 @@ public class MessagePublisher {
   }
 
   public boolean publishPrivateMessage(PrivateMessageData data) {
+    if (!new AsyncPublishPrivateMessageEvent(data).callEvent()) {
+      return false;
+    }
     String jsonMessage;
     try {
       jsonMessage = converter.convertIntoString(data);
@@ -51,6 +60,9 @@ public class MessagePublisher {
   }
 
   public boolean publishChannelChatMessage(ChannelChatMessageData data) {
+    if (!new AsyncPublishChannelMessageEvent(data).callEvent()) {
+      return false;
+    }
     String jsonMessage;
     try {
       jsonMessage = converter.convertIntoString(data);
