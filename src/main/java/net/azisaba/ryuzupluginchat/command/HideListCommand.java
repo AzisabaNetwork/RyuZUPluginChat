@@ -64,7 +64,7 @@ public class HideListCommand implements CommandExecutor, TabCompleter {
                       new TextComponent(Messages.getFormattedPlainText(p, "command.hidelist.tooltip", name))
                   })
           );
-          textName.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/unhide " + name));
+          textName.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/unhide " + name));
           text.addExtra(textName);
           p.spigot().sendMessage(text);
         });
