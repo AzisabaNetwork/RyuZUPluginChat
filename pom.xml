@@ -122,8 +122,8 @@
       <url>https://oss.sonatype.org/content/groups/public/</url>
     </repository>
     <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
+      <id>azisaba</id>
+      <url>https://repo.azisaba.net/repository/maven-public/</url>
     </repository>
     <repository>
       <id>maven-snapshots</id>
@@ -153,9 +153,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.ucchyocean</groupId>
-      <artifactId>LunaChat</artifactId>
-      <version>v3.0.16</version>
+      <groupId>net.azisaba</groupId>
+      <artifactId>lunachatplus</artifactId>
+      <version>3.2.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -186,4 +186,15 @@
       <version>3.1.0</version>
     </dependency>
   </dependencies>
+
+  <distributionManagement>
+    <repository>
+      <id>azisaba</id>
+      <url>https://repo.azisaba.net/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>azisaba</id>
+      <url>https://repo.azisaba.net/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>
