@@ -10,8 +10,8 @@ import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.ArgsConnectUtils;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -121,7 +121,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       }
 
       if (args[1].equalsIgnoreCase("set")) {
-        if (args.length <= 3) {
+        if (args.length < 3) {
           Messages.sendFormatted(sender, "command.rpc.prefix.set.usage", label);
           return true;
         }
@@ -130,13 +130,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           Messages.sendFormatted(sender, "command.error.player_not_found", args[2]);
           return true;
         }
-        String prefix = ArgsConnectUtils.connect(args, 3);
+        String prefix = args.length > 3 ? ArgsConnectUtils.connect(args, 3) : null;
         plugin.getPrefixSuffixContainer().setPrefix(uuid, prefix, true);
         Messages.sendFormatted(
             sender,
             "command.rpc.prefix.set.success",
             args[2],
-            ChatColor.translateAlternateColorCodes('&', prefix));
+            Chat.translateLegacyAmpersand(prefix));
         return true;
       }
 
@@ -154,7 +154,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         return true;
       }
       if (args[1].equalsIgnoreCase("set")) {
-        if (args.length <= 3) {
+        if (args.length < 3) {
           Messages.sendFormatted(sender, "command.rpc.suffix.set.usage", label);
           return true;
         }
@@ -165,13 +165,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           return true;
         }
 
-        String suffix = ArgsConnectUtils.connect(args, 3);
+        String suffix = args.length > 3 ? ArgsConnectUtils.connect(args, 3) : null;
         plugin.getPrefixSuffixContainer().setSuffix(uuid, suffix, true);
         Messages.sendFormatted(
             sender,
             "command.rpc.suffix.set.success",
             args[2],
-            ChatColor.translateAlternateColorCodes('&', suffix));
+            Chat.translateLegacyAmpersand(suffix));
         return true;
       }
 

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.util.JedisUtils;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.JedisPool;
 
 @RequiredArgsConstructor
@@ -32,33 +33,45 @@ public class RyuZUPrefixSuffixContainer {
     return getSuffix(p.getUniqueId());
   }
 
-  public void setPrefix(UUID uuid, String prefix, boolean async) {
+  public void setPrefix(UUID uuid, @Nullable String prefix, boolean async) {
     if (async) {
       RyuZUPluginChat.newChain().async(() -> setPrefix(uuid, prefix, false)).execute();
       return;
     }
 
-    JedisUtils.executeUsingJedisPoolWithReturn(
-        jedisPool,
-        (jedis) -> jedis.hset("rpc:" + groupName + ":prefixes", uuid.toString(), prefix));
+    if (prefix != null) {
+      JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool,
+              (jedis) -> jedis.hset("rpc:" + groupName + ":prefixes", uuid.toString(), prefix));
+    } else {
+      JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool,
+              (jedis) -> jedis.hdel("rpc:" + groupName + ":prefixes", uuid.toString()));
+    }
   }
 
-  public void setPrefix(Player p, String prefix, boolean async) {
+  public void setPrefix(Player p, @Nullable String prefix, boolean async) {
     setPrefix(p.getUniqueId(), prefix, async);
   }
 
-  public void setSuffix(UUID uuid, String suffix, boolean async) {
+  public void setSuffix(UUID uuid, @Nullable String suffix, boolean async) {
     if (async) {
       RyuZUPluginChat.newChain().async(() -> setSuffix(uuid, suffix, false)).execute();
       return;
     }
 
-    JedisUtils.executeUsingJedisPoolWithReturn(
-        jedisPool,
-        (jedis) -> jedis.hset("rpc:" + groupName + ":suffixes", uuid.toString(), suffix));
+    if (suffix != null) {
+      JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool,
+              (jedis) -> jedis.hset("rpc:" + groupName + ":suffixes", uuid.toString(), suffix));
+    } else {
+      JedisUtils.executeUsingJedisPoolWithReturn(
+              jedisPool,
+              (jedis) -> jedis.hdel("rpc:" + groupName + ":suffixes", uuid.toString()));
+    }
   }
 
-  public void setSuffix(Player p, String suffix, boolean async) {
+  public void setSuffix(Player p, @Nullable String suffix, boolean async) {
     setSuffix(p.getUniqueId(), suffix, async);
   }
 }
