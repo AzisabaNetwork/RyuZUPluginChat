@@ -2,6 +2,7 @@ package net.azisaba.ryuzupluginchat.redis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
@@ -18,9 +19,16 @@ public class PrivateChatResponseWaiter {
   private final HashMap<Long, PrivateMessageData> dataMap = new HashMap<>();
   private final HashMap<Long, Long> timeouts = new HashMap<>();
 
+  private final ReentrantLock lock = new ReentrantLock();
+
   public void register(long id, PrivateMessageData data, long timeout) {
-    dataMap.put(id, data);
-    timeouts.put(id, System.currentTimeMillis() + timeout);
+    lock.lock();
+    try {
+      dataMap.put(id, data);
+      timeouts.put(id, System.currentTimeMillis() + timeout);
+    } finally {
+      lock.unlock();
+    }
   }
 
   public void runTimeoutDetectTask(JavaPlugin plugin) {
@@ -48,9 +56,18 @@ public class PrivateChatResponseWaiter {
   }
 
   protected void reached(PrivateMessageData data) {
-    plugin.getMessageProcessor().notifyDeliveredPrivateMessage(data);
+    boolean deleted;
 
-    dataMap.remove(data.getId());
-    timeouts.remove(data.getId());
+    lock.lock();
+    try {
+      deleted = dataMap.remove(data.getId()) != null;
+      timeouts.remove(data.getId());
+    } finally {
+      lock.unlock();
+    }
+    
+    if (deleted) {
+      plugin.getMessageProcessor().notifyDeliveredPrivateMessage(data);
+    }
   }
 }
