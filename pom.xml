@@ -60,14 +60,14 @@
                   <pattern>com</pattern>
                   <shadedPattern>net.azisaba.ryuzupluginchat.dependency.com</shadedPattern>
                   <includes>
-                    <include>com.fasterxml.*</include>
-                    <include>com.github.benmanes.*</include>
-                    <include>com.google.gson.*</include>
-                    <include>com.google.errorprone.*</include>
-                    <include>com.iwebpp.*</include>
-                    <include>com.austinv11.*</include>
-                    <include>com.discord4j.*</include>
-                    <include>com.vdurmont.semver4j.*</include>
+                    <include>com.fasterxml.**</include>
+                    <include>com.github.benmanes.**</include>
+                    <include>com.google.gson.**</include>
+                    <include>com.google.errorprone.**</include>
+                    <include>com.iwebpp.**</include>
+                    <include>com.austinv11.**</include>
+                    <include>com.discord4j.**</include>
+                    <include>com.vdurmont.semver4j.**</include>
                   </includes>
                 </relocation>
                 <relocation>
@@ -78,16 +78,16 @@
                   <pattern>org</pattern>
                   <shadedPattern>net.azisaba.ryuzupluginchat.dependency.org</shadedPattern>
                   <includes>
-                    <include>org.checkerframework.*</include>
-                    <include>org.apache.commons.pool2.*</include>
-                    <include>org.reactivestreams.*</include>
+                    <include>org.checkerframework.**</include>
+                    <include>org.apache.commons.pool2.**</include>
+                    <include>org.reactivestreams.**</include>
                   </includes>
                 </relocation>
                 <relocation>
                   <pattern>org.json</pattern>
                   <shadedPattern>net.azisaba.ryuzupluginchat.dependency.org.json</shadedPattern>
                   <excludes>
-                    <exclude>org.json.simple.*</exclude>
+                    <exclude>org.json.simple.**</exclude>
                   </excludes>
                 </relocation>
                 <relocation>
