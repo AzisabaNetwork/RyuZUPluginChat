@@ -53,6 +53,8 @@
   "command.rpc.reload.done": "&aリロードが完了しました。 ({0} ms)",
   "command.rpc.silent.enabled": "&e他プレイヤー同士の個人チャットが&c見えない&eようになりました",
   "command.rpc.silent.disabled": "&e他プレイヤー同士の個人チャットが&a見える&eように設定しました",
+  "command.rpc.vanish.enabled": "&e他プレイヤーから個人チャットを&c受け取らない&eように設定しました",
+  "command.rpc.vanish.disabled": "&e他プレイヤーから個人チャットを&a受け取る&eように設定しました",
   "command.rpc.prefix.set.usage": "&c使い方: /{0} prefix set <MCID> [prefix]",
   "command.rpc.prefix.set.success": "&e{0}&aのPrefixを&r {1} &aに変更しました",
   "command.rpc.suffix.set.usage": "&c使い方: /{0} suffix set <MCID> [suffix]",

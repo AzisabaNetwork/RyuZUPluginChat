@@ -40,6 +40,7 @@ import net.azisaba.ryuzupluginchat.redis.PrivateChatResponseWaiter;
 import net.azisaba.ryuzupluginchat.redis.ReplyTargetFetcher;
 import net.azisaba.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
 import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
+import net.azisaba.ryuzupluginchat.redis.VanishController;
 import net.azisaba.ryuzupluginchat.task.SubscriberPingTask;
 import net.azisaba.ryuzupluginchat.taskchain.BukkitTaskChainFactory;
 import net.azisaba.ryuzupluginchat.updater.GitHubPluginUpdater;
@@ -71,6 +72,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private PrivateChatResponseWaiter privateChatResponseWaiter;
   private HideInfoController hideInfoController;
   private HideAllInfoController hideAllInfoController;
+  private VanishController vanishController;
   private final PrivateChatInspectHandler privateChatInspectHandler =
       new PrivateChatInspectHandler();
 
@@ -141,6 +143,10 @@ public final class RyuZUPluginChat extends JavaPlugin {
         .runTaskLaterAsynchronously(
             this, this::executeUpdateAsync, new Random().nextInt(randomTicks));
 
+    Bukkit.getScheduler()
+        .runTaskTimerAsynchronously(
+            this, () -> vanishController.refreshAllAsync(), 20 * 30, 20 * 30);
+
     getLogger().info(getName() + " enabled.");
   }
 
@@ -207,6 +213,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     hideInfoController = new HideInfoController(jedisPool, rpcConfig.getGroupName());
     hideAllInfoController = new HideAllInfoController(this, jedisPool);
     hideAllInfoController.refreshAllAsync();
+    vanishController = new VanishController(jedisPool, rpcConfig.getGroupName());
+    vanishController.refreshAllAsync();
 
     // Populate (reverse)hideMap
     hideInfoController.updateCache();

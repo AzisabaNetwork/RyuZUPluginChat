@@ -110,6 +110,29 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
+    if (args[0].equalsIgnoreCase("vanish")) {
+      if (!(sender instanceof Player)) {
+        Messages.sendFormatted(sender, "command.error.sender_not_player");
+        return true;
+      }
+      if (!sender.hasPermission("rpc.op")) {
+        Messages.sendFormatted(sender, "command.error.no_permission");
+        return true;
+      }
+
+      Player player = (Player) sender;
+      boolean vanish = !plugin.getVanishController().isVanished(player.getUniqueId());
+
+      if (vanish) {
+        plugin.getVanishController().setVanished(player.getUniqueId(), true);
+        Messages.sendFormatted(player, "command.rpc.vanish.enabled");
+      } else {
+        plugin.getVanishController().setVanished(player.getUniqueId(), false);
+        Messages.sendFormatted(player, "command.rpc.vanish.disabled");
+      }
+      return true;
+    }
+
     if (args[0].equalsIgnoreCase("prefix") || args[0].equalsIgnoreCase("p")) {
       if (!sender.hasPermission("rpc.op")) {
         Messages.sendFormatted(sender, "command.error.no_permission");
@@ -285,7 +308,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
     if (args.length == 1) {
       if (sender.hasPermission("rpc.op")) {
-        list.addAll(Arrays.asList("prefix", "suffix", "message", "config"));
+        list.addAll(Arrays.asList("prefix", "suffix", "message", "config", "silent", "vanish"));
       }
       list.addAll(redirectArgs);
     }
@@ -307,6 +330,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           list.addAll(
               plugin.getPlayerUUIDMapContainer().getAllNames().stream()
                   .filter(name -> !name.equalsIgnoreCase(p.getName()))
+                  .filter(name -> !plugin.getVanishController().isVanished(plugin.getPlayerUUIDMapContainer().getUUID(name)))
                   .collect(Collectors.toList()));
         }
       }
