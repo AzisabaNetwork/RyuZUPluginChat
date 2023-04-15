@@ -40,7 +40,7 @@ public class ReplyCommand implements CommandExecutor {
                 return null;
               }
 
-              if (!plugin.getPlayerUUIDMapContainer().isOnline(uuid)) {
+              if (!plugin.getPlayerUUIDMapContainer().isOnline(uuid) || plugin.getVanishController().isVanished(uuid)) {
                 Messages.sendFormatted(sender, "command.reply.error.target_offline");
                 return null;
               }

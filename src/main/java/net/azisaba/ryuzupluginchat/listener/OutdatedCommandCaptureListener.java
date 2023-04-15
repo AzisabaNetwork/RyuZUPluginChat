@@ -58,6 +58,7 @@ public class OutdatedCommandCaptureListener implements Listener {
     e.setCompletions(
         plugin.getPlayerUUIDMapContainer().getAllNames().stream()
             .filter(l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(target.toLowerCase()))
+            .filter(name -> !plugin.getVanishController().isVanished(plugin.getPlayerUUIDMapContainer().getUUID(name)))
             .collect(Collectors.toList()));
   }
 }

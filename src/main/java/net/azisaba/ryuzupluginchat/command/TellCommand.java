@@ -50,7 +50,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
         .asyncFirst(
             () -> {
               UUID targetUUID = plugin.getPlayerUUIDMapContainer().getUUID(args[0]);
-              if (targetUUID != null) {
+              if (targetUUID != null && !plugin.getVanishController().isVanished(targetUUID)) {
                 return targetUUID;
               }
 
@@ -101,6 +101,9 @@ public class TellCommand implements CommandExecutor, TabCompleter {
           plugin.getPlayerUUIDMapContainer().getAllNames().stream()
               .filter(
                   l -> !l.equals(p.getName()) && l.toLowerCase().startsWith(args[0].toLowerCase()))
+              .filter(
+                  name -> !plugin.getVanishController().isVanished(plugin.getPlayerUUIDMapContainer().getUUID(name))
+              )
               .collect(Collectors.toList()));
     }
     return list;
@@ -124,6 +127,9 @@ public class TellCommand implements CommandExecutor, TabCompleter {
               }
               return mcid.toLowerCase(Locale.ROOT).startsWith(name.toLowerCase(Locale.ROOT));
             })
+        .filter(
+            ign -> !plugin.getVanishController().isVanished(plugin.getPlayerUUIDMapContainer().getUUID(ign))
+        )
         .collect(Collectors.toList());
   }
 }
