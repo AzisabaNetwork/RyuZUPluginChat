@@ -4,11 +4,8 @@ import com.github.ucchyocean.lc3.LunaChat;
 import com.github.ucchyocean.lc3.LunaChatAPI;
 import com.github.ucchyocean.lc3.channel.Channel;
 import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
@@ -85,18 +82,19 @@ public class MessageProcessor {
 
     Set<Player> recipients;
     if (data.isFromDiscord()) {
+      List<Player> channelMembers = channel.getMembers().stream()
+          .map(m -> ((ChannelMemberBukkit) m).getPlayer())
+          .collect(Collectors.toList());
       recipients = TaskSchedulingUtils.getSynchronously(
           () ->
               Bukkit.getOnlinePlayers().stream()
                   .filter(
                       p -> {
-                        if (channel.getMembers().stream()
-                            .map(m -> ((ChannelMemberBukkit) m).getPlayer())
-                            .collect(Collectors.toList())
-                            .contains(p)) {
+                        if (channelMembers.contains(p)) {
                           return true;
                         }
-                        return p.hasPermission("rpc.op");
+                        return p.hasPermission("rpc.op") &&
+                                plugin.getPrivateChatInspectHandler().isVisible(p.getUniqueId());
                       })
                   .collect(Collectors.toCollection(HashSet<Player>::new))
       ).join();
@@ -204,7 +202,7 @@ public class MessageProcessor {
                         .filter(p -> p.hasPermission("rpc.op"))
                         .filter(p -> !data.getReceivedPlayerUUID().equals(p.getUniqueId()))
                         .filter(
-                            p -> !plugin.getPrivateChatInspectHandler().isDisabled(p.getUniqueId()))
+                            p -> plugin.getPrivateChatInspectHandler().isVisible(p.getUniqueId()))
                         .collect(Collectors.toCollection(HashSet<Player>::new)))
             .join();
 

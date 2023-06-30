@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.localization.Messages;
+import net.azisaba.ryuzupluginchat.message.InspectHandler;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
 import net.azisaba.ryuzupluginchat.util.ArgsConnectUtils;
 import net.azisaba.ryuzupluginchat.util.Chat;
@@ -17,6 +19,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,18 +70,18 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       return true;
     }
 
-    if (args[0].equalsIgnoreCase("silent")) {
+    BiConsumer<String, InspectHandler> toggleSilent = (@Subst("silent") String key, InspectHandler inspectHandler) -> {
       if (!(sender instanceof Player)) {
         Messages.sendFormatted(sender, "command.error.sender_not_player");
-        return true;
+        return;
       }
       if (!sender.hasPermission("rpc.op")) {
         Messages.sendFormatted(sender, "command.error.no_permission");
-        return true;
+        return;
       }
 
       Player player = (Player) sender;
-      boolean silent = !plugin.getPrivateChatInspectHandler().isDisabled(player.getUniqueId());
+      boolean silent = plugin.getPrivateChatInspectHandler().isVisible(player.getUniqueId());
 
       if (args.length >= 2) {
         switch (args[1].toLowerCase()) {
@@ -96,17 +99,26 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
             break;
           default:
             Messages.sendFormatted(player, "command.error.invalid_single_argument", args[1]);
-            return true;
+            return;
         }
       }
 
       if (silent) {
         plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), true);
-        Messages.sendFormatted(player, "command.rpc.silent.enabled");
+        Messages.sendFormatted(player, "command.rpc." + key + ".enabled");
       } else {
         plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), false);
-        Messages.sendFormatted(player, "command.rpc.silent.disabled");
+        Messages.sendFormatted(player, "command.rpc." + key + ".disabled");
       }
+    };
+
+    if (args[0].equalsIgnoreCase("silent")) {
+      toggleSilent.accept("silent", plugin.getPrivateChatInspectHandler());
+      return true;
+    }
+
+    if (args[0].equalsIgnoreCase("silent-channel")) {
+      toggleSilent.accept("silent-channel", plugin.getChannelChatInspectHandler());
       return true;
     }
 
@@ -308,7 +320,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
 
     if (args.length == 1) {
       if (sender.hasPermission("rpc.op")) {
-        list.addAll(Arrays.asList("prefix", "suffix", "message", "config", "silent", "vanish"));
+        list.addAll(Arrays.asList("prefix", "suffix", "message", "config", "silent", "silent-channel", "vanish"));
       }
       list.addAll(redirectArgs);
     }

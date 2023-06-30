@@ -1,12 +1,13 @@
 package net.azisaba.ryuzupluginchat.message;
 
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class PrivateChatInspectHandler implements InspectHandler {
+public class ChannelChatInspectHandler implements InspectHandler {
 
   private final List<UUID> disablePlayers = new ArrayList<>();
 

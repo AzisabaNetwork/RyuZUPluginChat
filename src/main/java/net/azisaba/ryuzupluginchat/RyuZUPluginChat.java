@@ -25,10 +25,7 @@ import net.azisaba.ryuzupluginchat.listener.LunaChatHideCommandListener;
 import net.azisaba.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import net.azisaba.ryuzupluginchat.listener.PrivateChatDebugListener;
 import net.azisaba.ryuzupluginchat.localization.Messages;
-import net.azisaba.ryuzupluginchat.message.JsonDataConverter;
-import net.azisaba.ryuzupluginchat.message.MessageDataFactory;
-import net.azisaba.ryuzupluginchat.message.MessageProcessor;
-import net.azisaba.ryuzupluginchat.message.PrivateChatInspectHandler;
+import net.azisaba.ryuzupluginchat.message.*;
 import net.azisaba.ryuzupluginchat.redis.HideAllInfoController;
 import net.azisaba.ryuzupluginchat.redis.HideInfoController;
 import net.azisaba.ryuzupluginchat.redis.MessagePublisher;
@@ -75,6 +72,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private VanishController vanishController;
   private final PrivateChatInspectHandler privateChatInspectHandler =
       new PrivateChatInspectHandler();
+  private final ChannelChatInspectHandler channelChatInspectHandler =
+      new ChannelChatInspectHandler();
 
   private MessagePublisher publisher;
   private MessageSubscriber subscriber;
