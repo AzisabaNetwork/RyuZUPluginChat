@@ -53,6 +53,8 @@
   "command.rpc.reload.done": "&aReloaded the plugin. &7({0} ms)",
   "command.rpc.silent.enabled": "&ePrivate messages between other players are now hidden.",
   "command.rpc.silent.disabled": "&ePrivate messages between other players are now visible.",
+  "command.rpc.silent-channel.enabled": "&eChannel messages that you are not part of it are now hidden.",
+  "command.rpc.silent-channel.disabled": "&eChannel messages that you are not part of it are now visible.",
   "command.rpc.vanish.enabled": "&ePrivate messages from other players are now&c denied.",
   "command.rpc.vanish.disabled": "&ePrivate messages from other players are now&a allowed.",
   "command.rpc.prefix.set.usage": "&cUsage: /{0} prefix set <player> [prefix]",
