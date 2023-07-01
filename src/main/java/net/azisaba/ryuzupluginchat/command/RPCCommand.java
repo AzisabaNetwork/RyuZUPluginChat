@@ -81,7 +81,7 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
       }
 
       Player player = (Player) sender;
-      boolean silent = plugin.getPrivateChatInspectHandler().isVisible(player.getUniqueId());
+      boolean plsSilent = inspectHandler.isVisible(player.getUniqueId());
 
       if (args.length >= 2) {
         switch (args[1].toLowerCase()) {
@@ -89,13 +89,13 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
           case "yes":
           case "enable":
           case "true":
-            silent = true;
+            plsSilent = true;
             break;
           case "off":
           case "no":
           case "disable":
           case "false":
-            silent = false;
+            plsSilent = false;
             break;
           default:
             Messages.sendFormatted(player, "command.error.invalid_single_argument", args[1]);
@@ -103,11 +103,11 @@ public class RPCCommand implements CommandExecutor, TabCompleter {
         }
       }
 
-      if (silent) {
-        plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), true);
+      if (plsSilent) {
+        inspectHandler.setDisable(player.getUniqueId(), true);
         Messages.sendFormatted(player, "command.rpc." + key + ".enabled");
       } else {
-        plugin.getPrivateChatInspectHandler().setDisable(player.getUniqueId(), false);
+        inspectHandler.setDisable(player.getUniqueId(), false);
         Messages.sendFormatted(player, "command.rpc." + key + ".disabled");
       }
     };

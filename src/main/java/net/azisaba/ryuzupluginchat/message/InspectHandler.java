@@ -3,7 +3,7 @@ package net.azisaba.ryuzupluginchat.message;
 import java.util.UUID;
 
 public interface InspectHandler {
-    void setDisable(UUID uuid, boolean disable);
+    void setDisable(UUID uuid, boolean silent);
 
     boolean isDisabled(UUID uuid);
 
