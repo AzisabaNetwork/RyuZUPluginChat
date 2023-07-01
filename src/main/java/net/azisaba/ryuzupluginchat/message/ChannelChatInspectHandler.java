@@ -12,8 +12,8 @@ public class ChannelChatInspectHandler implements InspectHandler {
   private final List<UUID> disablePlayers = new ArrayList<>();
 
   @Override
-  public void setDisable(UUID uuid, boolean disable) {
-    if (disable) {
+  public void setDisable(UUID uuid, boolean silent) {
+    if (silent) {
       if (!disablePlayers.contains(uuid)) {
         disablePlayers.add(uuid);
       }
