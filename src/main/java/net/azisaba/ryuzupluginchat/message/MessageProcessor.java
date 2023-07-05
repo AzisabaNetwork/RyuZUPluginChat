@@ -94,7 +94,7 @@ public class MessageProcessor {
                           return true;
                         }
                         return p.hasPermission("rpc.op") &&
-                                plugin.getPrivateChatInspectHandler().isVisible(p.getUniqueId());
+                                plugin.getChannelChatInspectHandler().isVisible(p.getUniqueId());
                       })
                   .collect(Collectors.toCollection(HashSet<Player>::new))
       ).join();
