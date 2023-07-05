@@ -122,7 +122,8 @@ public class MessageProcessor {
                             .contains(p)) {
                           return true;
                         }
-                        return p.hasPermission("rpc.op");
+                        return p.hasPermission("rpc.op") &&
+                                plugin.getChannelChatInspectHandler().isVisible(p.getUniqueId());
                       })
                   .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
                   .collect(Collectors.toCollection(HashSet<Player>::new))
