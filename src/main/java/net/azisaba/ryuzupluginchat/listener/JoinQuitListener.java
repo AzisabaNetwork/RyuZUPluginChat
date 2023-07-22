@@ -33,6 +33,9 @@ public class JoinQuitListener implements Listener {
     if (plugin.getRpcConfig().isDefaultDisablePrivateChatInspect()) {
       plugin.getPrivateChatInspectHandler().setDisable(p.getUniqueId(), true);
     }
+    if (plugin.getRpcConfig().isDefaultDisableChannelChatInspect()) {
+      plugin.getChannelChatInspectHandler().setDisable(p.getUniqueId(), true);
+    }
   }
 
   @EventHandler
