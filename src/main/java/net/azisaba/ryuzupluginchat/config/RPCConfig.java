@@ -62,6 +62,9 @@ public class RPCConfig {
 
     groupName = conf.getString("redis.group");
 
+    defaultDisablePrivateChatInspect = conf.getBoolean("default-disable-private-chat-inspect", false);
+    defaultDisableChannelChatInspect = conf.getBoolean("default-disable-channel-chat-inspect", false);
+
     discordBotEnabled = conf.getBoolean("discord.enable", false);
     if (!discordBotEnabled) {
       return;
@@ -77,9 +80,6 @@ public class RPCConfig {
     }
 
     vcCommandLunaChatChannel = conf.getString("discord.vc-command-lunachat-channel", null);
-
-    defaultDisablePrivateChatInspect = conf.getBoolean("default-disable-private-chat-inspect", false);
-    defaultDisableChannelChatInspect = conf.getBoolean("default-disable-channel-chat-inspect", false);
 
     ConfigurationSection section = conf.getConfigurationSection("discord.connections");
     if (section == null) {
