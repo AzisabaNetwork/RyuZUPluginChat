@@ -27,7 +27,7 @@ public class ChannelMsgFromCommandListener implements Listener {
   private final List<String> lunaChatSubCommands =
       Arrays.asList(
           "create",
-          "join",
+          //"join",
           "leave",
           "list",
           "info",
@@ -59,7 +59,14 @@ public class ChannelMsgFromCommandListener implements Listener {
       return;
     }
 
-    Channel ch = LunaChat.getAPI().getChannel(labelAndArgs[1]);
+    String channelName;
+    if (labelAndArgs[1].equals("join")) {
+      channelName = labelAndArgs[2];
+    } else {
+      channelName = labelAndArgs[1];
+    }
+
+    Channel ch = LunaChat.getAPI().getChannel(channelName);
     if (ch == null) {
       return;
     }
@@ -75,8 +82,12 @@ public class ChannelMsgFromCommandListener implements Listener {
       return;
     }
 
-    String chatMessage =
-        e.getMessage().substring(labelAndArgs[0].length() + labelAndArgs[1].length() + 1).trim();
+    String chatMessage;
+    if (labelAndArgs[1].equals("join")) {
+      chatMessage = e.getMessage().substring(labelAndArgs[0].length() + labelAndArgs[1].length() + channelName.length() + 2).trim();
+    } else {
+      chatMessage = e.getMessage().substring(labelAndArgs[0].length() + channelName.length() + 1).trim();
+    }
 
     ChannelChatMessageData data =
         plugin
