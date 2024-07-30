@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Locale;
+
 @RequiredArgsConstructor
 public class JoinQuitListener implements Listener {
 
@@ -27,6 +29,18 @@ public class JoinQuitListener implements Listener {
               }
             },
             20L * 3L);
+    Bukkit.getScheduler()
+            .runTaskAsynchronously(
+                    plugin,
+                    () -> {
+                      if (plugin.getLanguageController().getLanguage(p.getUniqueId()) == null) {
+                        String locale = p.getLocale().replaceAll("(.+)_.+", "$1");
+                        if (Locale.forLanguageTag(locale).toLanguageTag().equalsIgnoreCase("und")) {
+                          throw new IllegalArgumentException("Invalid locale received from client: " + p.getLocale());
+                        }
+                        plugin.getLanguageController().setLanguage(p.getUniqueId(), locale);
+                      }
+                    });
 
     plugin.getHideAllInfoController().refreshHideAllInfoAsync(p.getUniqueId());
 

@@ -13,28 +13,48 @@ import net.azisaba.ryuzupluginchat.event.AsyncChannelMessageEvent;
 import net.azisaba.ryuzupluginchat.event.AsyncGlobalMessageEvent;
 import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageEvent;
 import net.azisaba.ryuzupluginchat.event.AsyncPrivateMessageNotifyEvent;
-import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
-import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
-import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
-import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
+import net.azisaba.ryuzupluginchat.message.data.*;
 import net.azisaba.ryuzupluginchat.util.Chat;
+import net.azisaba.ryuzupluginchat.util.OpenAIUtils;
 import net.azisaba.ryuzupluginchat.util.TaskSchedulingUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @RequiredArgsConstructor
 public class MessageProcessor {
 
   private final RyuZUPluginChat plugin;
 
+  private void translate(
+          @NotNull MessageData data,
+          @NotNull String originalMessage,
+          @NotNull String from,
+          @NotNull String to,
+          @Nullable UUID senderUUID
+  ) {
+    if (from.equals(to)) {
+      data.setMessage(originalMessage);
+    } else {
+      try {
+        String displayLanguage = Locale.forLanguageTag(to).getDisplayLanguage(Locale.ENGLISH);
+        data.setMessage(OpenAIUtils.ask(plugin.getRpcConfig(), displayLanguage, String.valueOf(senderUUID), originalMessage));
+      } catch (Exception e) {
+        plugin.getSLF4JLogger().error("Error retrieving translation", e);
+        data.setMessage(originalMessage);
+      }
+    }
+  }
+
   public void processGlobalMessage(GlobalMessageData data) {
     String message = data.format();
 
-    UUID senderUUID = data.getPlayerUuid();
-    if (senderUUID == null) {
-      senderUUID = plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName());
-    }
+    UUID senderUUID =
+            data.getPlayerUuid() == null
+                    ? plugin.getPlayerUUIDMapContainer().getUUID(data.getPlayerName())
+                    : data.getPlayerUuid();
     final Set<UUID> deafenPlayers;
     if (senderUUID != null) {
       deafenPlayers = plugin.getHideInfoController().getPlayersWhoHide(senderUUID);
@@ -45,21 +65,26 @@ public class MessageProcessor {
       deafenPlayers = Collections.emptySet();
     }
 
-    Set<Player> recipients = Bukkit.getOnlinePlayers().stream()
-        .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
-        .collect(Collectors.toCollection(HashSet::new));
-
-    AsyncGlobalMessageEvent event = new AsyncGlobalMessageEvent(data, recipients);
-    Bukkit.getPluginManager().callEvent(event);
-    if (event.isCancelled()) {
-      return;
-    }
-
-    for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
-    }
-
     plugin.getLogger().info("[Global-Chat] " + ChatColor.stripColor(message));
+
+    String senderLanguage = plugin.getLanguageController().getLanguageOrDefault(senderUUID, Locale.JAPANESE.toLanguageTag());
+    Map<String, Set<Player>> recipientsMap = new HashMap<>();
+    Bukkit.getOnlinePlayers().stream()
+            .filter(p -> !deafenPlayers.contains(p.getUniqueId()))
+            .forEach(player -> recipientsMap.computeIfAbsent(plugin.getLanguageController().getLanguage(player), k -> new HashSet<>()).add(player));
+    String originalMessage = data.getMessage();
+    recipientsMap.entrySet().parallelStream().forEach(entry -> {
+      translate(data, originalMessage, senderLanguage, entry.getKey(), senderUUID);
+      AsyncGlobalMessageEvent event = new AsyncGlobalMessageEvent(data, entry.getValue());
+      Bukkit.getPluginManager().callEvent(event);
+      if (event.isCancelled()) {
+        return;
+      }
+
+      for (Player player : event.getRecipients()) {
+        player.sendMessage(message);
+      }
+    });
   }
 
   public void processChannelChatMessage(ChannelChatMessageData data) {

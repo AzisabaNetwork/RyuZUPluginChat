@@ -19,6 +19,10 @@ import redis.clients.jedis.HostAndPort;
 @Getter
 @RequiredArgsConstructor
 public class RPCConfig {
+  private static final String TRANSLATOR_DEFAULT_PROMPT =
+          "Translate the input into %language%." +
+                  "Everything other than English translation must not be in the output." +
+                  "Punctuations should be omitted if not in the original text.";
 
   private final RyuZUPluginChat plugin;
 
@@ -38,6 +42,10 @@ public class RPCConfig {
 
   private boolean defaultDisablePrivateChatInspect;
   private boolean defaultDisableChannelChatInspect;
+
+  private String translatorPrompt;
+  private String translatorOpenAIApiKey;
+  private String translatorOpenAIOrganization;
 
   private final List<DiscordMessageConnection> messageConnections = new ArrayList<>();
 
@@ -61,6 +69,10 @@ public class RPCConfig {
     privateChatFormat = conf.getString("formats.private");
 
     groupName = conf.getString("redis.group");
+
+    translatorPrompt = conf.getString("translator.prompt", TRANSLATOR_DEFAULT_PROMPT);
+    translatorOpenAIApiKey = conf.getString("translator.openai-api-key");
+    translatorOpenAIOrganization = conf.getString("translator.openai-organization");
 
     defaultDisablePrivateChatInspect = conf.getBoolean("default-disable-private-chat-inspect", false);
     defaultDisableChannelChatInspect = conf.getBoolean("default-disable-channel-chat-inspect", false);

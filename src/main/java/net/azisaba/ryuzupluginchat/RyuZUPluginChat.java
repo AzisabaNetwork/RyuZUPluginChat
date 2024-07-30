@@ -26,18 +26,7 @@ import net.azisaba.ryuzupluginchat.listener.OutdatedCommandCaptureListener;
 import net.azisaba.ryuzupluginchat.listener.PrivateChatDebugListener;
 import net.azisaba.ryuzupluginchat.localization.Messages;
 import net.azisaba.ryuzupluginchat.message.*;
-import net.azisaba.ryuzupluginchat.redis.HideAllInfoController;
-import net.azisaba.ryuzupluginchat.redis.HideInfoController;
-import net.azisaba.ryuzupluginchat.redis.MessagePublisher;
-import net.azisaba.ryuzupluginchat.redis.MessageSubscriber;
-import net.azisaba.ryuzupluginchat.redis.PlayerUUIDMapContainer;
-import net.azisaba.ryuzupluginchat.redis.PrivateChatIDGetter;
-import net.azisaba.ryuzupluginchat.redis.PrivateChatReachedSubscriber;
-import net.azisaba.ryuzupluginchat.redis.PrivateChatResponseWaiter;
-import net.azisaba.ryuzupluginchat.redis.ReplyTargetFetcher;
-import net.azisaba.ryuzupluginchat.redis.RyuZUPrefixSuffixContainer;
-import net.azisaba.ryuzupluginchat.redis.VCLunaChatChannelSharer;
-import net.azisaba.ryuzupluginchat.redis.VanishController;
+import net.azisaba.ryuzupluginchat.redis.*;
 import net.azisaba.ryuzupluginchat.task.SubscriberPingTask;
 import net.azisaba.ryuzupluginchat.taskchain.BukkitTaskChainFactory;
 import net.azisaba.ryuzupluginchat.updater.GitHubPluginUpdater;
@@ -70,6 +59,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private HideInfoController hideInfoController;
   private HideAllInfoController hideAllInfoController;
   private VanishController vanishController;
+  private LanguageController languageController;
   private final PrivateChatInspectHandler privateChatInspectHandler =
       new PrivateChatInspectHandler();
   private final ChannelChatInspectHandler channelChatInspectHandler =
@@ -214,6 +204,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
     hideAllInfoController.refreshAllAsync();
     vanishController = new VanishController(jedisPool, rpcConfig.getGroupName());
     vanishController.refreshAllAsync();
+    languageController = new LanguageController(jedisPool, rpcConfig.getGroupName());
+    languageController.refreshAllAsync();
 
     // Populate (reverse)hideMap
     hideInfoController.updateCache();

@@ -35,3 +35,7 @@ discord:
       private:
         enable: true
 default-disable-private-chat-inspect: false
+translator:
+  prompt: "Translate the input into %language%. Everything other than English translation must not be in the output. Punctuations should be omitted if not in the original text."
+  openai-api-key: "sk-aaa"
+  openai-organization: null
