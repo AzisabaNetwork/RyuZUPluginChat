@@ -63,6 +63,10 @@ tasks.processResources {
     }
 }
 
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
 tasks.shadowJar {
     isEnableRelocation = true
     relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
