@@ -5,44 +5,28 @@
 plugins {
     `java-library`
     `maven-publish`
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.lombok)
 }
 
 repositories {
-    mavenLocal()
-    maven {
-        url = uri("https://oss.sonatype.org/content/groups/public/")
-    }
-
-    maven {
-        url = uri("https://repo.azisaba.net/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://papermc.io/repo/repository/maven-snapshots/")
-    }
-
-    maven {
-        url = uri("https://papermc.io/repo/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://repo.aikar.co/content/groups/aikar/")
-    }
-
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
+    mavenCentral()
+    maven("https://oss.sonatype.org/content/groups/public/")
+    maven("https://repo.azisaba.net/repository/maven-public/")
+    maven("https://papermc.io/repo/repository/maven-snapshots/")
+    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.aikar.co/content/groups/aikar/")
+    maven("https://repo.maven.apache.org/maven2/")
 }
 
 dependencies {
-    api(libs.com.discord4j.discord4j.core)
-    api(libs.redis.clients.jedis)
-    api(libs.co.aikar.taskchain.core)
-    api(libs.com.vdurmont.semver4j)
-    compileOnly(libs.com.destroystokyo.paper.paper.api)
-    compileOnly(libs.net.luckperms.api)
-    compileOnly(libs.net.azisaba.lunachatplus)
-    compileOnly(libs.org.projectlombok.lombok)
+    implementation(libs.discord4j)
+    implementation(libs.jedis)
+    implementation(libs.aikar.taskchain)
+    implementation(libs.semver4j)
+    compileOnly(libs.paper.api)
+    compileOnly(libs.luckperms.api)
+    compileOnly(libs.lunachatplus)
 }
 
 group = "net.azisaba"
@@ -56,10 +40,19 @@ publishing {
     }
 }
 
-tasks.withType<JavaCompile>() {
+tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<Javadoc>() {
+tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
+}
+
+lombok {
+    version = "1.18.38"
+}
+
+tasks.shadowJar {
+    isEnableRelocation = true
+    relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
 }
