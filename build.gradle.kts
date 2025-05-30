@@ -31,6 +31,13 @@ dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.luckperms.api)
     compileOnly(libs.lunachatplus)
+    compileOnly(libs.jetbrains.annotation)
+
+    // Test dependencies
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testCompileOnly(libs.jetbrains.annotation)
 }
 
 tasks.withType<JavaCompile> {
@@ -67,7 +74,11 @@ tasks.shadowJar {
 }
 
 lombok {
-    version = "1.18.38"
+    version = libs.versions.lombok.asProvider()
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 publishing {

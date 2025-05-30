@@ -5,17 +5,20 @@ lombok-gradle = "8.13.1"
 
 # Libraries
 paper-api = "1.15.2-R0.1-SNAPSHOT"
-lombok = "1.18.24"
+lombok = "1.18.38"
 semver4j = "3.1.0"
 jedis = "4.3.1"
 aikar-taskchain = "3.7.2"
 discord4j = "3.2.3"
 lunachatplus = "3.3.0"
 luckperms-api = "5.4"
+jetbrains-annotation = "26.0.2"
+junit = "5.13.0"
+junit-platform = "1.13.0"
 
 [plugins]
-shadow = { id = "com.gradleup.shadow", version.ref = "shadow"}
-lombok = { id = "io.freefair.lombok", version.ref = "lombok-gradle"}
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+lombok = { id = "io.freefair.lombok", version.ref = "lombok-gradle" }
 
 [libraries]
 aikar-taskchain = { module = "co.aikar:taskchain-core", version.ref = "aikar-taskchain" }
@@ -24,5 +27,8 @@ discord4j = { module = "com.discord4j:discord4j-core", version.ref = "discord4j"
 semver4j = { module = "com.vdurmont:semver4j", version.ref = "semver4j" }
 lunachatplus = { module = "net.azisaba:lunachatplus", version.ref = "lunachatplus" }
 luckperms-api = { module = "net.luckperms:api", version.ref = "luckperms-api" }
-lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
+jetbrains-annotation = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotation" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
