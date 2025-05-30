@@ -1,10 +1,10 @@
-name: ${project.name}
-version: ${project.version}
+name: '${name}'
+version: '${version}'
 main: net.azisaba.ryuzupluginchat.RyuZUPluginChat
 api-version: 1.13
-description: ${project.description}
-author: ${project.organization.name}
-website: ${project.url}
+description: '${description}'
+author: '${orgName}'
+website: '${url}'
 depend:
   - LuckPerms
   - LunaChat
