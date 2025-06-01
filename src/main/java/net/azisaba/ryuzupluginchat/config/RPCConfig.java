@@ -50,10 +50,10 @@ public class RPCConfig {
     redisUserName = conf.getString("redis.user");
     redisPassword = conf.getString("redis.password");
 
-    if (redisUserName != null && redisUserName.equals("")) {
+    if (redisUserName != null && redisUserName.isEmpty()) {
       redisUserName = null;
     }
-    if (redisPassword != null && redisPassword.equals("")) {
+    if (redisPassword != null && redisPassword.isEmpty()) {
       redisPassword = null;
     }
 

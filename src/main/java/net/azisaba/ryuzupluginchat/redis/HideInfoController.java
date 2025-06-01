@@ -132,7 +132,7 @@ public class HideInfoController {
               jedisPool, (jedis) -> jedis.hgetAll("rpc:" + groupName + ":hide-map"));
       for (String key : rawData.keySet()) {
         UUID keyUUID = UUID.fromString(key);
-        if (!rawData.get(key).equals("")) {
+        if (!rawData.get(key).isEmpty()) {
           Set<UUID> uuidList =
               Arrays.stream(rawData.get(key).split(","))
                   .map(UUID::fromString)
