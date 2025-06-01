@@ -25,7 +25,7 @@ public class DiscordMessageDeliverer {
   public void sendToGlobal(MessageCreateEvent event) {
     Message message = event.getMessage();
     String content = message.getContent();
-    if (content.length() == 0) {
+    if (content.isEmpty()) {
       return;
     }
     content = removeUrl(content);
@@ -46,7 +46,7 @@ public class DiscordMessageDeliverer {
   public void sendToChannel(MessageCreateEvent event, ChannelChatSyncData syncData) {
     Message message = event.getMessage();
     String content = message.getContent();
-    if (content.length() == 0) {
+    if (content.isEmpty()) {
       return;
     }
     final String urlDeletedContent = removeUrl(content);

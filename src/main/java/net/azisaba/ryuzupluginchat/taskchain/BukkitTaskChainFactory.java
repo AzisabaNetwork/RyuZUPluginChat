@@ -55,7 +55,6 @@ public class BukkitTaskChainFactory extends TaskChainFactory {
       return new BukkitTaskChainFactory(plugin, asyncQueue);
   }*/
 
-  @SuppressWarnings("PublicInnerClass")
   private static class BukkitGameInterface implements GameInterface {
     private final Plugin plugin;
     private final AsyncQueue asyncQueue;

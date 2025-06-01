@@ -119,7 +119,7 @@ public class HideAllCommand implements TabExecutor {
     str = str.toLowerCase(Locale.ROOT);
 
     Duration duration = Duration.ofSeconds(0);
-    while (str.length() > 0) {
+    while (!str.isEmpty()) {
       List<Integer> indexes =
           new ArrayList<>(Arrays.asList(str.indexOf("d"), str.indexOf("h"), str.indexOf("m"), str.indexOf("s")));
       indexes.removeIf(i -> i < 0);
@@ -131,7 +131,7 @@ public class HideAllCommand implements TabExecutor {
 
       int minIndex = minIndexOptional.getAsInt();
       String numStr = str.substring(0, minIndex);
-      if (numStr.length() == 0) {
+      if (numStr.isEmpty()) {
         throw new IllegalArgumentException();
       }
 

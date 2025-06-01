@@ -155,7 +155,7 @@ public class HideInfoController {
 
     String oneLine = String.join(",", uuidSetStr);
 
-    if (oneLine.length() == 0) {
+    if (oneLine.isEmpty()) {
       JedisUtils.executeUsingJedisPool(
           jedisPool, (jedis) -> jedis.hdel("rpc:" + groupName + ":hide-map", uuid.toString()));
     } else {
