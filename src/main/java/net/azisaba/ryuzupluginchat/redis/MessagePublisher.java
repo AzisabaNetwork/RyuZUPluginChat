@@ -33,7 +33,7 @@ public class MessagePublisher {
     try {
       jsonMessage = converter.convertIntoString(data);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to serialize data for publishing global message", e);
       return false;
     }
 
@@ -50,7 +50,7 @@ public class MessagePublisher {
     try {
       jsonMessage = converter.convertIntoString(data);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to serialize data for publishing private message", e);
       return false;
     }
 
@@ -67,7 +67,7 @@ public class MessagePublisher {
     try {
       jsonMessage = converter.convertIntoString(data);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to serialize data for publishing channel chat message", e);
       return false;
     }
 
@@ -81,7 +81,7 @@ public class MessagePublisher {
     try {
       jsonMessage = converter.convertIntoString(data);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to serialize data for publishing system message", e);
       return false;
     }
 
@@ -96,7 +96,7 @@ public class MessagePublisher {
     try {
       jsonMessage = mapper.writeValueAsString(data);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to serialize data for notifying private chat reached", e);
       return;
     }
 

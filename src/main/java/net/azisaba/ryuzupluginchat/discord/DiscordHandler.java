@@ -89,7 +89,7 @@ public class DiscordHandler {
 
                 discordMessageDeliverer.sendToGlobal(event);
               } catch (Exception e) {
-                e.printStackTrace();
+                plugin.getSLF4JLogger().error("Failed to register discord channel for global chat", e);
               }
             });
   }
@@ -111,7 +111,7 @@ public class DiscordHandler {
 
                 discordMessageDeliverer.sendToChannel(event, syncData);
               } catch (Exception e) {
-                e.printStackTrace();
+                plugin.getSLF4JLogger().error("Failed to register discord channel for specific channels", e);
               }
             });
   }

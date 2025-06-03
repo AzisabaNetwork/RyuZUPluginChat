@@ -43,7 +43,7 @@ public class PrivateChatReachedSubscriber {
 
               plugin.getPrivateChatResponseWaiter().reached(data);
             } catch (JsonProcessingException e) {
-              e.printStackTrace();
+              plugin.getSLF4JLogger().error("Failed to process on message", e);
             }
           }
 
@@ -54,7 +54,7 @@ public class PrivateChatReachedSubscriber {
               try {
                 consumer.accept(pattern);
               } catch (Exception e) {
-                e.printStackTrace();
+                plugin.getSLF4JLogger().error("Failed to process on pong", e);
               }
             }
           }

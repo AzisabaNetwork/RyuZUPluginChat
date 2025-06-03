@@ -44,7 +44,7 @@ public class JsonDataConverter {
           (Map<String, Object>)
               mapper.readValue(data, new TypeReference<Map<String, Object>>() {}).get("map"));
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to processing json", e);
     }
     return null;
   }
@@ -53,7 +53,7 @@ public class JsonDataConverter {
     try {
       return mapper.readValue(data, clazz);
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to data conversion", e);
     }
     return null;
   }

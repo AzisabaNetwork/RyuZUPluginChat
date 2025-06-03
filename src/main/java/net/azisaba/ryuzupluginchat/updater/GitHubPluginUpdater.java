@@ -59,7 +59,7 @@ public class GitHubPluginUpdater {
       String response = readUrlAsString(url);
       data = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to read data from update check url content", e);
       return false;
     }
 
@@ -152,7 +152,7 @@ public class GitHubPluginUpdater {
       status = UpdateStatus.ALREADY_UPDATED;
       return true;
     } catch (IOException e) {
-      e.printStackTrace();
+      plugin.getSLF4JLogger().error("Failed to download latest jar file", e);
       return false;
     }
   }

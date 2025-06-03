@@ -59,7 +59,7 @@ public class MessageSubscriber {
                             try {
                               c.accept(data);
                             } catch (Exception e) {
-                              e.printStackTrace();
+                              plugin.getSLF4JLogger().error("Failed to execute consumer for global-chat", e);
                             }
                           });
                     }
@@ -75,7 +75,7 @@ public class MessageSubscriber {
                             try {
                               c.accept(data);
                             } catch (Exception e) {
-                              e.printStackTrace();
+                              plugin.getSLF4JLogger().error("Failed to execute consumer for private-chat", e);
                             }
                           });
                     }
@@ -92,7 +92,7 @@ public class MessageSubscriber {
                             try {
                               c.accept(data);
                             } catch (Exception e) {
-                              e.printStackTrace();
+                              plugin.getSLF4JLogger().error("Failed to execute consumer for channel-chat", e);
                             }
                           });
                     }
@@ -108,7 +108,7 @@ public class MessageSubscriber {
                             try {
                               c.accept(data);
                             } catch (Exception e) {
-                              e.printStackTrace();
+                              plugin.getSLF4JLogger().error("Failed to execute consumer for onPMessage", e);
                             }
                           });
                     }
@@ -123,7 +123,7 @@ public class MessageSubscriber {
               try {
                 consumer.accept(pattern);
               } catch (Exception e) {
-                e.printStackTrace();
+                plugin.getSLF4JLogger().error("Failed to execute consumer for onPong", e);
               }
             }
           }
@@ -136,7 +136,7 @@ public class MessageSubscriber {
           try (Jedis jedis = jedisPool.getResource()) {
             jedis.psubscribe(subscriber, "rpc:" + groupName + ":*");
           } catch (JedisConnectionException e) {
-            e.printStackTrace();
+              plugin.getSLF4JLogger().error("Failed to subscribe for {}", groupName, e);
           }
         });
 
