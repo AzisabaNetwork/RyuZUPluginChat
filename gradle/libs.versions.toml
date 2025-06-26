@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-shadow = "8.3.6"
+shadow = "8.3.7"
 lombok-gradle = "8.13.1"
 
 # Libraries
