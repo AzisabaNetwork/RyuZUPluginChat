@@ -13,7 +13,7 @@ discord4j = "3.2.3"
 lunachatplus = "3.3.0"
 luckperms-api = "5.5"
 jetbrains-annotation = "26.0.2"
-junit = "5.13.1"
+junit = "5.13.2"
 junit-platform = "1.13.1"
 
 [plugins]
