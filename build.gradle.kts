@@ -6,7 +6,13 @@ plugins {
 }
 
 group = "net.azisaba"
-version = "4.5.1"
+version = if(System.getenv("CI") == "true") {
+    // If in CI environment, it requires VERSION from env.
+    System.getenv("VERSION") ?: error("Failed to get version from environment")
+} else {
+    "0.1.0-SNAPSHOT"
+}
+
 description = "RyuZUPluginChat"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
