@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @Data
@@ -62,7 +61,7 @@ public class PrivateMessageData implements MessageData {
             .replace("[PlayerDisplayName]", convertEmptyIfNull(sentDisplayName))
             .replace("[ReceivePlayerDisplayName]", convertEmptyIfNull(receivedDisplayName));
 
-    formatted = ChatColor.translateAlternateColorCodes('&', formatted);
+    formatted = GlobalMessageData.LEGACY_SERIALIZER.serialize(GlobalMessageData.LEGACY_SERIALIZER.deserialize(formatted));
     if (japanized) {
       formatted =
           formatted.replace(

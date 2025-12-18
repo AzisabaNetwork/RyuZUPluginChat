@@ -8,6 +8,8 @@ website: '${url}'
 depend:
   - LuckPerms
   - LunaChat
+softdepend:
+  - ViaVersion
 
 commands:
   rpc:

@@ -8,6 +8,8 @@ paper-api = "1.15.2-R0.1-SNAPSHOT"
 lombok = "1.18.38"
 semver4j = "3.1.0"
 jedis = "4.3.1"
+adventure = "4.25.0"
+viaversion = "5.6.0"
 aikar-taskchain = "3.7.2"
 discord4j = "3.2.3"
 lunachatplus = "3.3.0"
@@ -28,6 +30,11 @@ semver4j = { module = "com.vdurmont:semver4j", version.ref = "semver4j" }
 lunachatplus = { module = "net.azisaba:lunachatplus", version.ref = "lunachatplus" }
 luckperms-api = { module = "net.luckperms:api", version.ref = "luckperms-api" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
+adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+adventure-serializer-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure" }
+adventure-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure" }
+adventure-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure" }
+viaversion = { module = "com.viaversion:viaversion-api", version.ref = "viaversion" }
 jetbrains-annotation = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotation" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

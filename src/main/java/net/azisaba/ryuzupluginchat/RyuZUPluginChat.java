@@ -146,6 +146,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
         .runTaskTimerAsynchronously(
             this, () -> vanishController.refreshAllAsync(), 20 * 30, 20 * 30);
 
+    if (Bukkit.getPluginManager().getPlugin("ViaVersion") == null || Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
+      getLogger().warning("ViaVersion/ProtocolLib is not installed. RGB chat might not work depending on the server and client version.");
+    }
     getLogger().info(getName() + " enabled.");
   }
 

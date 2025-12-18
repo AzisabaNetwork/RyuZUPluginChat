@@ -23,10 +23,10 @@ repositories {
     mavenCentral()
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://repo.azisaba.net/repository/maven-public/")
-    maven("https://papermc.io/repo/repository/maven-snapshots/")
-    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.aikar.co/content/groups/aikar/")
     maven("https://repo.maven.apache.org/maven2/")
+    maven("https://repo.viaversion.com")
 }
 
 dependencies {
@@ -34,9 +34,14 @@ dependencies {
     implementation(libs.jedis)
     implementation(libs.aikar.taskchain)
     implementation(libs.semver4j)
+    implementation(libs.adventure)
+    implementation(libs.adventure.serializer.legacy)
+    implementation(libs.adventure.serializer.plain)
+    implementation(libs.adventure.serializer.gson)
     compileOnly(libs.paper.api)
     compileOnly(libs.luckperms.api)
     compileOnly(libs.lunachatplus)
+    compileOnly(libs.viaversion)
     compileOnly(libs.jetbrains.annotation)
 
     // Test dependencies
@@ -57,7 +62,7 @@ tasks.withType<Javadoc> {
 tasks.processResources {
     val props =
         mapOf(
-            "name" to name,
+            "name" to project.name,
             "version" to version,
             "description" to description,
             "orgName" to orgName,
@@ -76,6 +81,8 @@ tasks.build {
 
 tasks.shadowJar {
     isEnableRelocation = true
+    relocate("io.netty", "io.netty")
+    exclude("io/netty/**")
     relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
 }
 
