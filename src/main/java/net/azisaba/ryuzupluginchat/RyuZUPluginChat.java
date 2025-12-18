@@ -223,17 +223,22 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupDiscordConnection() {
-    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
-    discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
-    boolean initResult = discordHandler.init();
+    try {
+      vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
+      discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
+      boolean initResult = discordHandler.init();
 
-    if (!initResult) {
-      getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
-      return;
-    }
+      if (!initResult) {
+        getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
+        return;
+      }
 
-    for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
-      discordHandler.connectUsing(connectionData);
+      for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
+        discordHandler.connectUsing(connectionData);
+      }
+    } catch (Throwable e) {
+      getLogger().warning("Failed to setup Discord connection :(");
+      e.printStackTrace();
     }
   }
 
