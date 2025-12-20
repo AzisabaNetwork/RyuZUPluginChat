@@ -6,12 +6,13 @@ plugins {
 }
 
 group = "net.azisaba"
-version = if(System.getenv("CI") == "true") {
-    // If in CI environment, it requires VERSION from env.
-    System.getenv("VERSION") ?: error("Failed to get version from environment")
-} else {
-    "0.1.0-SNAPSHOT"
-}
+version =
+    if (System.getenv("CI") == "true") {
+        // If in CI environment, it requires VERSION from env.
+        System.getenv("VERSION") ?: error("Failed to get version from environment")
+    } else {
+        "0.1.0-SNAPSHOT"
+    }
 
 description = "RyuZUPluginChat"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -20,13 +21,14 @@ val orgName: String by project
 val repoUrl: String by project
 
 repositories {
-    mavenCentral()
-    maven("https://oss.sonatype.org/content/groups/public/")
+    mavenCentral {
+        content {
+            excludeGroup("net.md-5") // It can't resolve from maven central
+        }
+    }
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.azisaba.net/repository/maven-public/")
-    maven("https://papermc.io/repo/repository/maven-snapshots/")
-    maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.aikar.co/content/groups/aikar/")
-    maven("https://repo.maven.apache.org/maven2/")
 }
 
 dependencies {
