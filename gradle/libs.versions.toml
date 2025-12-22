@@ -13,8 +13,8 @@ discord4j = "3.3.0"
 lunachatplus = "3.3.0"
 luckperms-api = "5.5"
 jetbrains-annotation = "26.0.2-1"
-junit = "5.14.1"
-junit-platform = "1.14.1"
+junit = "6.0.1"
+junit-platform = "6.0.1"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
