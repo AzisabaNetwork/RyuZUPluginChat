@@ -7,6 +7,7 @@ import com.github.ucchyocean.lc3.member.ChannelMemberBukkit;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.event.AsyncChannelMessageEvent;
@@ -17,16 +18,73 @@ import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import net.azisaba.ryuzupluginchat.message.data.SystemMessageData;
-import net.azisaba.ryuzupluginchat.util.Chat;
-import net.azisaba.ryuzupluginchat.util.TaskSchedulingUtils;
+import net.azisaba.ryuzupluginchat.util.*;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor
 public class MessageProcessor {
-
+  // net.kyori.adventure.text.Component
+  private static final char[] COMPONENT_CLASS_NAME =
+          new char[] {'n', 'e', 't', '.', 'k', 'y', 'o', 'r', 'i', '.', 'a', 'd', 'v', 'e', 'n', 't', 'u', 'r', 'e',
+                  '.', 't', 'e', 'x', 't', '.', 'C', 'o', 'm', 'p', 'o', 'n', 'e', 'n', 't'};
+  // net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+  private static final char[] LEGACY_COMPONENT_SERIALIZER_CLASS_NAME =
+          new char[] {'n', 'e', 't', '.', 'k', 'y', 'o', 'r', 'i', '.', 'a', 'd', 'v', 'e', 'n', 't', 'u', 'r', 'e',
+                  '.', 't', 'e', 'x', 't', '.', 's', 'e', 'r', 'i', 'a', 'l', 'i', 'z', 'e', 'r', '.',
+                  'l', 'e', 'g', 'a', 'c', 'y', '.', 'L', 'e', 'g', 'a', 'c', 'y', 'C', 'o', 'm', 'p', 'o', 'n', 'e',
+                  'n', 't', 'S', 'e', 'r', 'i', 'a', 'l', 'i', 'z', 'e', 'r'};
+  private static final LegacyComponentSerializer LEGACY_DESERIALIZER =
+          LegacyComponentSerializer.builder()
+                  .character('&')
+                  .hexColors()
+                  .extractUrls()
+                  .build();
+  private static final LegacyComponentSerializer LEGACY_SERIALIZER_HEX =
+          LegacyComponentSerializer.builder()
+                  .character('§')
+                  .hexColors()
+                  .build();
+  private static final LegacyComponentSerializer LEGACY_SERIALIZER_UNUSUAL_X_REPEATED_HEX =
+          LegacyComponentSerializer.builder()
+                  .character('§')
+                  .hexColors()
+                  .useUnusualXRepeatedCharacterHexFormat()
+                  .build();
   private final RyuZUPluginChat plugin;
+
+  private void sendRGBMessage(Player player, String message) {
+    RGBStatus rgbStatus = isRGBSupported(player);
+    if (rgbStatus == RGBStatus.SERVER_AND_CLIENT || rgbStatus == RGBStatus.SERVER_ONLY) {
+      try {
+        // Try to invoke Player#sendMessage(Component) in Paper API
+        Class<?> legacyComponentSerializerClass = Class.forName(new String(LEGACY_COMPONENT_SERIALIZER_CLASS_NAME));
+        Object legacyAmpersand = legacyComponentSerializerClass.getMethod("legacyAmpersand").invoke(null);
+        Object component = legacyComponentSerializerClass.getMethod("deserialize", String.class).invoke(legacyAmpersand, message);
+        Player.class.getMethod("sendMessage", Class.forName(new String(COMPONENT_CLASS_NAME))).invoke(player, component);
+      } catch (ReflectiveOperationException ignored) {
+        try {
+          player.spigot().sendMessage(ComponentSerializer.parse(GsonComponentSerializer.gson().serialize(LEGACY_DESERIALIZER.deserialize(message))));
+        } catch (Exception ignored2) {
+          player.sendMessage(LEGACY_SERIALIZER_HEX.serialize(LEGACY_DESERIALIZER.deserialize(message)));
+        }
+      }
+    } else if (rgbStatus == RGBStatus.CLIENT_ONLY) {
+      if (Bukkit.getPluginManager().getPlugin("ViaVersion") != null) {
+        String json = GsonComponentSerializer.gson().serialize(LEGACY_DESERIALIZER.deserialize(message));
+        ViaUtil.sendJsonMessage(player, json);
+      } else {
+        // no way to send RGB chat :(
+        player.sendMessage(LegacyComponentSerializer.legacySection().serialize(LEGACY_DESERIALIZER.deserialize(message)));
+      }
+    } else {
+      player.sendMessage(LegacyComponentSerializer.legacySection().serialize(LEGACY_DESERIALIZER.deserialize(message)));
+    }
+  }
 
   public void processGlobalMessage(GlobalMessageData data) {
     String message = data.format();
@@ -56,10 +114,10 @@ public class MessageProcessor {
     }
 
     for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      sendRGBMessage(player, message);
     }
 
-    plugin.getLogger().info("[Global-Chat] " + ChatColor.stripColor(message));
+    plugin.getLogger().info("[Global-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message)));
   }
 
   public void processChannelChatMessage(ChannelChatMessageData data) {
@@ -78,7 +136,7 @@ public class MessageProcessor {
 
     plugin
         .getLogger()
-        .info(Chat.f("[Channel-Chat] ({0}) {1}", channel.getName(), ChatColor.stripColor(message)));
+        .info(Chat.f("[Channel-Chat] ({0}) {1}", channel.getName(), PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message))));
 
     Set<Player> recipients;
     if (data.isFromDiscord()) {
@@ -137,7 +195,7 @@ public class MessageProcessor {
     }
 
     for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      sendRGBMessage(player, message);
     }
   }
 
@@ -169,7 +227,7 @@ public class MessageProcessor {
       recipients.add(targetPlayer);
     }
 
-    plugin.getLogger().info("[Private-Chat] " + ChatColor.stripColor(message));
+    plugin.getLogger().info("[Private-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message)));
 
     AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
     Bukkit.getPluginManager().callEvent(event);
@@ -178,7 +236,7 @@ public class MessageProcessor {
     }
 
     for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      sendRGBMessage(player, message);
     }
 
     RyuZUPluginChat.newChain()
@@ -221,7 +279,7 @@ public class MessageProcessor {
     String message = data.format();
 
     for (Player player : event.getRecipients()) {
-      player.sendMessage(message);
+      sendRGBMessage(player, message);
     }
   }
 
@@ -269,5 +327,39 @@ public class MessageProcessor {
   @SuppressWarnings("unchecked")
   private Map<String, String> convertObjectIntoMap(Object mapObject) {
     return (Map<String, String>) mapObject;
+  }
+
+  enum RGBStatus {
+    UNSUPPORTED,
+    SERVER_AND_CLIENT,
+    SERVER_ONLY,
+    CLIENT_ONLY,
+  }
+
+  private static RGBStatus isRGBSupported(Player player) {
+    String version = Bukkit.getVersion();
+    boolean modern = !version.contains("MC: 1.15") && !version.contains("MC: 1.14") && !version.contains("MC: 1.13") &&
+            !version.contains("MC: 1.12") && !version.contains("MC: 1.11") && !version.contains("MC: 1.10") &&
+            !version.contains("MC: 1.9") && !version.contains("MC: 1.8");
+    if (Bukkit.getPluginManager().getPlugin("ViaVersion") == null) {
+      if (modern) {
+        return RGBStatus.SERVER_AND_CLIENT;
+      } else {
+        return RGBStatus.UNSUPPORTED;
+      }
+    }
+    if (ViaUtil.isRGBSupportedVersion(player)) {
+      if (modern) {
+        return RGBStatus.SERVER_AND_CLIENT;
+      } else {
+        return RGBStatus.CLIENT_ONLY;
+      }
+    } else {
+      if (modern) {
+        return RGBStatus.SERVER_ONLY;
+      } else {
+        return RGBStatus.UNSUPPORTED;
+      }
+    }
   }
 }

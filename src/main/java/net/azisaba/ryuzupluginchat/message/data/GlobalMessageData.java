@@ -6,13 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.azisaba.ryuzupluginchat.util.Chat;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GlobalMessageData implements MessageData {
+  static final LegacyComponentSerializer LEGACY_SERIALIZER =
+          LegacyComponentSerializer
+                  .builder()
+                  .character('&')
+                  .hexColors()
+                  .build();
 
   private String format;
   private String lunaChatPrefix; // TODO: remove (存在しない)
@@ -56,7 +62,7 @@ public class GlobalMessageData implements MessageData {
             .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
             .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
 
-    formatted = ChatColor.translateAlternateColorCodes('&', formatted);
+    formatted = LEGACY_SERIALIZER.serialize(LEGACY_SERIALIZER.deserialize(formatted));
     if (japanized) {
       formatted =
           formatted.replace(

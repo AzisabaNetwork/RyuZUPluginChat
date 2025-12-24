@@ -146,6 +146,9 @@ public final class RyuZUPluginChat extends JavaPlugin {
         .runTaskTimerAsynchronously(
             this, () -> vanishController.refreshAllAsync(), 20 * 30, 20 * 30);
 
+    if (Bukkit.getPluginManager().getPlugin("ViaVersion") == null || Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
+      getLogger().warning("ViaVersion/ProtocolLib is not installed. RGB chat might not work depending on the server and client version.");
+    }
     getLogger().info(getName() + " enabled.");
   }
 
@@ -220,17 +223,22 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupDiscordConnection() {
-    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
-    discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
-    boolean initResult = discordHandler.init();
+    try {
+      vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
+      discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
+      boolean initResult = discordHandler.init();
 
-    if (!initResult) {
-      getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
-      return;
-    }
+      if (!initResult) {
+        getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
+        return;
+      }
 
-    for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
-      discordHandler.connectUsing(connectionData);
+      for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
+        discordHandler.connectUsing(connectionData);
+      }
+    } catch (Throwable e) {
+      getLogger().warning("Failed to setup Discord connection :(");
+      e.printStackTrace();
     }
   }
 

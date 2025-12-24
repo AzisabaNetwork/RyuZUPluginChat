@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.azisaba.ryuzupluginchat.util.Chat;
-import org.bukkit.ChatColor;
 
 @Data
 @AllArgsConstructor
@@ -49,7 +48,7 @@ public class ChannelChatMessageData implements MessageData {
             .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
             .replace("%color", convertEmptyIfNull(channelColorCode))
             .replace("%servername", convertEmptyIfNull(sendServerName));
-    msg = ChatColor.translateAlternateColorCodes('&', msg);
+    msg = GlobalMessageData.LEGACY_SERIALIZER.serialize(GlobalMessageData.LEGACY_SERIALIZER.deserialize(msg));
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);
     } else {
