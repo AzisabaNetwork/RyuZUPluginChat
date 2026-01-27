@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -61,7 +62,7 @@ public class PrivateMessageData implements MessageData {
             .replace("[PlayerDisplayName]", convertEmptyIfNull(sentDisplayName))
             .replace("[ReceivePlayerDisplayName]", convertEmptyIfNull(receivedDisplayName));
 
-    formatted = GlobalMessageData.LEGACY_SERIALIZER.serialize(GlobalMessageData.LEGACY_SERIALIZER.deserialize(formatted));
+    formatted = GlobalMessageData.LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(formatted));
     if (japanized) {
       formatted =
           formatted.replace(

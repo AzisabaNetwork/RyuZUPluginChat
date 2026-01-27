@@ -16,7 +16,7 @@ public class GlobalMessageData implements MessageData {
   static final LegacyComponentSerializer LEGACY_SERIALIZER =
           LegacyComponentSerializer
                   .builder()
-                  .character('&')
+                  .character('§')
                   .hexColors()
                   .build();
 
@@ -62,7 +62,7 @@ public class GlobalMessageData implements MessageData {
             .replace("[LunaChatSuffix]", convertEmptyIfNull(lunaChatSuffix))
             .replace("[LuckPermsSuffix]", convertEmptyIfNull(luckPermsSuffix));
 
-    formatted = LEGACY_SERIALIZER.serialize(LEGACY_SERIALIZER.deserialize(formatted));
+    formatted = LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(formatted));
     if (japanized) {
       formatted =
           formatted.replace(

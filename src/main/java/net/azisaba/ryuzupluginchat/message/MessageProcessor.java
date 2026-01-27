@@ -63,8 +63,8 @@ public class MessageProcessor {
       try {
         // Try to invoke Player#sendMessage(Component) in Paper API
         Class<?> legacyComponentSerializerClass = Class.forName(new String(LEGACY_COMPONENT_SERIALIZER_CLASS_NAME));
-        Object legacyAmpersand = legacyComponentSerializerClass.getMethod("legacyAmpersand").invoke(null);
-        Object component = legacyComponentSerializerClass.getMethod("deserialize", String.class).invoke(legacyAmpersand, message);
+        Object legacySection = legacyComponentSerializerClass.getMethod("legacySection").invoke(null);
+        Object component = legacyComponentSerializerClass.getMethod("deserialize", String.class).invoke(legacySection, message);
         Player.class.getMethod("sendMessage", Class.forName(new String(COMPONENT_CLASS_NAME))).invoke(player, component);
       } catch (ReflectiveOperationException ignored) {
         try {
@@ -117,7 +117,7 @@ public class MessageProcessor {
       sendRGBMessage(player, message);
     }
 
-    plugin.getLogger().info("[Global-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message)));
+    plugin.getLogger().info("[Global-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(message)));
   }
 
   public void processChannelChatMessage(ChannelChatMessageData data) {
@@ -136,7 +136,7 @@ public class MessageProcessor {
 
     plugin
         .getLogger()
-        .info(Chat.f("[Channel-Chat] ({0}) {1}", channel.getName(), PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message))));
+        .info(Chat.f("[Channel-Chat] ({0}) {1}", channel.getName(), PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(message))));
 
     Set<Player> recipients;
     if (data.isFromDiscord()) {
@@ -227,7 +227,7 @@ public class MessageProcessor {
       recipients.add(targetPlayer);
     }
 
-    plugin.getLogger().info("[Private-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(message)));
+    plugin.getLogger().info("[Private-Chat] " + PlainTextComponentSerializer.plainText().serialize(LegacyComponentSerializer.legacySection().deserialize(message)));
 
     AsyncPrivateMessageEvent event = new AsyncPrivateMessageEvent(data, recipients);
     Bukkit.getPluginManager().callEvent(event);
