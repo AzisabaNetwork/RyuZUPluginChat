@@ -24,6 +24,11 @@ jobs:
         with:
           validate-wrappers: true
 
+      - name: Create shadowJar
+        run: ./gradlew shadowJar
+        env:
+          VERSION: ${{ github.ref_name }}
+
       - name: Publish to azisaba repo
         run: ./gradlew publish
         env:
@@ -31,12 +36,9 @@ jobs:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
 
-      - name: Create shadowJar
-        run: ./gradlew shadowJar
-
       - name: Create github release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
           draft: true
-          files: build/libs/*.jar
+          files: build/libs/RyuZUPluginChat.jar
           generate_release_notes: true
