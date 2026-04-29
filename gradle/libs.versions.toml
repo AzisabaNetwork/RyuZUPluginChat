@@ -14,7 +14,7 @@ aikar-taskchain = "3.7.2"
 discord4j = "3.3.0"
 lunachatplus = "3.3.0"
 luckperms-api = "5.5"
-jetbrains-annotation = "26.0.2-1"
+jetbrains-annotation = "26.1.0"
 junit = "5.14.4"
 junit-platform = "1.14.4"
 
