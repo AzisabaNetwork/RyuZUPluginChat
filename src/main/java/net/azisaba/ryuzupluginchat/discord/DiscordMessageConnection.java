@@ -8,7 +8,7 @@ import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
 
 @Getter
 @RequiredArgsConstructor
-public class JDADiscordMessageConnection {
+public class DiscordMessageConnection {
 
     private final String id;
 

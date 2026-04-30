@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.bukkit.ChatColor;
 
 @RequiredArgsConstructor
-public class JDAServerChatMessageDeliverer {
+public class ServerChatMessageDeliverer {
     private final RyuZUPluginChat plugin;
     private final JDA client;
 

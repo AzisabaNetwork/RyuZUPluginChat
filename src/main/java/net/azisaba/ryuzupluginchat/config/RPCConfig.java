@@ -3,7 +3,7 @@ package net.azisaba.ryuzupluginchat.config;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
-import net.azisaba.ryuzupluginchat.discord.JDADiscordMessageConnection;
+import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor
-public class JDARPCConfig {
+public class RPCConfig {
 
   private final RyuZUPluginChat plugin;
 
@@ -39,7 +39,7 @@ public class JDARPCConfig {
   private boolean defaultDisablePrivateChatInspect;
   private boolean defaultDisableChannelChatInspect;
 
-  private final List<JDADiscordMessageConnection> messageConnections = new ArrayList<>();
+  private final List<DiscordMessageConnection> messageConnections = new ArrayList<>();
 
   public void load() {
     plugin.saveDefaultConfig();
@@ -88,7 +88,7 @@ public class JDARPCConfig {
 
     messageConnections.clear();
     for (String id : section.getKeys(false)) {
-      JDADiscordMessageConnection connection =
+      DiscordMessageConnection connection =
           importConnectionDataFromConfig(conf, "discord.connections." + id, id);
 
       if (connection == null) {
@@ -119,7 +119,7 @@ public class JDARPCConfig {
     load();
   }
 
-  private JDADiscordMessageConnection importConnectionDataFromConfig(
+  private DiscordMessageConnection importConnectionDataFromConfig(
       FileConfiguration conf, String section, String id) {
     boolean discordInputDefault = conf.getBoolean(section + ".discord-input", false);
     boolean vcModeDefault = conf.getBoolean(section + ".vc-mode", false);
@@ -172,6 +172,6 @@ public class JDARPCConfig {
       privateData = new PrivateChatSyncData(false, false);
     }
 
-    return new JDADiscordMessageConnection(id, discordChIdLong, globalData, channelData, privateData);
+    return new DiscordMessageConnection(id, discordChIdLong, globalData, channelData, privateData);
   }
 }

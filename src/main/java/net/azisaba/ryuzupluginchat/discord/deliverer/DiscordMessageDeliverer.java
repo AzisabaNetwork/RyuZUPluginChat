@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public class JDADiscordMessageDeliverer {
+public class DiscordMessageDeliverer {
     private final RyuZUPluginChat plugin;
 
     public void sendToGlobal(MessageReceivedEvent event){

@@ -5,8 +5,8 @@ import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
-import net.azisaba.ryuzupluginchat.discord.deliverer.JDADiscordMessageDeliverer;
-import net.azisaba.ryuzupluginchat.discord.deliverer.JDAServerChatMessageDeliverer;
+import net.azisaba.ryuzupluginchat.discord.deliverer.DiscordMessageDeliverer;
+import net.azisaba.ryuzupluginchat.discord.deliverer.ServerChatMessageDeliverer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -18,11 +18,11 @@ import org.bukkit.Bukkit;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
-public class JDADiscordHandler extends ListenerAdapter {
+public class DiscordHandler extends ListenerAdapter {
     private JDA jda;
     private final RyuZUPluginChat plugin;
-    private JDADiscordMessageDeliverer discordMessageDeliverer;
-    private JDAServerChatMessageDeliverer serverChatMessageDeliverer;
+    private DiscordMessageDeliverer discordMessageDeliverer;
+    private ServerChatMessageDeliverer serverChatMessageDeliverer;
 
     // どのチャンネルIDがどの処理（Global, Channel, Private）に紐付いているかを管理
     private final ConcurrentHashMap<Long, DiscordInputType> channelConfigurations = new ConcurrentHashMap<>();
@@ -38,8 +38,8 @@ public class JDADiscordHandler extends ListenerAdapter {
             // 接続完了まで待機
             jda.awaitReady();
 
-            this.discordMessageDeliverer = new JDADiscordMessageDeliverer(plugin);
-            this.serverChatMessageDeliverer = new JDAServerChatMessageDeliverer(plugin, jda);
+            this.discordMessageDeliverer = new DiscordMessageDeliverer(plugin);
+            this.serverChatMessageDeliverer = new ServerChatMessageDeliverer(plugin, jda);
 
             return true;
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class JDADiscordHandler extends ListenerAdapter {
         }
     }
 
-    public void connectUsing(JDADiscordMessageConnection connectionData) {
+    public void connectUsing(DiscordMessageConnection connectionData) {
         long channelId = connectionData.getDiscordChannelId();
 
         // Global Chat Sync

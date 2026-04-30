@@ -14,9 +14,9 @@ import net.azisaba.ryuzupluginchat.command.ReplyCommand;
 import net.azisaba.ryuzupluginchat.command.TellCommand;
 import net.azisaba.ryuzupluginchat.command.UnHideCommand;
 import net.azisaba.ryuzupluginchat.command.VCCommand;
-import net.azisaba.ryuzupluginchat.config.JDARPCConfig;
-import net.azisaba.ryuzupluginchat.discord.JDADiscordHandler;
-import net.azisaba.ryuzupluginchat.discord.JDADiscordMessageConnection;
+import net.azisaba.ryuzupluginchat.config.RPCConfig;
+import net.azisaba.ryuzupluginchat.discord.DiscordHandler;
+import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
 import net.azisaba.ryuzupluginchat.listener.ChannelMsgFromCommandListener;
 import net.azisaba.ryuzupluginchat.listener.ChatListener;
 import net.azisaba.ryuzupluginchat.listener.HideAllListener;
@@ -57,7 +57,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
 
   private static TaskChainFactory taskChainFactory;
 
-  private JDARPCConfig rpcConfig;
+  private RPCConfig rpcConfig;
   private MessageDataFactory messageDataFactory;
   private MessageProcessor messageProcessor;
   private RyuZUPrefixSuffixContainer prefixSuffixContainer;
@@ -79,7 +79,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private MessageSubscriber subscriber;
   private PrivateChatReachedSubscriber privateChatReachedSubscriber;
 
-  private JDADiscordHandler discordHandler;
+  private DiscordHandler discordHandler;
 
   private JedisPool jedisPool;
 
@@ -89,7 +89,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   public void onEnable() {
     taskChainFactory = BukkitTaskChainFactory.create(this);
 
-    rpcConfig = new JDARPCConfig(this);
+    rpcConfig = new RPCConfig(this);
     rpcConfig.load();
 
     try {
@@ -225,7 +225,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private void setupDiscordConnection() {
     try {
       vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
-      discordHandler = new JDADiscordHandler(this);
+      discordHandler = new DiscordHandler(this);
       boolean initResult = discordHandler.init(rpcConfig.getDiscordBotToken());
 
       if (!initResult) {
@@ -233,7 +233,7 @@ public final class RyuZUPluginChat extends JavaPlugin {
         return;
       }
 
-      for (JDADiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
+      for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
         discordHandler.connectUsing(connectionData);
       }
     } catch (Throwable e) {
