@@ -33,11 +33,12 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.discord4j)
     implementation(libs.jda) {
         exclude(module = "opus-java")
         exclude(module = "tink")
     }
+    implementation(libs.bundles.netty)
+    implementation(libs.bundles.jackson)
     implementation(libs.jedis)
     implementation(libs.aikar.taskchain)
     implementation(libs.semver4j)
