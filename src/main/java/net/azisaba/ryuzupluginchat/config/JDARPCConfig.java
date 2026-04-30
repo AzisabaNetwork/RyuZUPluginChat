@@ -1,25 +1,26 @@
 package net.azisaba.ryuzupluginchat.config;
 
-import discord4j.common.util.Snowflake;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.DiscordMessageConnection;
+import net.azisaba.ryuzupluginchat.discord.JDADiscordMessageConnection;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.GlobalChatSyncData;
 import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import redis.clients.jedis.HostAndPort;
 
-@Deprecated
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
 @Getter
 @RequiredArgsConstructor
-public class RPCConfig {
+public class JDARPCConfig {
 
   private final RyuZUPluginChat plugin;
 
@@ -40,7 +41,7 @@ public class RPCConfig {
   private boolean defaultDisablePrivateChatInspect;
   private boolean defaultDisableChannelChatInspect;
 
-  private final List<DiscordMessageConnection> messageConnections = new ArrayList<>();
+  private final List<JDADiscordMessageConnection> messageConnections = new ArrayList<>();
 
   public void load() {
     plugin.saveDefaultConfig();
@@ -89,7 +90,7 @@ public class RPCConfig {
 
     messageConnections.clear();
     for (String id : section.getKeys(false)) {
-      DiscordMessageConnection connection =
+      JDADiscordMessageConnection connection =
           importConnectionDataFromConfig(conf, "discord.connections." + id, id);
 
       if (connection == null) {
@@ -120,7 +121,7 @@ public class RPCConfig {
     load();
   }
 
-  private DiscordMessageConnection importConnectionDataFromConfig(
+  private JDADiscordMessageConnection importConnectionDataFromConfig(
       FileConfiguration conf, String section, String id) {
     boolean discordInputDefault = conf.getBoolean(section + ".discord-input", false);
     boolean vcModeDefault = conf.getBoolean(section + ".vc-mode", false);
@@ -132,9 +133,8 @@ public class RPCConfig {
           .warning("Invalid discord channel id ( " + section + ".discord-channel-id )");
       return null;
     }
-    Snowflake discordChannelId = Snowflake.of(discordChIdLong);
 
-    GlobalChatSyncData globalData;
+      GlobalChatSyncData globalData;
     ChannelChatSyncData channelData;
     PrivateChatSyncData privateData;
 
@@ -174,6 +174,6 @@ public class RPCConfig {
       privateData = new PrivateChatSyncData(false, false);
     }
 
-    return new DiscordMessageConnection(id, discordChannelId, globalData, channelData, privateData);
+    return new JDADiscordMessageConnection(id, discordChIdLong, globalData, channelData, privateData);
   }
 }

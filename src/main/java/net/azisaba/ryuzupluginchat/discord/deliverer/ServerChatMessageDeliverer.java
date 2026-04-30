@@ -12,6 +12,7 @@ import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import net.azisaba.ryuzupluginchat.message.data.PrivateMessageData;
 import org.bukkit.ChatColor;
 
+@Deprecated
 @RequiredArgsConstructor
 public class ServerChatMessageDeliverer {
 

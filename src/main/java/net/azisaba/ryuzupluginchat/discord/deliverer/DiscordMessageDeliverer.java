@@ -17,6 +17,7 @@ import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
 import org.bukkit.Bukkit;
 
+@Deprecated
 @RequiredArgsConstructor
 public class DiscordMessageDeliverer {
 

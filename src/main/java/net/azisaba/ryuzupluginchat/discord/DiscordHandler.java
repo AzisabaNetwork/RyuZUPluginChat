@@ -16,6 +16,7 @@ import net.azisaba.ryuzupluginchat.discord.deliverer.DiscordMessageDeliverer;
 import net.azisaba.ryuzupluginchat.discord.deliverer.ServerChatMessageDeliverer;
 import org.bukkit.Bukkit;
 
+@Deprecated
 @RequiredArgsConstructor
 public class DiscordHandler {
 
