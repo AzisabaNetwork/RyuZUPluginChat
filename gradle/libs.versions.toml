@@ -17,6 +17,11 @@ luckperms-api = "5.5"
 jetbrains-annotation = "26.1.0"
 junit = "5.14.4"
 junit-platform = "1.14.4"
+jda = "6.4.1"
+netty = "4.2.12.Final"
+jackson-core = "2.21.2"
+jackson-databind = "2.21.2"
+jackson-annotations = "2.21"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -39,3 +44,20 @@ jetbrains-annotation = { module = "org.jetbrains:annotations", version.ref = "je
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty"}
+netty-codec = { module = "io.netty:netty-codec", version.ref = "netty"}
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson-core" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson-databind" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-annotations" }
+
+[bundles]
+jackson = [
+    "jackson-core",
+    "jackson-databind",
+    "jackson-annotations"
+]
+netty = [
+    "netty-buffer",
+    "netty-codec"
+]
