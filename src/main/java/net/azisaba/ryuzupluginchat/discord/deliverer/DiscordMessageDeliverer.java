@@ -1,97 +1,73 @@
 package net.azisaba.ryuzupluginchat.discord.deliverer;
 
 import com.github.ucchyocean.lc3.LunaChat;
-import com.github.ucchyocean.lc3.LunaChatAPI;
-import com.github.ucchyocean.lc3.channel.Channel;
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Message;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
 import net.azisaba.ryuzupluginchat.message.data.ChannelChatMessageData;
 import net.azisaba.ryuzupluginchat.message.data.GlobalMessageData;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bukkit.Bukkit;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class DiscordMessageDeliverer {
+    private final RyuZUPluginChat plugin;
 
-  private final RyuZUPluginChat plugin;
+    public void sendToGlobal(MessageReceivedEvent event){
+        // get data from event
+        Message message = event.getMessage();
+        String content = message.getContentStripped();
+        if(content.isEmpty()) return;
 
-  public void sendToGlobal(MessageCreateEvent event) {
-    Message message = event.getMessage();
-    String content = message.getContent();
-    if (content.length() == 0) {
-      return;
-    }
-    content = removeUrl(content);
+        // sanitize content
+        content = removeUrl(content);
 
-    Member messageAuthor = message.getAuthorAsMember().block();
-    if (messageAuthor == null) {
-      return;
-    }
+        // get username
+        User author = message.getAuthor();
+        String senderName = author.getEffectiveName();
 
-    String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
-
-    GlobalMessageData data =
-        plugin.getMessageDataFactory().createGlobalMessageDataFromDiscord(senderName, content);
-
-    plugin.getPublisher().publishGlobalMessage(data);
-  }
-
-  public void sendToChannel(MessageCreateEvent event, ChannelChatSyncData syncData) {
-    Message message = event.getMessage();
-    String content = message.getContent();
-    if (content.length() == 0) {
-      return;
-    }
-    final String urlDeletedContent = removeUrl(content);
-
-    Member messageAuthor = message.getAuthorAsMember().block();
-    if (messageAuthor == null) {
-      return;
+        // create data and publish
+        GlobalMessageData data = plugin.getMessageDataFactory()
+                .createGlobalMessageDataFromDiscord(senderName, content);
+        plugin.getPublisher().publishGlobalMessage(data);
     }
 
-    String senderName = messageAuthor.getNickname().orElse(messageAuthor.getUsername());
+    public void sendToChannel(MessageReceivedEvent event, ChannelChatSyncData syncData) {
+        Message message = event.getMessage();
+        String content = message.getContentStripped();
+        if(content.isEmpty()) return;
 
-    Bukkit.getScheduler()
-        .runTaskAsynchronously(
-            plugin,
-            () -> {
-              LunaChatAPI api = LunaChat.getAPI();
-              List<Channel> channelList = new ArrayList<>();
-              for (Channel channel : api.getChannels()) {
-                if (syncData.isMatch(channel.getName())) {
-                  channelList.add(channel);
-                }
-              }
+        final String sanitizedContent = removeUrl(content);
 
-              for (Channel ch : channelList) {
-                ChannelChatMessageData data =
-                    plugin
-                        .getMessageDataFactory()
-                        .createChannelChatMessageDataFromDiscord(
-                            senderName, ch.getName(), urlDeletedContent);
+        User author = message.getAuthor();
+        String senderName = author.getEffectiveName();
 
-                plugin.getPublisher().publishChannelChatMessage(data);
-              }
-            });
-  }
-
-  private String removeUrl(String msg) {
-    String urlPattern =
-        "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w:#@%/;$()~_?+\\-=\\\\.&]*)";
-    Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
-    Matcher m = p.matcher(msg);
-    int i = 0;
-    while (m.find()) {
-      msg = msg.replaceAll(m.group(i), "<URL>").trim();
-      i++;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            LunaChat.getAPI().getChannels().stream()
+                    .filter(ch -> syncData.isMatch(ch.getName()))
+                    .forEach(ch -> {
+                        ChannelChatMessageData data = plugin.getMessageDataFactory()
+                                .createChannelChatMessageDataFromDiscord(senderName, ch.getName(), sanitizedContent);
+                        plugin.getPublisher().publishChannelChatMessage(data);
+                    });
+        });
     }
-    return msg;
-  }
+
+    private String removeUrl(String msg) {
+        String urlPattern =
+                "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w:#@%/;$()~_?+\\-=\\\\.&]*)";
+        Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(msg);
+        int i = 0;
+        while (m.find()) {
+            msg = msg.replaceAll(m.group(i), "<URL>").trim();
+            i++;
+        }
+        return msg;
+    }
 }

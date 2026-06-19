@@ -225,8 +225,8 @@ public final class RyuZUPluginChat extends JavaPlugin {
   private void setupDiscordConnection() {
     try {
       vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
-      discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
-      boolean initResult = discordHandler.init();
+      discordHandler = new DiscordHandler(this);
+      boolean initResult = discordHandler.init(rpcConfig.getDiscordBotToken());
 
       if (!initResult) {
         getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");

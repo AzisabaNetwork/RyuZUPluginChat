@@ -33,7 +33,12 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.discord4j)
+    implementation(libs.jda) {
+        exclude(module = "opus-java")
+        exclude(module = "tink")
+    }
+    implementation(libs.bundles.netty)
+    implementation(libs.bundles.jackson)
     implementation(libs.jedis)
     implementation(libs.aikar.taskchain)
     implementation(libs.semver4j)
@@ -83,6 +88,7 @@ tasks.build {
 }
 
 tasks.shadowJar {
+    minimize()
     isEnableRelocation = true
     relocate("io.netty.buffer", "io.netty.buffer")
     relocate("io.netty.util", "io.netty.util")

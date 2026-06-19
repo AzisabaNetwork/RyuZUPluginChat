@@ -1,10 +1,5 @@
 package net.azisaba.ryuzupluginchat.config;
 
-import discord4j.common.util.Snowflake;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
@@ -15,6 +10,11 @@ import net.azisaba.ryuzupluginchat.discord.data.PrivateChatSyncData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import redis.clients.jedis.HostAndPort;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Getter
 @RequiredArgsConstructor
@@ -131,9 +131,8 @@ public class RPCConfig {
           .warning("Invalid discord channel id ( " + section + ".discord-channel-id )");
       return null;
     }
-    Snowflake discordChannelId = Snowflake.of(discordChIdLong);
 
-    GlobalChatSyncData globalData;
+      GlobalChatSyncData globalData;
     ChannelChatSyncData channelData;
     PrivateChatSyncData privateData;
 
@@ -173,6 +172,6 @@ public class RPCConfig {
       privateData = new PrivateChatSyncData(false, false);
     }
 
-    return new DiscordMessageConnection(id, discordChannelId, globalData, channelData, privateData);
+    return new DiscordMessageConnection(id, discordChIdLong, globalData, channelData, privateData);
   }
 }
