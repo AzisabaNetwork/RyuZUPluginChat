@@ -84,8 +84,6 @@ tasks.build {
 
 tasks.shadowJar {
     isEnableRelocation = true
-    relocate("io.netty.buffer", "io.netty.buffer")
-    relocate("io.netty.util", "io.netty.util")
     relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
     archiveFileName.set("RyuZUPluginChat.jar")
 }
