@@ -11,7 +11,7 @@ version =
         // If in CI environment, it requires VERSION from env.
         System.getenv("VERSION") ?: error("Failed to get version from environment")
     } else {
-        "0.1.0-SNAPSHOT"
+        "0.1.1-SNAPSHOT"
     }
 
 description = "RyuZUPluginChat"
