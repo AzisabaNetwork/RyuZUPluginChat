@@ -26,7 +26,7 @@ jobs:
 
       - name: Compute version
         id: version
-        run: echo "version=0.1.0-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "version=0.1.1-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - run: java -version
 
