@@ -49,7 +49,7 @@ public class ChannelChatMessageData implements MessageData {
             .replace("%ch", convertEmptyIfNull(lunaChatChannelName))
             .replace("%color", convertEmptyIfNull(channelColorCode))
             .replace("%servername", convertEmptyIfNull(sendServerName));
-    msg = GlobalMessageData.LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(msg));
+    msg = GlobalMessageData.LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(Chat.expandHexColors(msg)));
     if (japanized) {
       msg = msg.replace("%premsg", preReplaceMessage);
     } else {

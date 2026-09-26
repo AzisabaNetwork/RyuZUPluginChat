@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.azisaba.ryuzupluginchat.util.Chat;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -62,7 +63,7 @@ public class PrivateMessageData implements MessageData {
             .replace("[PlayerDisplayName]", convertEmptyIfNull(sentDisplayName))
             .replace("[ReceivePlayerDisplayName]", convertEmptyIfNull(receivedDisplayName));
 
-    formatted = GlobalMessageData.LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(formatted));
+    formatted = GlobalMessageData.LEGACY_SERIALIZER.serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(Chat.expandHexColors(formatted)));
     if (japanized) {
       formatted =
           formatted.replace(
