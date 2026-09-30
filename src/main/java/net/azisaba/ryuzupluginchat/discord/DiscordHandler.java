@@ -1,5 +1,9 @@
 package net.azisaba.ryuzupluginchat.discord;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.azisaba.ryuzupluginchat.RyuZUPluginChat;
 import net.azisaba.ryuzupluginchat.discord.data.ChannelChatSyncData;
@@ -15,131 +19,174 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 @RequiredArgsConstructor
 public class DiscordHandler extends ListenerAdapter {
-    private JDA jda;
-    private final RyuZUPluginChat plugin;
-    private DiscordMessageDeliverer discordMessageDeliverer;
-    private ServerChatMessageDeliverer serverChatMessageDeliverer;
 
-    // どのチャンネルIDがどの処理（Global, Channel, Private）に紐付いているかを管理
-    private final ConcurrentHashMap<Long, DiscordInputType> channelConfigurations = new ConcurrentHashMap<>();
+  private final RyuZUPluginChat plugin;
 
-    public boolean init(String token) {
-        try {
-            // JDAの構築
-            jda = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
-                    .addEventListeners(this)
-                    .build();
+  private JDA jda;
+  private volatile DiscordMessageDeliverer discordMessageDeliverer;
+  private volatile ServerChatMessageDeliverer serverChatMessageDeliverer;
 
-            // 接続完了まで待機
-            jda.awaitReady();
+  // Maps a Discord channel id to the sync settings (Global and/or Channel) attached to it.
+  private final Map<Long, DiscordInputConfiguration> channelConfigurations = new ConcurrentHashMap<>();
 
-            this.discordMessageDeliverer = new DiscordMessageDeliverer(plugin);
-            this.serverChatMessageDeliverer = new ServerChatMessageDeliverer(plugin, jda);
+  public boolean init(String token) {
+    try {
+      jda = JDABuilder.createDefault(token)
+          .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
+          .addEventListeners(this)
+          .build();
 
-            return true;
-        } catch (Exception e) {
-            plugin.getLogger().severe("Discordの初期化に失敗しました: " + e.getMessage());
-            return false;
-        }
+      // Construct the deliverers before awaiting the ready status, so that they
+      // are available as soon as gateway events start arriving.
+      this.discordMessageDeliverer = new DiscordMessageDeliverer(plugin);
+      this.serverChatMessageDeliverer = new ServerChatMessageDeliverer(plugin, jda);
+
+      jda.awaitReady();
+
+      return true;
+    } catch (Exception e) {
+      plugin.getSLF4JLogger().error("Failed to initialize the Discord bot", e);
+      return false;
+    }
+  }
+
+  // Discord => Minecraft
+  @Override
+  public void onMessageReceived(MessageReceivedEvent event) {
+    if (event.isWebhookMessage() || event.getAuthor().isBot()) {
+      return;
     }
 
-    // DiscordからMinecraftへの入力イベント
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
-
-        long channelId = event.getChannel().getIdLong();
-        DiscordInputType type = channelConfigurations.get(channelId);
-
-        if (type == null) return;
-
-        switch (type) {
-            case GLOBAL:
-                discordMessageDeliverer.sendToGlobal(event);
-                break;
-            case CHANNEL:
-                // syncDataが必要な場合は、別途Mapなどで管理して渡す
-                discordMessageDeliverer.sendToChannel(event, type.getSyncData());
-                break;
-        }
+    DiscordInputConfiguration configuration =
+        channelConfigurations.get(event.getChannel().getIdLong());
+    if (configuration == null) {
+      return;
     }
 
-    public void connectUsing(DiscordMessageConnection connectionData) {
-        long channelId = connectionData.getDiscordChannelId();
+    if (configuration.getGlobalData().isDiscordInputEnabled()) {
+      this.discordMessageDeliverer.sendToGlobal(event);
+    }
+    if (configuration.getChannelData().isDiscordInputEnabled()) {
+      this.discordMessageDeliverer.sendToChannel(event, configuration.getChannelData());
+    }
+  }
 
-        // Global Chat Sync
-        if (connectionData.getGlobalChatSyncData().isEnabled()) {
-            GlobalChatSyncData data = connectionData.getGlobalChatSyncData();
-            if (data.isDiscordInputEnabled()) {
-                channelConfigurations.put(channelId, DiscordInputType.GLOBAL);
-            }
-            registerGlobalToDiscord(channelId, data.isVoiceChatMode());
-        }
+  public void connectUsing(DiscordMessageConnection connectionData) {
+    long channelId = connectionData.getDiscordChannelId();
 
-        // Channel Chat Sync
-        if (connectionData.getChannelChatSyncData().isEnabled()) {
-            ChannelChatSyncData data = connectionData.getChannelChatSyncData();
-            if (data.isDiscordInputEnabled()) {
-                // 必要に応じてsyncDataを保持するロジックを追加
-                channelConfigurations.put(channelId, DiscordInputType.CHANNEL);
-            }
-            registerLunaChatChannelToDiscord(data, channelId, data.isVoiceChatMode());
-        }
+    GlobalChatSyncData globalData = connectionData.getGlobalChatSyncData();
+    ChannelChatSyncData channelData = connectionData.getChannelChatSyncData();
+    PrivateChatSyncData privateData = connectionData.getPrivateChatSyncData();
 
-        // Private Chat Sync
-        if (connectionData.getPrivateChatSyncData().isEnabled()) {
-            PrivateChatSyncData data = connectionData.getPrivateChatSyncData();
-            registerPrivateToDiscord(channelId, data.isVoiceChatMode());
-        }
+    if (globalData.isEnabled()) {
+      registerGlobalToDiscord(channelId, globalData.isVoiceChatMode());
     }
 
-    private void registerGlobalToDiscord(long chId, boolean vcMode) {
-        MessageChannel targetChannel = jda.getTextChannelById(chId);
-        if (targetChannel == null) return;
-
-        plugin.getSubscriber().registerPublicConsumer((data) -> {
-            if (data.isFromDiscord()) return;
-            Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                    () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
-        });
+    if (channelData.isEnabled()) {
+      registerLunaChatChannelToDiscord(channelData, channelId, channelData.isVoiceChatMode());
     }
 
-    private void registerLunaChatChannelToDiscord(ChannelChatSyncData syncData, long chId, boolean vcMode) {
-        MessageChannel targetChannel = jda.getTextChannelById(chId);
-        if (targetChannel == null) return;
-
-        plugin.getSubscriber().registerChannelChatConsumer((data) -> {
-            if (data.isFromDiscord()) return;
-            if (!syncData.isMatch(data.getLunaChatChannelName())) return;
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                    () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
-        });
+    if (privateData.isEnabled()) {
+      registerPrivateToDiscord(channelId, privateData.isVoiceChatMode());
     }
 
-    private void registerPrivateToDiscord(long chId, boolean vcMode) {
-        MessageChannel targetChannel = jda.getTextChannelById(chId);
-        if (targetChannel == null) return;
+    // Global and Channel inputs are not mutually exclusive, both may be attached
+    // to the same Discord channel, just like the previous Discord4J implementation.
+    if (globalData.isDiscordInputEnabled() || channelData.isDiscordInputEnabled()) {
+      channelConfigurations.put(channelId, new DiscordInputConfiguration(globalData, channelData));
+    }
+  }
 
-        plugin.getSubscriber().registerTellConsumer((data) ->
-                Bukkit.getScheduler().runTaskAsynchronously(plugin,
-                        () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode)));
+  private void registerGlobalToDiscord(long chId, boolean vcMode) {
+    MessageChannel targetChannel = lookupTextChannel(chId);
+    if (targetChannel == null) {
+      return;
     }
 
-    public void disconnect() {
-        if (jda != null) jda.shutdown();
+    plugin.getSubscriber().registerPublicConsumer((data) -> {
+      if (data.isFromDiscord()) {
+        return;
+      }
+
+      Bukkit.getScheduler()
+          .runTaskAsynchronously(
+              plugin,
+              () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
+    });
+  }
+
+  private void registerLunaChatChannelToDiscord(
+      ChannelChatSyncData channelChatSyncData, long chId, boolean vcMode) {
+    MessageChannel targetChannel = lookupTextChannel(chId);
+    if (targetChannel == null) {
+      return;
     }
 
-    // 内部判別用
-    private enum DiscordInputType {
-        GLOBAL, CHANNEL;
-        private ChannelChatSyncData syncData;
-        public void setSyncData(ChannelChatSyncData data) { this.syncData = data; }
-        public ChannelChatSyncData getSyncData() { return syncData; }
+    plugin.getSubscriber().registerChannelChatConsumer((data) -> {
+      if (data.isFromDiscord()) {
+        return;
+      }
+      if (!channelChatSyncData.isMatch(data.getLunaChatChannelName())) {
+        return;
+      }
+
+      Bukkit.getScheduler()
+          .runTaskAsynchronously(
+              plugin,
+              () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode));
+    });
+  }
+
+  private void registerPrivateToDiscord(long chId, boolean vcMode) {
+    MessageChannel targetChannel = lookupTextChannel(chId);
+    if (targetChannel == null) {
+      return;
     }
+
+    plugin.getSubscriber().registerTellConsumer((data) ->
+        Bukkit.getScheduler()
+            .runTaskAsynchronously(
+                plugin,
+                () -> serverChatMessageDeliverer.sendToDiscord(data, targetChannel, vcMode)));
+  }
+
+  private MessageChannel lookupTextChannel(long chId) {
+    MessageChannel targetChannel = jda.getTextChannelById(chId);
+    if (targetChannel == null) {
+      plugin.getLogger()
+          .warning(
+              "Failed to find the Discord text channel (id: " + chId + "). "
+                  + "Make sure the id is correct and the bot can see that channel.");
+    }
+    return targetChannel;
+  }
+
+  public void disconnect() {
+    if (jda == null) {
+      return;
+    }
+
+    jda.shutdown();
+    try {
+      // Flush the remaining queued requests, but give up after 10 seconds.
+      if (!jda.awaitShutdown(10, TimeUnit.SECONDS)) {
+        jda.shutdownNow();
+        jda.awaitShutdown();
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      jda.shutdownNow();
+    }
+  }
+
+  // Both sync settings are never null; check isDiscordInputEnabled() to know
+  // whether the bot should read messages from the Discord channel.
+  @RequiredArgsConstructor
+  @Getter
+  private static class DiscordInputConfiguration {
+    private final GlobalChatSyncData globalData;
+    private final ChannelChatSyncData channelData;
+  }
 }
