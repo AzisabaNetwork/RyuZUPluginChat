@@ -16,58 +16,74 @@ import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class DiscordMessageDeliverer {
-    private final RyuZUPluginChat plugin;
 
-    public void sendToGlobal(MessageReceivedEvent event){
-        // get data from event
-        Message message = event.getMessage();
-        String content = message.getContentStripped();
-        if(content.isEmpty()) return;
+  private final RyuZUPluginChat plugin;
 
-        // sanitize content
-        content = removeUrl(content);
-
-        // get username
-        User author = message.getAuthor();
-        String senderName = author.getEffectiveName();
-
-        // create data and publish
-        GlobalMessageData data = plugin.getMessageDataFactory()
-                .createGlobalMessageDataFromDiscord(senderName, content);
-        plugin.getPublisher().publishGlobalMessage(data);
+  public void sendToGlobal(MessageReceivedEvent event) {
+    Message message = event.getMessage();
+    String content = message.getContentStripped();
+    if (content.isEmpty()) {
+      return;
     }
+    String sanitizedContent = removeUrl(content);
 
-    public void sendToChannel(MessageReceivedEvent event, ChannelChatSyncData syncData) {
-        Message message = event.getMessage();
-        String content = message.getContentStripped();
-        if(content.isEmpty()) return;
+    String senderName = getSenderName(event);
 
-        final String sanitizedContent = removeUrl(content);
+    GlobalMessageData data =
+        plugin.getMessageDataFactory().createGlobalMessageDataFromDiscord(senderName, sanitizedContent);
 
-        User author = message.getAuthor();
-        String senderName = author.getEffectiveName();
+    plugin.getPublisher().publishGlobalMessage(data);
+  }
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            LunaChat.getAPI().getChannels().stream()
-                    .filter(ch -> syncData.isMatch(ch.getName()))
-                    .forEach(ch -> {
-                        ChannelChatMessageData data = plugin.getMessageDataFactory()
-                                .createChannelChatMessageDataFromDiscord(senderName, ch.getName(), sanitizedContent);
+  public void sendToChannel(MessageReceivedEvent event, ChannelChatSyncData syncData) {
+    Message message = event.getMessage();
+    String content = message.getContentStripped();
+    if (content.isEmpty()) {
+      return;
+    }
+    String sanitizedContent = removeUrl(content);
+
+    String senderName = getSenderName(event);
+
+    // LunaChat is not thread-safe, so touch its API from an async Bukkit task.
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(
+            plugin,
+            () -> {
+              LunaChat.getAPI().getChannels().stream()
+                  .filter(ch -> syncData.isMatch(ch.getName()))
+                  .forEach(
+                      ch -> {
+                        ChannelChatMessageData data =
+                            plugin
+                                .getMessageDataFactory()
+                                .createChannelChatMessageDataFromDiscord(
+                                    senderName, ch.getName(), sanitizedContent);
+
                         plugin.getPublisher().publishChannelChatMessage(data);
-                    });
-        });
-    }
+                      });
+            });
+  }
 
-    private String removeUrl(String msg) {
-        String urlPattern =
-                "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w:#@%/;$()~_?+\\-=\\\\.&]*)";
-        Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(msg);
-        int i = 0;
-        while (m.find()) {
-            msg = msg.replaceAll(m.group(i), "<URL>").trim();
-            i++;
-        }
-        return msg;
+  // Prefer the guild nickname, fallback to the user's display name (global name or username).
+  private String getSenderName(MessageReceivedEvent event) {
+    User author = event.getAuthor();
+    if (event.getMember() != null) {
+      return event.getMember().getEffectiveName();
     }
+    return author.getEffectiveName();
+  }
+
+  private String removeUrl(String msg) {
+    String urlPattern =
+        "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w:#@%/;$()~_?+\\-=\\\\.&]*)";
+    Pattern p = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE);
+    Matcher m = p.matcher(msg);
+    int i = 0;
+    while (m.find()) {
+      msg = msg.replaceAll(m.group(i), "<URL>").trim();
+      i++;
+    }
+    return msg;
+  }
 }
