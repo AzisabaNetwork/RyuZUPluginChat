@@ -132,7 +132,7 @@ public class RPCConfig {
       return null;
     }
 
-      GlobalChatSyncData globalData;
+    GlobalChatSyncData globalData;
     ChannelChatSyncData channelData;
     PrivateChatSyncData privateData;
 
