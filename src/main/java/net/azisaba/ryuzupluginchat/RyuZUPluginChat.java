@@ -223,23 +223,33 @@ public final class RyuZUPluginChat extends JavaPlugin {
   }
 
   private void setupDiscordConnection() {
-    try {
-      vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
-      discordHandler = new DiscordHandler(this, rpcConfig.getDiscordBotToken());
-      boolean initResult = discordHandler.init();
+    vcLunaChatChannelSharer.setLunaChatChannelName(rpcConfig.getVcCommandLunaChatChannel());
 
-      if (!initResult) {
-        getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
-        return;
-      }
+    // JDA の初期化は Discord との接続を待ち合わせるため完了までに時間がかかる。
+    // サーバーの起動をブロックしないよう、非同期で行う。
+    Bukkit.getScheduler()
+        .runTaskAsynchronously(
+            this,
+            () -> {
+              discordHandler = new DiscordHandler(this);
+              boolean initResult;
+              try {
+                initResult = discordHandler.init(rpcConfig.getDiscordBotToken());
+              } catch (Throwable e) {
+                getLogger().warning("Failed to setup Discord connection :(");
+                e.printStackTrace();
+                return;
+              }
 
-      for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
-        discordHandler.connectUsing(connectionData);
-      }
-    } catch (Throwable e) {
-      getLogger().warning("Failed to setup Discord connection :(");
-      e.printStackTrace();
-    }
+              if (!initResult) {
+                getLogger().warning("Failed to login to Discord Bot. Is that the correct Token?");
+                return;
+              }
+
+              for (DiscordMessageConnection connectionData : rpcConfig.getMessageConnections()) {
+                discordHandler.connectUsing(connectionData);
+              }
+            });
   }
 
   private void registerCommands() {
