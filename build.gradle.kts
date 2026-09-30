@@ -84,10 +84,27 @@ tasks.build {
 
 tasks.shadowJar {
     isEnableRelocation = true
-    relocate("io.netty.buffer", "io.netty.buffer")
-    relocate("io.netty.util", "io.netty.util")
     relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
+    destinationDirectory.set(layout.buildDirectory.dir("shaded"))
     archiveFileName.set("RyuZUPluginChat.jar")
+}
+
+// ViaVersion's packet API requires the server's unrelocated Netty types.
+val serverNettyClasses = listOf(
+    "net/azisaba/ryuzupluginchat/util/ViaUtil.class",
+    "net/azisaba/ryuzupluginchat/util/PacketUtil.class",
+)
+val pluginJar by tasks.registering(Jar::class) {
+    archiveFileName.set("RyuZUPluginChat.jar")
+    from(tasks.shadowJar.map { zipTree(it.archiveFile.get().asFile) }) {
+        exclude(serverNettyClasses)
+    }
+    from(sourceSets.main.get().output) {
+        include(serverNettyClasses)
+    }
+}
+tasks.shadowJar {
+    finalizedBy(pluginJar)
 }
 
 lombok {
