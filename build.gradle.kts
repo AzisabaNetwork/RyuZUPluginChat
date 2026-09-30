@@ -37,8 +37,13 @@ dependencies {
         exclude(module = "opus-java")
         exclude(module = "tink")
     }
-    implementation(libs.bundles.netty)
+    // JDA pulls Jackson in with the `runtime` scope, but this plugin also uses it
+    // directly (see JsonDataConverter), so it needs to be on the compile classpath.
+    implementation(platform(libs.jackson.bom))
     implementation(libs.bundles.jackson)
+    // Provided by the server at runtime; must never be bundled or relocated.
+    compileOnly(libs.netty.buffer)
+    compileOnly(libs.netty.codec)
     implementation(libs.jedis)
     implementation(libs.aikar.taskchain)
     implementation(libs.semver4j)
@@ -88,10 +93,7 @@ tasks.build {
 }
 
 tasks.shadowJar {
-    minimize()
     isEnableRelocation = true
-    relocate("io.netty.buffer", "io.netty.buffer")
-    relocate("io.netty.util", "io.netty.util")
     relocationPrefix = "net.azisaba.ryuzupluginchat.dependency"
     archiveFileName.set("RyuZUPluginChat.jar")
 }
