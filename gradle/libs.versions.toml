@@ -18,7 +18,7 @@ jetbrains-annotation = "26.1.0"
 junit = "5.14.4"
 junit-platform = "1.14.4"
 jda = "6.4.1"
-jackson-bom = "2.21.2"
+jackson-bom = "2.22.3"
 # Compile against the Netty version bundled with the oldest supported server
 # (vanilla 1.15.2 ships netty-all 4.1.25.Final). The runtime Netty is provided
 # by the server itself and varies per Minecraft version, so newer APIs must
